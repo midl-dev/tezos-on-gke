@@ -67,6 +67,8 @@ kubectl apply -f tezos-private-node-deployment.yaml
 kubectl apply -f tezos-public-node-stateful-set.yaml
 ```
 
+Note that alphanet is configured by default. To bake on the mainnet, edit the `image:` values to set the container tag to `mainnet`.
+
 Get the public IPs of the Kubernetes nodes as well as the nodePorts of the exposed services:
 
 ```
