@@ -32,6 +32,9 @@ An ssh endpoint is accessed by the remote signer (outside of this setup) to esta
 
 The remote signer is connected to a Ledger Nano S running the Tezos Baking app.
 
+![Alt text](./k8s-baker.svg)
+<img src="./k8s-baker.svg">
+
 High availability
 -----------------
 
