@@ -14,10 +14,10 @@ Features:
 * compatible with mainnet and alphanet
 * blockchain snapshot download and import from a public URL for faster synchronization of the nodes
 * TODO:
- * one command deployment with Cloud Deployment Manager
- * automatic payouts from a hot wallet with Backerei
- * support for two highly available signers
- * liveliness check of signers with canary signatures
+  * one command deployment with Cloud Deployment Manager
+  * automatic payouts from a hot wallet with Backerei
+  * support for two highly available signers
+  * liveliness check of signers with canary signatures
 
 Architecture
 ------------
@@ -30,7 +30,7 @@ A private Tezos baking node performs signing, endorsing and accusing. It synchro
 
 An ssh endpoint is accessed by the remote signer (outside of this setup) to establish a tunnel to the signing daemon.
 
-The remote signer is connected to a Ledger Nano S running the Tezos Baking app.
+The remote signer is connected to a Ledger Nano S running the [Tezos Baking app](https://github.com/obsidiansystems/ledger-app-tezos).
 
 <img src="./k8s-baker.svg">
 
@@ -60,7 +60,7 @@ Start a highly available GKE cluster:
 
 Build and push the containers located in the `docker` onto the private registry.
 
-Then deploy the Kubernetes resources located in `k8s-resources` folder:
+Then deploy the Kubernetes resources located in `k8s-resources` folder. Replace the strings within brackets with relevant values:
 
 ```
 kubectl apply -f tezos-private-node-deployment.yaml
