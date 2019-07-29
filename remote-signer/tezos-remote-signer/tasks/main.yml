@@ -105,6 +105,13 @@
   vars:
     packages:
     - git
+    - libev-dev
+    - rsync 
+    - mercurial
+    - darcs
+    - bubblewrap
+    - libhidapi-dev
+    - libgmp-dev
 
 - import_tasks: "{{ role_path }}/tasks/install_tezos.yml"
   become: yes

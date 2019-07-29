@@ -14,7 +14,7 @@ Features:
 * compatible with mainnet and alphanet
 * blockchain snapshot download and import from a public URL for faster synchronization of the nodes
 * TODO:
-  * one command deployment with Cloud Deployment Manager
+  * one-command deployment with Cloud Deployment Manager
   * automatic payouts from a hot wallet with Backerei
   * support for two highly available signers
   * liveliness check of signers with canary signatures
@@ -28,7 +28,7 @@ A StatefulSet of two public nodes is connected to the Tezos peer to peer network
 
 A private Tezos baking node performs signing, endorsing and accusing. It synchronizes exclusively with the two public nodes belonging to the cluster.
 
-An ssh endpoint is accessed by the remote signer (outside of this setup) to establish a tunnel to the signing daemon.
+An ssh endpoint is accessed by the remote signer (outside of GKE) to establish a tunnel to the signing daemon.
 
 The remote signer is connected to a Ledger Nano S running the [Tezos Baking app](https://github.com/obsidiansystems/ledger-app-tezos).
 
@@ -43,7 +43,7 @@ The StatefulSet ensures that each public Tezos node is running in a different cl
 
 The private Tezos Node must not run in two locations at once, lest you are at risk of double baking and getting your funds slashed. Instead of a StatefulSet, a highly available pod backed by a [Regional Persistent Disk](https://cloud.google.com/compute/docs/disks/#repds) is used. In case of a Google Zone maintenance or failure, the baking pod is restarted in the other zone in an already synchronized state.
 
-It is recommended that the signer has a redundant power supply as well as battery backup. It should also have redundant access to the internet. It should be kept in a location with physical access control as any disconnection event on the Ledger wallet will require entering the PIN.
+It is recommended that the signer have a redundant power supply as well as battery backup. It should also have redundant access to the internet. It should be kept in a location with physical access control as any disconnection event on the Ledger wallet will require entering the PIN.
 
 How to deploy
 -------------

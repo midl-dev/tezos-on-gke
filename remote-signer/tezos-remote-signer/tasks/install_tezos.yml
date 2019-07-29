@@ -1,30 +1,19 @@
 ---
 # install tezos as tezos user
 #
-- name: install ocaml environment
-  shell: | 
-    opam init --bare
-    opam switch create tezos ocaml-base-compiler.4.07.1
-    eval $(opam env)
-
-- name: install packages
-  apt:
-    update_cache: yes
-    name: "{{ packages }}"
-  vars:
-    packages:
-    - git
-
 - git:
     repo: 'https://gitlab.com/tezos/tezos.git'
     dest: /home/tezos/tezos
     version: alphanet
 
-- name: install tezos
+- name: install ocaml environment
   shell: | 
-     eval $(opam env)
-     make build-deps
-     make
+    cd /home/tezos/tezos
+    opam init --bare --auto-setup
+    opam switch create tezos ocaml-base-compiler.4.07.1
+    eval $(opam env)
+    make build-deps
+    make
   register: tezosinstall
 
 - debug: msg="{{ tezosinstall.stdout }}"
