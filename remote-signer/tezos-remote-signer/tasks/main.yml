@@ -112,6 +112,7 @@
     - bubblewrap
     - libhidapi-dev
     - libgmp-dev
+    - m4
 
 - import_tasks: "{{ role_path }}/tasks/install_tezos.yml"
   become: yes
