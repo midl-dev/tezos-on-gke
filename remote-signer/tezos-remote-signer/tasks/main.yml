@@ -1,0 +1,111 @@
+---
+# tasks file for tezos-remote-signer
+#
+- name: Make sure we have a 'wheel' group
+  group:
+    name: wheel
+    state: present
+
+- name: Allow 'wheel' group to have passwordless sudo
+  lineinfile:
+    dest: /etc/sudoers
+    state: present
+    regexp: '^%wheel'
+    line: '%wheel ALL=(ALL) NOPASSWD: ALL'
+    validate: 'visudo -cf %s'
+
+- name: Add sudoers users to wheel group
+  user: name=deployer groups=wheel append=yes state=present createhome=yes
+
+- name: Add tezos user
+  user:
+    name: tezos
+    comment: Tezos Remote Signer
+    group: wheel
+
+- name: Set authorized key taken from file
+  authorized_key:
+    user: tezos
+    state: present
+    key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+
+- name: Update apt cache
+  apt: update_cache=yes cache_valid_time=3600
+
+- name: Upgrade APT to the latest packages
+  apt: upgrade=safe
+
+- name: Disallow password authentication
+  lineinfile: dest=/etc/ssh/sshd_config
+              regexp="^PasswordAuthentication"
+              line="PasswordAuthentication no"
+              state=present
+  notify: Restart ssh
+
+- name: Disallow root SSH access
+  lineinfile: dest=/etc/ssh/sshd_config
+              regexp="^PermitRootLogin"
+              line="PermitRootLogin no"
+              state=present
+  notify: Restart ssh
+
+- name: Remove the default raspbian user 'pi'
+  user:
+    name: pi
+    state: absent
+    remove: yes
+
+- name: Correct iptables version selected to make ufw happy
+  alternatives:
+    name: iptables
+    path: /usr/sbin/iptables-legacy
+
+- name: install packages
+  apt:
+    update_cache: yes
+    name: "{{ packages }}"
+  vars:
+    packages:
+    - vim
+    - ufw
+
+- name: Configure ufw defaults
+  ufw: direction={{ item.direction }} policy={{ item.policy }}
+  with_items:
+    - { direction: 'incoming', policy: 'deny' }
+    - { direction: 'outgoing', policy: 'allow' }
+  notify:
+    - restart ufw
+
+- name: allow inbound ssh only
+  ufw: rule={{ item.rule }} port={{ item.port }} proto={{ item.proto }}
+  with_items:
+    - { rule: 'limit', port: '{{ ssh_port | default("22") }}', proto: 'tcp' }
+  notify:
+    - restart ufw
+
+- name: Enable ufw logging
+  ufw: logging=on
+  notify:
+    - restart ufw
+
+- name: Enable ufw
+  ufw: state=enabled
+
+- name: download opam
+  get_url:
+    url: https://github.com/ocaml/opam/releases/download/2.0.4/opam-2.0.4-armhf-linux
+    dest: /usr/local/bin/opam
+    mode: '0755'
+
+- name: install packages
+  apt:
+    update_cache: yes
+    name: "{{ packages }}"
+  vars:
+    packages:
+    - git
+
+- import_tasks: "{{ role_path }}/tasks/install_tezos.yml"
+  become: yes
+  become_user: tezos

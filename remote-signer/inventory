@@ -1,0 +1,11 @@
+[tezos-remote-signer]
+192.168.1.3
+
+[tezos-remote-signer:vars]
+#ansible_ssh_user=pi
+#ansible_ssh_pass=raspberry
+ansible_ssh_user=tezos
+ansible_sudo=yes
+ansible_ssh_common_args='-o StrictHostKeyChecking=no  -o UserKnownHostsFile=/dev/null'
+
+

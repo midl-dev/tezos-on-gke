@@ -1,0 +1,7 @@
+---
+# handlers file for tezos-remote-signer
+
+- name: Restart ssh
+  service: name=ssh state=restarted
+- name: restart ufw
+  service: name=ufw state=restarted
