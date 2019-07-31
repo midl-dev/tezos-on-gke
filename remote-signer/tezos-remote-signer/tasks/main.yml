@@ -113,7 +113,60 @@
     - libhidapi-dev
     - libgmp-dev
     - m4
+    - autossh
+
+# 3 actions below are from https://blog.sleeplessbeastie.eu/2018/12/31/how-to-disable-onboard-wifi-and-bluetooth-on-raspberry-pi-3/
+- name: disable bluetooth , WARNING needs reboot
+  lineinfile:
+    path: /boot/config.txt
+    line: dtoverlay=pi3-disable-bt
+
+- name: disable wifi , WARNING needs reboot
+  lineinfile:
+    path: /boot/config.txt
+    line: dtoverlay=pi3-disable-wifi
+
+- name: disable uart bluetooth modem service
+  systemd:
+    name: hciuart
+    enabled: no
+    state: stopped
+
+- name: disable wpa_supplicant
+  systemd:
+    name: wpa_supplicant
+    enabled: no
+    state: stopped
+
+- name: copy all files from templates
+  template:
+    src: '{{ item.src }}'
+    dest: '/{{ item.path }}'
+    mode: preserve
+  with_filetree: '../templates'
+  when: item.state == 'file'
+
+- name: reload udev rules so ledger is visible from tezos user
+  shell: |
+      udevadm trigger
+      udevadm control --reload-rules
 
 - import_tasks: "{{ role_path }}/tasks/install_tezos.yml"
   become: yes
   become_user: tezos
+
+- name: systemd reload the config files
+  systemd:
+    daemon_reload: yes
+
+- name: start remote signer
+  systemd:
+    name: tezos-signer
+    state: started
+    enabled: yes
+
+- name: start remote signer forwarder
+  systemd:
+    name: tezos-signer-forwarder
+    state: started
+    enabled: yes

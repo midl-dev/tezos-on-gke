@@ -9,7 +9,7 @@ After           = network-online.target
 
 [Service]
 User            = tezos
-Group           = tezos
+Group           = wheel
 WorkingDirectory= /home/tezos/
 ExecStart       = /home/tezos/tezos/tezos-signer launch socket signer -a 127.0.0.1 -p 8443
 Restart         = on-failure
