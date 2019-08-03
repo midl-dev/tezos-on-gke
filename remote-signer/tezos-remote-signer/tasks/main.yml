@@ -170,3 +170,9 @@
     name: tezos-signer-forwarder
     state: started
     enabled: yes
+
+- name: start isp failover script
+  systemd:
+    name: isp-failover
+    state: started
+    enabled: yes
