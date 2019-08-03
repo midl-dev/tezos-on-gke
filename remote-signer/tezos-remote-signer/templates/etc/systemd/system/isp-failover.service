@@ -1,0 +1,17 @@
+# Service to maintain Internet access by switching
+# default route if necessary.
+# file: /etc/systemd/system/isp-failover.service
+
+[Unit]
+Description     = Internet Service Provider Failover Service
+Wants           = network-online.target
+After           = network-online.target
+
+[Service]
+ExecStart       = /usr/bin/isp_failover
+Environment     = PRIMARY_GW=192.168.1.1
+Environment     = BACKUP_GW=192.168.0.1
+Restart         = on-failure
+
+[Install]
+WantedBy        = multi-user.target
