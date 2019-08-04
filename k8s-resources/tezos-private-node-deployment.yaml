@@ -112,7 +112,7 @@ spec:
         - name: PROTOCOL
           value: "004-Pt24m4xi"
         - name: REMOTE_SIGNER_URL
-          value: "tcp://tezos-remote-signer-forwarder:8443/<MY PUBLING BAKING KEY>"
+          value: "http://tezos-remote-signer-forwarder:8443/<MY PUBLING BAKING KEY>"
         - name: DATA_DIR
           value: /var/run/tezos
       - name: tezos-accuser
@@ -142,14 +142,14 @@ spec:
         - name: PROTOCOL
           value: "004-Pt24m4xi"
         - name: REMOTE_SIGNER_URL
-          value: "tcp://tezos-remote-signer-forwarder:8443/<MY PUBLIC BAKING KEY>"
+          value: "http://tezos-remote-signer-forwarder:8443/<MY PUBLIC BAKING KEY>"
         - name: DATA_DIR
           value: /var/run/tezos
       initContainers:
       - name: import-baking-key
         image: tezos/tezos:alphanet
         # -f is to force key re-import (in case it's already here)
-        args: [ "tezos-client", "import", "secret", "key", "k8s-baker", "tcp://tezos-remote-signer-forwarder:8443/<MY PUBLIC BAKING KEY>", "-f" ]
+        args: [ "tezos-client", "import", "secret", "key", "k8s-baker", "http://tezos-remote-signer-forwarder:8443/<MY PUBLIC BAKING KEY>", "-f" ]
         volumeMounts:
         - name: tezos-private-client-storage
           mountPath: /var/run/tezos/client
