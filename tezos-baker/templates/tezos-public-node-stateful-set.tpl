@@ -47,9 +47,15 @@ spec:
           mountPath: /var/run/tezos/node
       initContainers:
       - name: tezos-chain-downloader
-        image: gcr.io/<MY_PROJECT>/tezos-chain-downloader:v1
+        image: gcr.io/{{ .Values.gcloudProject }}/tezos-chain-downloader:v1
         args:
-        - https://<MY SNAPSHOT URL>/tezos.alphanet.snapshot
+        - "$(SNAPSHOT_URL)"
+        env:
+        - name: SNAPSHOT_URL
+          valueFrom:
+            configMapKeyRef:
+              name: {{ .Release.Name }}-configmap
+              key: SNAPSHOT_URL
         volumeMounts:
         - name: tezos-public-node-pv-claim
           mountPath: /var/run/tezos/node

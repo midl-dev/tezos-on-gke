@@ -21,6 +21,18 @@ spec:
       storage: 100Gi
 ---
 apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: tezos-private-client-claim
+spec:
+  storageClassName: repd-central1-b-f
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
 kind: Service
 metadata:
   name: tezos-private-node
@@ -98,7 +110,7 @@ spec:
         - name: tezos-private-node-storage
           mountPath: /var/run/tezos/node
       - name: tezos-endorser-with-remote-signer
-        image: gcr.io/<MY REGISTRY>/tezos-endorser-with-remote-signer:v1
+        image: gcr.io/{{ .Values.gcloudProject }}/tezos-endorser-with-remote-signer:v7
         args: [ "k8s-baker" ]
         volumeMounts:
         - name: tezos-private-node-storage
@@ -106,29 +118,29 @@ spec:
           mountPath: /var/run/tezos/node
         - name: tezos-private-client-storage
           mountPath: /var/run/tezos/client
-        env:
-        - name: NODE_HOST
-          value: "localhost"
-        - name: PROTOCOL
-          value: "004-Pt24m4xi"
-        - name: REMOTE_SIGNER_URL
-          value: "http://tezos-remote-signer-forwarder:8443/<MY PUBLING BAKING KEY>"
-        - name: DATA_DIR
-          value: /var/run/tezos
+          envFrom:
+          - configMapRef:
+            name: {{ .Release.Name }}-baker-configmap
       - name: tezos-accuser
         image: tezos/tezos:alphanet
         args: [ "tezos-accuser" ]
         env:
         - name: NODE_HOST
-          value: "localhost"
+          valueFrom:
+            configMapKeyRef:
+              name: {{ .Release.Name }}-baker-configmap
+              key: NODE_HOST
         - name: PROTOCOL
-          value: "004-Pt24m4xi"
+          valueFrom:
+            configMapKeyRef:
+              name: {{ .Release.Name }}-baker-configmap
+              key: PROTOCOL
         volumeMounts:
         - name: tezos-private-client-storage
           readOnly: true
           mountPath: /var/run/tezos/client
       - name: tezos-baker-with-remote-signer
-        image: gcr.io/<MY REGISTRY>/tezos-baker-with-remote-signer:v1
+        image: gcr.io/{{ .Values.gcloudProject }}/tezos-baker-with-remote-signer:v9
         args: [ "k8s-baker" ]
         volumeMounts:
         - name: tezos-private-node-storage
@@ -136,77 +148,40 @@ spec:
           mountPath: /var/run/tezos/node
         - name: tezos-private-client-storage
           mountPath: /var/run/tezos/client
-        env:
-        - name: NODE_HOST
-          value: "localhost"
-        - name: PROTOCOL
-          value: "004-Pt24m4xi"
-        - name: REMOTE_SIGNER_URL
-          value: "http://tezos-remote-signer-forwarder:8443/<MY PUBLIC BAKING KEY>"
-        - name: DATA_DIR
-          value: /var/run/tezos
+          envFrom:
+          - configMapRef:
+            name: {{ .Release.Name }}-baker-configmap
       initContainers:
       - name: import-baking-key
         image: tezos/tezos:alphanet
         # -f is to force key re-import (in case it's already here)
-        args: [ "tezos-client", "import", "secret", "key", "k8s-baker", "http://tezos-remote-signer-forwarder:8443/<MY PUBLIC BAKING KEY>", "-f" ]
+        args: [ "tezos-client", "import", "secret", "key", "k8s-baker", "http://tezos-remote-signer-forwarder:8443/$(PUBLIC_BAKING_KEY)", "-f" ]
+        env:
+        - name: PUBLIC_BAKING_KEY
+          valueFrom:
+            configMapKeyRef:
+              name: {{ .Release.Name }}-configmap
+              key: PUBLIC_BAKING_KEY
         volumeMounts:
         - name: tezos-private-client-storage
           mountPath: /var/run/tezos/client
       - name: tezos-chain-downloader
-        image: gcr.io/<MY PROJECT>/tezos-chain-downloader:v1
-        args: 
-        - https://<MY SNAPSHOT PUBLIC URL>/tezos.alphanet.snapshot
+        image: gcr.io/{{ .Values.gcloudProject }}/tezos-chain-downloader:v9
+        args:
+        - "$(SNAPSHOT_URL)"
+        env:
+        - name: SNAPSHOT_URL
+          valueFrom:
+            configMapKeyRef:
+              name: {{ .Release.Name }}-configmap
+              key: SNAPSHOT_URL
         volumeMounts:
         - name: tezos-private-node-storage
           mountPath: /var/run/tezos/node
       volumes:
       - name: tezos-private-client-storage
-        emptyDir: {}
+        persistentVolumeClaim:
+          claimName: tezos-private-client-claim
       - name: tezos-private-node-storage
         persistentVolumeClaim:
           claimName: tezos-private-node-claim
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: tezos-remote-signer-forwarder
-spec:
-  type: NodePort
-  ports:
-  - port: 8443
-    # signer is not meant to be accessed externally; I'd rather not set this but it's mandatory
-    # it's fine because the firewall on the nodes won't take connections
-    targetPort: 8443
-    name: remote-signer
-  - port: 58255
-    targetPort: 58255
-    name: ssh-forwarding-ingress
-  selector:
-    app: tezos-remote-signer-forwarder
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: tezos-remote-signer-forwarder
-spec:
-  selector:
-    matchLabels:
-      app: tezos-remote-signer-forwarder
-  strategy:
-    type: Recreate
-  template:
-    metadata:
-      labels:
-        app: tezos-remote-signer-forwarder
-    spec:
-      securityContext:
-        fsGroup: 100
-      containers:
-      - name: tezos-remote-signer-forwarder
-        image: gcr.io/<MY PROJECT>/tezos-remote-signer-forwarder:v9
-        ports:
-        - containerPort: 58255
-          name: ssh
-        - containerPort: 8443
-          name: signer
