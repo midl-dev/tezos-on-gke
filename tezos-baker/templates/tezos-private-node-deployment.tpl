@@ -118,8 +118,8 @@ spec:
           mountPath: /var/run/tezos/node
         - name: tezos-private-client-storage
           mountPath: /var/run/tezos/client
-          envFrom:
-          - configMapRef:
+        envFrom:
+        - configMapRef:
             name: {{ .Release.Name }}-baker-configmap
       - name: tezos-accuser
         image: tezos/tezos:alphanet
@@ -148,8 +148,8 @@ spec:
           mountPath: /var/run/tezos/node
         - name: tezos-private-client-storage
           mountPath: /var/run/tezos/client
-          envFrom:
-          - configMapRef:
+        envFrom:
+        - configMapRef:
             name: {{ .Release.Name }}-baker-configmap
       initContainers:
       - name: import-baking-key
