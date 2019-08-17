@@ -35,7 +35,7 @@ spec:
         fsGroup: 100
       containers:
       - name: tezos-remote-signer-forwarder
-        image: gcr.io/{{ .Values.gcloudProject }}/tezos-remote-signer-forwarder:v23
+        image: gcr.io/{{ .Values.gcloudProject }}/tezos-remote-signer-forwarder:latest
         ports:
         - containerPort: 58255
           name: ssh

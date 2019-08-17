@@ -27,8 +27,33 @@ provider "kubernetes" {
 #  }
 #}
 
-# Submit the job - Terraform doesn't yet support StatefulSets, so we have to
-# shell out.
+resource "null_resource" "push_containers" {
+
+  triggers = {
+    host = md5(google_container_cluster.tezos_baker.endpoint)
+    client_certificate = md5(
+      google_container_cluster.tezos_baker.master_auth[0].client_certificate,
+    )
+    client_key = md5(google_container_cluster.tezos_baker.master_auth[0].client_key)
+    cluster_ca_certificate = md5(
+      google_container_cluster.tezos_baker.master_auth[0].cluster_ca_certificate,
+    )
+  }
+  provisioner "local-exec" {
+    command = <<EOF
+gcloud auth configure-docker --project "${google_container_cluster.tezos_baker.project}"
+
+find ${path.module}/../docker -mindepth 1 -type d  -printf '%f\n'| while read container; do
+  pushd ${path.module}/../docker/$container
+  tag="gcr.io/${google_container_cluster.tezos_baker.project}/$container:latest"
+  docker build -t $tag .
+  docker push $tag
+  popd
+done
+EOF
+  }
+}
+
 resource "null_resource" "apply" {
   triggers = {
     host = md5(google_container_cluster.tezos_baker.endpoint)

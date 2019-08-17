@@ -43,14 +43,9 @@ variable "service_account_iam_roles" {
     "roles/logging.logWriter",
     "roles/monitoring.metricWriter",
     "roles/monitoring.viewer",
+    "roles/storage.objectViewer"
   ]
   description = "List of IAM roles to assign to the service account."
-}
-
-variable "service_account_custom_iam_roles" {
-  type        = list(string)
-  default     = []
-  description = "List of arbitrary additional IAM roles to attach to the service account on the Tezos nodes."
 }
 
 variable "project_services" {

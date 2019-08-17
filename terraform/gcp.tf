@@ -64,14 +64,6 @@ resource "google_project_iam_member" "service-account" {
   member  = "serviceAccount:${google_service_account.tezos-baker-server.email}"
 }
 
-# Add user-specified roles
-resource "google_project_iam_member" "service-account-custom" {
-  count   = length(var.service_account_custom_iam_roles)
-  project = local.tezos_baker_project_id
-  role    = element(var.service_account_custom_iam_roles, count.index)
-  member  = "serviceAccount:${google_service_account.tezos-baker-server.email}"
-}
-
 # Enable required services on the project
 resource "google_project_service" "service" {
   count   = length(var.project_services)
@@ -262,7 +254,6 @@ resource "google_container_cluster" "tezos_baker" {
   depends_on = [
     google_project_service.service,
     google_project_iam_member.service-account,
-    google_project_iam_member.service-account-custom,
     google_compute_router_nat.tezos-baker-nat,
   ]
   remove_default_node_pool = true
@@ -310,6 +301,7 @@ resource "google_container_node_pool" "tezos_baker_node_pool" {
     disk_type = "pd-standard"
 
     oauth_scopes = [
+      "https://www.googleapis.com/auth/devstorage.read_only",
       "https://www.googleapis.com/auth/cloud-platform",
       "https://www.googleapis.com/auth/logging.write",
       "https://www.googleapis.com/auth/monitoring",
