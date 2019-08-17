@@ -15,17 +15,17 @@ provider "kubernetes" {
 }
 
 # Write the secret
-resource "kubernetes_secret" "tezos-baker-tls" {
-  metadata {
-    name = "tezos-baker-tls"
-  }
-
-  data = {
-    "tezos_baker.crt" = "cul"
-    "tezos_baker.key" = "chatte"
-    "ca.crt"    = "bitul"
-  }
-}
+#resource "kubernetes_secret" "tezos-baker-tls" {
+#  metadata {
+#    name = "tezos-baker-tls"
+#  }
+#
+#  data = {
+#    "tezos_baker.crt" = "cul"
+#    "tezos_baker.key" = "chatte"
+#    "ca.crt"    = "bitul"
+#  }
+#}
 
 # Submit the job - Terraform doesn't yet support StatefulSets, so we have to
 # shell out.
@@ -41,7 +41,6 @@ resource "null_resource" "apply" {
     )
   }
 
-  depends_on = [kubernetes_secret.tezos-baker-tls]
 
   provisioner "local-exec" {
     command = <<EOF

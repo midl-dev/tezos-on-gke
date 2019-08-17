@@ -110,7 +110,7 @@ spec:
         - name: tezos-private-node-storage
           mountPath: /var/run/tezos/node
       - name: tezos-endorser-with-remote-signer
-        image: gcr.io/{{ .Values.gcloudProject }}/tezos-endorser-with-remote-signer:v7
+        image: gcr.io/{{ .Values.gcloudProject }}/tezos-endorser-with-remote-signer:latest
         args: [ "k8s-baker" ]
         volumeMounts:
         - name: tezos-private-node-storage
@@ -140,7 +140,7 @@ spec:
           readOnly: true
           mountPath: /var/run/tezos/client
       - name: tezos-baker-with-remote-signer
-        image: gcr.io/{{ .Values.gcloudProject }}/tezos-baker-with-remote-signer:v9
+        image: gcr.io/{{ .Values.gcloudProject }}/tezos-baker-with-remote-signer:latest
         args: [ "k8s-baker" ]
         volumeMounts:
         - name: tezos-private-node-storage
@@ -166,7 +166,7 @@ spec:
         - name: tezos-private-client-storage
           mountPath: /var/run/tezos/client
       - name: tezos-chain-downloader
-        image: gcr.io/{{ .Values.gcloudProject }}/tezos-chain-downloader:v9
+        image: gcr.io/{{ .Values.gcloudProject }}/tezos-chain-downloader:latest
         args:
         - "$(SNAPSHOT_URL)"
         env:

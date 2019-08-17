@@ -47,7 +47,7 @@ spec:
           mountPath: /var/run/tezos/node
       initContainers:
       - name: tezos-chain-downloader
-        image: gcr.io/{{ .Values.gcloudProject }}/tezos-chain-downloader:v1
+        image: gcr.io/{{ .Values.gcloudProject }}/tezos-chain-downloader:latest
         args:
         - "$(SNAPSHOT_URL)"
         env:

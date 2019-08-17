@@ -45,7 +45,68 @@ The private Tezos Node must not run in two locations at once, lest you are at ri
 
 It is recommended that the signer have a redundant power supply as well as battery backup. It should also have redundant access to the internet. It should be kept in a location with physical access control as any disconnection event on the Ledger wallet will require entering the PIN.
 
+Dependencies
+------------
+
+1. Download and install [Terraform][terraform].
+
+1. Download, install, and configure the [Google Cloud SDK][sdk]. You will need
+   to configure your default application credentials so Terraform can run. It
+   will run against your default project, but all resources are created in the
+   (new) project that it creates.
+
+1. Install the [kubernetes
+   CLI](https://kubernetes.io/docs/tasks/tools/install-kubectl/) (aka
+   `kubectl`)
+
+1. install and configure docker
+
 How to deploy
+-------------
+
+You need a Google Cloud Organization. You will be able to create one as an individual by registering a domain name, or you may use your company's organization.
+
+You need to use a gcloud account as a user that has permission to create new projects. See [instructions for Terraform service account creation](https://cloud.google.com/community/tutorials/managing-gcp-projects-with-terraform) from Google.
+
+1. Collect your organization id and billing account id
+
+1. Run the following:
+
+```
+cd terraform
+terraform init
+terraform plan -var billing_account=<your billing account id> -var org_id=<your org id>  -out out.plan
+```
+
+1. it will fail at the helm step (for now)
+
+1. get kubectl credentials
+
+```
+gcloud container clusters get-credentials  tezos-baker --region us-central1 --project <enter project name here>
+```
+
+1. Give permissions to helm to provision the baker (from https://stackoverflow.com/a/45306258/207209)
+
+```
+kubectl create serviceaccount --namespace kube-system tiller
+kubectl create clusterrolebinding tiller-cluster-rule --clusterrole=cluster-admin --serviceaccount=kube-system:tiller
+kubectl patch deploy --namespace kube-system tiller-deploy -p '{"spec":{"template":{"spec":{"serviceAccount":"tiller"}}}}'
+```
+
+1. Push tiller
+
+```
+helm init
+```
+
+1. Install the helm packages
+
+```
+helm install tezos-baker
+```
+
+How to deploy (old)
 -------------
 
 Create a Google Cloud project.
