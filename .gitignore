@@ -1,0 +1,3 @@
+terraform/terraform.tfvars
+tezos-baker/kustomization.yaml
+tezos-baker/loadbalancerpatch.yaml

@@ -1,0 +1,121 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: backerei-payout-storage-claim
+spec:
+  storageClassName: repd-central1-b-f
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backerei-payout-sender
+spec:
+  selector:
+    matchLabels:
+      app: backerei-payout-sender
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: backerei-payout-sender
+    spec:
+      securityContext:
+        fsGroup: 100
+      containers:
+      - name: backerei-payout-sender
+        image: registry.gitlab.com/ochem/backerei:latest
+        args: [ "--config", "/var/run/backerei/config/backerei.yaml", "payout", "--no-password" ]
+        volumeMounts:
+        - name: backerei-payout-storage
+          mountPath: /var/run/backerei/payouts
+        - name: backerei-config-storage
+          readOnly: true
+          mountPath: /var/run/backerei/config
+        - name: tezos-payout-client-storage
+          readOnly: true
+          mountPath: /var/run/tezos/client
+      initContainers:
+      - name: tezos-client-configure-node-connectivity
+        image: tezos/tezos:alphanet
+        args: [ "tezos-client", "-p", "$(PROTOCOL_SHORT)", "-d", "/var/run/tezos/client", "-A", "tezos-private-node-rpc", "-P", "8732", "config", "init", "-o", "/var/run/tezos/client/config" ]
+        env:
+        - name: PROTOCOL_SHORT
+          valueFrom:
+            configMapKeyRef:
+              name: tezos-configmap
+              key: PROTOCOL_SHORT
+        volumeMounts:
+        - name: tezos-payout-client-storage
+          mountPath: /var/run/tezos/client
+      - name: tezos-client-import-payout-key
+        image: tezos/tezos:alphanet
+        # -f is to force key re-import (in case it's already here)
+        args: [ "tezos-client", "-p", "$(PROTOCOL_SHORT)", "-c", "/var/run/tezos/client/config", "import", "secret", "key", "k8s-payer", "unencrypted:$(HOT_WALLET_PRIVATE_KEY)", "-f" ]
+        env:
+        - name: PROTOCOL_SHORT
+          valueFrom:
+            configMapKeyRef:
+              name: tezos-configmap
+              key: PROTOCOL_SHORT
+        - name: HOT_WALLET_PRIVATE_KEY
+          valueFrom:
+            secretKeyRef:
+              name: hot-wallet
+              key: hot_wallet_private_key
+        volumeMounts:
+        - name: tezos-payout-client-storage
+          mountPath: /var/run/tezos/client
+      - name: backerei-init
+        image: registry.gitlab.com/ochem/backerei:latest
+        args: 
+        - "--config"
+        - "/var/run/backerei/config/backerei.yaml"
+        - "init"
+        - "--host"
+        - "tezos-private-node-rpc"
+        - "--tz1"
+        - "$(PUBLIC_BAKING_KEY)"
+        - "--from"
+        - "$(HOT_WALLET_PUBLIC_KEY)"
+        - "--from-name"
+        - "k8s-payer"
+        - "--database-path"
+        - "/var/run/backerei/payouts/payouts.json"
+        - "--client-path"
+        - "/usr/local/bin/tezos-client"
+        - "--client-config-file"
+        - "/var/run/tezos/client/config"
+        - "--starting-cycle"
+        - "304"
+        - "--cycle-length"
+        - "2048"
+        - "--snapshot-interval"
+        - "128"
+        volumeMounts:
+        - name: backerei-config-storage
+          mountPath: /var/run/backerei/config
+        env:
+        - name: HOT_WALLET_PUBLIC_KEY
+          valueFrom:
+            configMapKeyRef:
+              name: backerei-payout-configmap
+              key: HOT_WALLET_PUBLIC_KEY
+        - name: PUBLIC_BAKING_KEY
+          valueFrom:
+            configMapKeyRef:
+              name: tezos-configmap
+              key: PUBLIC_BAKING_KEY
+      volumes:
+      - name: tezos-payout-client-storage
+        emptyDir: {}
+      - name: backerei-config-storage
+        emptyDir: {}
+      - name: backerei-payout-storage
+        persistentVolumeClaim:
+          claimName: backerei-payout-storage-claim

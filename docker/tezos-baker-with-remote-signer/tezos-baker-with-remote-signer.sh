@@ -28,5 +28,5 @@ node_data_dir="$node_dir/data"
 exec "$baker" --chain main \
      --base-dir "$client_dir" \
      --addr "$NODE_HOST" --port "$NODE_RPC_PORT" \
-     -R "$REMOTE_SIGNER_URL" \
+     -R "http://tezos-remote-signer-forwarder:8443/$PUBLIC_BAKING_KEY" \
      run with local node "$node_data_dir" "$@"

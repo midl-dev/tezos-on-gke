@@ -5,6 +5,5 @@
   roles:
   - tezos-remote-signer
   vars:
-      gke_signer_node_port: # insert value here
-      gke_public_ip: # insert value here
+      gke_public_ip: <load balancer ip goes here>
 

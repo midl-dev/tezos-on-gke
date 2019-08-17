@@ -29,6 +29,12 @@
     state: present
     key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
 
+- name: generate key pair
+  openssh_keypair:
+    path: /home/tezos/.ssh/id_rsa
+    owner: tezos
+  register: tezos_keypair
+
 - name: Update apt cache
   apt: update_cache=yes cache_valid_time=3600
 
@@ -138,13 +144,9 @@
     enabled: no
     state: stopped
 
-- name: copy all files from templates
-  template:
-    src: '{{ item.src }}'
-    dest: '/{{ item.path }}'
-    mode: preserve
-  with_filetree: '../templates'
-  when: item.state == 'file'
+- name: print the pubkey
+  debug:
+      msg: Remote signer succefully configured with public key {{ tezos_keypair.public_key }}
 
 - name: reload udev rules so ledger is visible from tezos user
   shell: |
@@ -159,6 +161,21 @@
   systemd:
     daemon_reload: yes
 
+- name: start isp failover script
+  systemd:
+    name: isp-failover
+    state: started
+    enabled: yes
+
+- name: copy all files from templates
+  template:
+    src: '{{ item.src }}'
+    dest: '/{{ item.path }}'
+    mode: preserve
+  with_filetree: '../templates'
+  when: item.state == 'file'
+  notify: restart forwarder
+
 - name: start remote signer
   systemd:
     name: tezos-signer
@@ -168,11 +185,5 @@
 - name: start remote signer forwarder
   systemd:
     name: tezos-signer-forwarder
-    state: started
-    enabled: yes
-
-- name: start isp failover script
-  systemd:
-    name: isp-failover
     state: started
     enabled: yes

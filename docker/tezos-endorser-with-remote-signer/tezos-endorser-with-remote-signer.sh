@@ -29,5 +29,5 @@ wait_for_the_node_to_be_bootstraped
 exec "$endorser" --chain main \
      --base-dir "$client_dir" \
      --addr "$NODE_HOST" --port "$NODE_RPC_PORT" \
-     -R "$REMOTE_SIGNER_URL" \
+     -R "http://tezos-remote-signer-forwarder:8443/$PUBLIC_BAKING_KEY" \
      run "$@"

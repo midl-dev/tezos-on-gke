@@ -12,9 +12,11 @@ if [ -d ${node_dir}/data/context ]; then
     exit 0
 else
     echo "Did not find pre-existing data, importing blockchain"
+    rm -rvf ${node_dir}/*
     echo "{ "version": "0.0.3" }" > ${node_dir}/version.json
-    echo "Will download $@"
-    wget "$@" -O ${node_dir}/chain.full
+    snapshot=$(echo -n "$@")
+    echo "Will download $snapshot"
+    wget "$snapshot" -O ${node_dir}/chain.full
     sh ${bin_dir}/entrypoint.sh tezos-snapshot-import ${node_dir}/chain.full
     rm -rvf ${node_dir}/chain.full
 fi

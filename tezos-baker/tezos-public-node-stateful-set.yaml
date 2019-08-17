@@ -17,6 +17,17 @@ spec:
     app: tezos-public-node
   clusterIP: None
 ---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tezos-public-node-rpc
+spec:
+  ports:
+  - port: 8732
+  selector:
+    app: tezos-public-node
+  clusterIP: None
+---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -37,8 +48,8 @@ spec:
         fsGroup: 100
       containers:
       - name: tezos-public-node
-        image: tezos/tezos:alphanet
-        args: [ "tezos-node", "--disable-mempool" ]
+        image: tezos/tezos
+        args: [ "tezos-node" ]
         ports:
         - containerPort: 9732
           name: tezos-port
@@ -47,14 +58,14 @@ spec:
           mountPath: /var/run/tezos/node
       initContainers:
       - name: tezos-chain-downloader
-        image: gcr.io/{{ .Values.gcloudProject }}/tezos-chain-downloader:latest
+        image: tezos-chain-downloader
         args:
         - "$(SNAPSHOT_URL)"
         env:
         - name: SNAPSHOT_URL
           valueFrom:
             configMapKeyRef:
-              name: {{ .Release.Name }}-configmap
+              name: tezos-configmap
               key: SNAPSHOT_URL
         volumeMounts:
         - name: tezos-public-node-pv-claim

@@ -1,5 +1,5 @@
 [tezos-remote-signer]
-192.168.1.3
+<local signer ip goes here>
 
 [tezos-remote-signer:vars]
 #ansible_ssh_user=pi

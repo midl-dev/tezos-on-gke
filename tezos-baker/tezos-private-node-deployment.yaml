@@ -35,12 +35,12 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: tezos-private-node
+  name: tezos-private-node-rpc
 spec:
   ports:
-  - port: 9732
+  - port: 8732
   selector:
-    app: tezos-private-node
+    app: tezos-private-baking-node
   clusterIP: None
 ---
 apiVersion: networking.k8s.io/v1
@@ -57,10 +57,19 @@ spec:
   - Egress
   egress:
   - ports:
+    - port: 443
+      protocol: TCP
     - port: 53
       protocol: TCP
     - port: 53
       protocol: UDP
+  - ports:
+    - port: 8443
+      protocol: TCP
+    to:
+    - podSelector:
+        matchLabels:
+          app: tezos-remote-signer-forwarder
   - ports:
     - port: 9732
       protocol: TCP
@@ -81,6 +90,13 @@ spec:
     - podSelector:
         matchLabels:
           app: tezos-public-node
+  - ports:
+    - port: 8732
+      protocol: TCP
+    from:
+    - podSelector:
+        matchLabels:
+          app: backerei-payout-sender
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -102,15 +118,28 @@ spec:
       containers:
       - name: tezos-private-node
         image: tezos/tezos:alphanet
-        args: [ "tezos-node", "--private-mode", "--peer", "tezos-public-node-0.tezos-public-node", "--peer", "tezos-public-node-1.tezos-public-node", "--connections", "2" ]
+        args: [ "tezos-node", "--private-mode", "--peer", "tezos-public-node-0.tezos-public-node", "--peer", "tezos-public-node-1.tezos-public-node", "--connections", "2", "--history-mode", "full", "--rpc-addr", "0.0.0.0:8732" ]
         ports:
         - containerPort: 9732
           name: tezos-port
+        - containerPort: 8732
+          name: tezos-rpc-port
         volumeMounts:
         - name: tezos-private-node-storage
           mountPath: /var/run/tezos/node
+      - name: tezos-private-node-connectivity-checker
+        image: tezos-private-node-connectivity-checker
+        ports:
+        - containerPort: 31764
+          name: tezos-checker
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 31764
+          initialDelaySeconds: 240
+          periodSeconds: 15
       - name: tezos-endorser-with-remote-signer
-        image: gcr.io/{{ .Values.gcloudProject }}/tezos-endorser-with-remote-signer:latest
+        image: tezos-endorser-with-remote-signer
         args: [ "k8s-baker" ]
         volumeMounts:
         - name: tezos-private-node-storage
@@ -120,7 +149,7 @@ spec:
           mountPath: /var/run/tezos/client
         envFrom:
         - configMapRef:
-            name: {{ .Release.Name }}-baker-configmap
+            name: tezos-configmap
       - name: tezos-accuser
         image: tezos/tezos:alphanet
         args: [ "tezos-accuser" ]
@@ -128,19 +157,19 @@ spec:
         - name: NODE_HOST
           valueFrom:
             configMapKeyRef:
-              name: {{ .Release.Name }}-baker-configmap
+              name: tezos-configmap
               key: NODE_HOST
         - name: PROTOCOL
           valueFrom:
             configMapKeyRef:
-              name: {{ .Release.Name }}-baker-configmap
+              name: tezos-configmap
               key: PROTOCOL
         volumeMounts:
         - name: tezos-private-client-storage
           readOnly: true
           mountPath: /var/run/tezos/client
       - name: tezos-baker-with-remote-signer
-        image: gcr.io/{{ .Values.gcloudProject }}/tezos-baker-with-remote-signer:latest
+        image: tezos-baker-with-remote-signer
         args: [ "k8s-baker" ]
         volumeMounts:
         - name: tezos-private-node-storage
@@ -150,30 +179,36 @@ spec:
           mountPath: /var/run/tezos/client
         envFrom:
         - configMapRef:
-            name: {{ .Release.Name }}-baker-configmap
+            name: tezos-configmap
       initContainers:
       - name: import-baking-key
         image: tezos/tezos:alphanet
         # -f is to force key re-import (in case it's already here)
-        args: [ "tezos-client", "import", "secret", "key", "k8s-baker", "http://tezos-remote-signer-forwarder:8443/$(PUBLIC_BAKING_KEY)", "-f" ]
+        # -p is to prevent it from forcing a connection to the node, useless in that case (and to eliminate dummy errors)
+        args: [ "tezos-client", "-p", "$(PROTOCOL_SHORT)", "import", "secret", "key", "k8s-baker", "http://tezos-remote-signer:8443/$(PUBLIC_BAKING_KEY)", "-f" ]
         env:
+        - name: PROTOCOL_SHORT
+          valueFrom:
+            configMapKeyRef:
+              name: tezos-configmap
+              key: PROTOCOL_SHORT
         - name: PUBLIC_BAKING_KEY
           valueFrom:
             configMapKeyRef:
-              name: {{ .Release.Name }}-configmap
+              name: tezos-configmap
               key: PUBLIC_BAKING_KEY
         volumeMounts:
         - name: tezos-private-client-storage
           mountPath: /var/run/tezos/client
       - name: tezos-chain-downloader
-        image: gcr.io/{{ .Values.gcloudProject }}/tezos-chain-downloader:latest
+        image: tezos-chain-downloader
         args:
         - "$(SNAPSHOT_URL)"
         env:
         - name: SNAPSHOT_URL
           valueFrom:
             configMapKeyRef:
-              name: {{ .Release.Name }}-configmap
+              name: tezos-configmap
               key: SNAPSHOT_URL
         volumeMounts:
         - name: tezos-private-node-storage

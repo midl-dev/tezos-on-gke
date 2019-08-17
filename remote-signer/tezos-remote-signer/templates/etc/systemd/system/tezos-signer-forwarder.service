@@ -17,7 +17,7 @@ WorkingDirectory= /home/tezos/
 # -N do only port forwarding, don't require remote terminal
 # -T disable local pseudo-terminal allocation
 # -R REMOTEPORT:localhost:LOCALPORT : make local port LOCALPORT reachable remotely on REMOTEPORT
-ExecStart       = /usr/bin/autossh -p {{ gke_signer_node_port }} -N -T -R 8443:127.0.0.1:8443 signer@{{ gke_public_ip }}
+ExecStart       = /usr/bin/autossh -p 58255 -N -T -R 8443:127.0.0.1:8443 signer@{{ gke_public_ip }}
 # poll the ssh connection every 15 secs to be on the safe side (even one minute can be fatal)
 Environment     = AUTOSSH_POLL=15
 Restart         = on-failure

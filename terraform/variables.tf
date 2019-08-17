@@ -133,3 +133,32 @@ variable "org_id" {
   description = "Organization ID."
 }
 
+variable "public_baking_key" {
+  type  = string
+  description = "The public baker tz1 public key that delegators delegate to"
+}
+
+variable "snapshot_url" {
+  type = string
+  description = "The public URL where to download the tezos blockchain snapshot for quicker sync"
+}
+
+variable "authorized_signer_key_a" {
+  type = string
+  description = "Public key of the first remote signer"
+}
+
+variable "authorized_signer_key_b" {
+  type = string
+  description = "Public key of the first remote signer"
+}
+
+variable "hot_wallet_public_key" {
+  type = string
+  description = "The public key of the hot wallet or payout wallet (where rewards come from)"
+}
+
+variable "hot_wallet_private_key" {
+  type = string
+  description = "The private key of the hot wallet or payout wallet (where rewards come from)"
+}

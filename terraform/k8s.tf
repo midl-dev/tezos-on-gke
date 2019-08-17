@@ -15,17 +15,15 @@ provider "kubernetes" {
 }
 
 # Write the secret
-#resource "kubernetes_secret" "tezos-baker-tls" {
-#  metadata {
-#    name = "tezos-baker-tls"
-#  }
-#
-#  data = {
-#    "tezos_baker.crt" = "cul"
-#    "tezos_baker.key" = "chatte"
-#    "ca.crt"    = "bitul"
-#  }
-#}
+resource "kubernetes_secret" "hot_wallet_private_key" {
+  metadata {
+    name = "hot-wallet"
+  }
+
+  data = {
+    "hot_wallet_private_key" = "${var.hot_wallet_private_key}"
+  }
+}
 
 resource "null_resource" "push_containers" {
 
@@ -65,35 +63,71 @@ resource "null_resource" "apply" {
       google_container_cluster.tezos_baker.master_auth[0].cluster_ca_certificate,
     )
   }
-
-
   provisioner "local-exec" {
     command = <<EOF
 gcloud container clusters get-credentials "${google_container_cluster.tezos_baker.name}" --region="${google_container_cluster.tezos_baker.region}" --project="${google_container_cluster.tezos_baker.project}"
 
-CONTEXT="gke_${google_container_cluster.tezos_baker.project}_${google_container_cluster.tezos_baker.region}_${google_container_cluster.tezos_baker.name}"
-echo 'ahem' | kubectl apply -n default --context="$CONTEXT" -f -
+cd ${path.module}/../tezos-baker
+cat << EOK > kustomization.yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+- tezos-public-node-stateful-set.yaml
+- tezos-private-node-deployment.yaml
+- tezos-remote-signer-forwarder.yaml
+- backerei-payout.yaml
+
+imageTags:
+  - name: tezos/tezos
+    newTag: alphanet
+  - name: tezos-baker-with-remote-signer
+    newName: gcr.io/${google_container_cluster.tezos_baker.project}/tezos-baker-with-remote-signer
+    newTag: latest
+  - name: tezos-endorser-with-remote-signer
+    newName: gcr.io/${google_container_cluster.tezos_baker.project}/tezos-endorser-with-remote-signer
+    newTag: latest
+  - name: tezos-remote-signer-forwarder
+    newName: gcr.io/${google_container_cluster.tezos_baker.project}/tezos-remote-signer-forwarder
+    newTag: latest
+  - name: tezos-chain-downloader
+    newName: gcr.io/${google_container_cluster.tezos_baker.project}/tezos-chain-downloader
+    newTag: latest
+  - name: tezos-private-node-connectivity-checker
+    newName: gcr.io/${google_container_cluster.tezos_baker.project}/tezos-private-node-connectivity-checker
+    newTag: latest
+
+configMapGenerator:
+- name: tezos-configmap
+  literals:
+  - SNAPSHOT_URL="${var.snapshot_url}"
+  - PUBLIC_BAKING_KEY="${var.public_baking_key}"
+  - NODE_HOST="localhost"
+  - PROTOCOL="004-Pt24m4xi"
+  - PROTOCOL_SHORT="Pt24m4xi"
+  - DATA_DIR=/var/run/tezos
+- name: remote-signer-forwarder-configmap
+  literals:
+  - AUTHORIZED_SIGNER_KEY_A="${var.authorized_signer_key_a}"
+  - AUTHORIZED_SIGNER_KEY_B="${var.authorized_signer_key_b}"
+- name: backerei-payout-configmap
+  literals:
+  - HOT_WALLET_PUBLIC_KEY="${var.hot_wallet_public_key}" 
+
+patchesStrategicMerge:
+- loadbalancerpatch.yaml
+EOK
+cat << EOP > loadbalancerpatch.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: tezos-remote-signer-forwarding-ingress
+spec:
+  loadBalancerIP: ${google_compute_address.signer_forwarder_target.address}
+EOP
+kubectl apply -k .
 EOF
 
   }
-}
-
-# Wait for all the servers to be ready
-resource "null_resource" "wait-for-finish" {
-  provisioner "local-exec" {
-    command = <<EOF
-for i in $(seq -s " " 1 15); do
-  sleep $i
-  if [ $(kubectl get pod -n default | grep tezos_baker | wc -l) -eq 2 ]; then
-    exit 0
-  fi
-done
-
-echo "Pods are not ready after 2m"
-exit 1
-EOF
-
-}
-
-depends_on = [null_resource.apply]
+  depends_on = [null_resource.push_containers, kubernetes_secret.hot_wallet_private_key]
 }

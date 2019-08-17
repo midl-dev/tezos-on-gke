@@ -18,13 +18,12 @@ RUN sed -ri 's/^.*PasswordAuthentication.*$/PasswordAuthentication no/g' /etc/ss
 RUN printf "AllowUsers signer\n" >> /etc/ssh/sshd_config
 RUN cat /etc/ssh/sshd_config
 
-RUN mkdir /home/signer/.ssh && printf "<MY PUBKEY>" > /home/signer/.ssh/authorized_keys && chown -R signer /home/signer
+RUN mkdir /home/signer/.ssh && chown -R signer /home/signer
 
 #8433 is remote signer port
 #58255 is ssh port
 EXPOSE 8433 58255
 
-# -D: do not daemonize
-# -e : write logs to standard error
-# -p 58255 : port to listen to
-CMD ["/usr/sbin/sshd", "-D", "-e", "-p", "58255" ]
+COPY tezos-remote-signer-forwarder.sh /
+ENTRYPOINT ["/tezos-remote-signer-forwarder.sh"]
+CMD []

@@ -310,7 +310,7 @@ resource "google_container_node_pool" "tezos_baker_node_pool" {
 }
 
 # Provision IP
-resource "google_compute_address" "tezos_baker" {
+resource "google_compute_address" "signer_forwarder_target" {
   name    = "tezos-baker-lb"
   region  = var.region
   project = local.tezos_baker_project_id
@@ -318,14 +318,6 @@ resource "google_compute_address" "tezos_baker" {
   depends_on = [google_project_service.service]
 }
 
-output "address" {
-  value = google_compute_address.tezos_baker.address
-}
-
-output "project" {
-  value = local.tezos_baker_project_id
-}
-
-output "region" {
-  value = var.region
+output "signer_forwarder_target_address" {
+  value = google_compute_address.signer_forwarder_target.address
 }

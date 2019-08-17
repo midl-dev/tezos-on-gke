@@ -45,6 +45,20 @@ The private Tezos Node must not run in two locations at once, lest you are at ri
 
 It is recommended that the signer have a redundant power supply as well as battery backup. It should also have redundant access to the internet. It should be kept in a location with physical access control as any disconnection event on the Ledger wallet will require entering the PIN.
 
+Remote signer
+-------------
+
+You need a Raspberry Pi with a fresh Raspbian install and remote ssh access.
+
+In the `remote-signer` directory, edit the `tezos-remote-signer.yaml` file to set the ip address of your Pi.
+
+Run the ansible fully automated install:
+
+```
+cd remote-signer
+ansible-playbook tezos-remote-signer.yaml --inventory-file inventory
+```
+
 Dependencies
 ------------
 
@@ -68,91 +82,31 @@ You need a Google Cloud Organization. You will be able to create one as an indiv
 
 You need to use a gcloud account as a user that has permission to create new projects. See [instructions for Terraform service account creation](https://cloud.google.com/community/tutorials/managing-gcp-projects-with-terraform) from Google.
 
-1. Collect your organization id and billing account id
+1. Collect the necessary information and put it in `terraform.tfvars`
 
 1. Run the following:
 
 ```
 cd terraform
+
+# The next 6 lines are only necessary if you are using a terraform service account. Alternatively, create a project manually and pass it as parameter.
+export TF_VAR_org_id=YOUR_ORG_ID
+export TF_VAR_billing_account=YOUR_BILLING_ACCOUNT_ID
+export TF_ADMIN=${USER}-terraform-admin
+export TF_CREDS=~/.config/gcloud/${USER}-terraform-admin.json
+export GOOGLE_APPLICATION_CREDENTIALS=${TF_CREDS}
+export GOOGLE_PROJECT=${TF_ADMIN}
+
 terraform init
-terraform plan -var billing_account=<your billing account id> -var org_id=<your org id>  -out out.plan
+terraform plan -out out.plan
+terraform apply out.plan
 ```
 
-1. it will fail at the helm step (for now)
-
-1. get kubectl credentials
-
-```
-gcloud container clusters get-credentials  tezos-baker --region us-central1 --project <enter project name here>
-```
-
-1. Give permissions to helm to provision the baker (from https://stackoverflow.com/a/45306258/207209)
-
-```
-kubectl create serviceaccount --namespace kube-system tiller
-kubectl create clusterrolebinding tiller-cluster-rule --clusterrole=cluster-admin --serviceaccount=kube-system:tiller
-kubectl patch deploy --namespace kube-system tiller-deploy -p '{"spec":{"template":{"spec":{"serviceAccount":"tiller"}}}}'
-```
-
-1. Push tiller
-
-```
-helm init
-```
-
-1. Install the helm packages
-
-```
-helm install tezos-baker
-```
-
-How to deploy (old)
--------------
-
-Create a Google Cloud project.
-
-Create a VPC virtual private network named `tezos-gke-network` with a subnet `tezos-gke-subnet`. Open the ssh port in the firewall, create a bastion host, and enable cloud NAT for external connectivity of the nodes. [This Google Cloud tutorial](https://cloud.google.com/nat/docs/gke-example) explains all these steps.
-
-Start a highly available GKE cluster:
-
-```
- gcloud beta container clusters create tezos-on-gke  --machine-type=n1-standard-2   --region=us-central1  --num-nodes=1  --node-locations=us-central1-b,us-central1-f  --enable-cloud-logging --enable-cloud-monitoring --enable-ip-alias --network "projects/<MY PROJECT>/global/networks/tezos-gke-network" --subnetwork "projects/<MY PROJECT>/regions/us-central1/subnetworks/tezos-gke-subnet" --default-max-pods-per-node "110" --addons HorizontalPodAutoscaling,HttpLoadBalancing --enable-autoupgrade --enable-autorepair --enable-vertical-pod-autoscaling  --image-type "COS" --disk-type "pd-standard" --disk-size "25"
-```
-
-Build and push the containers located in the `docker` onto the private registry.
-
-Then deploy the Kubernetes resources located in `k8s-resources` folder. Replace the strings within brackets with relevant values:
-
-```
-kubectl apply -f tezos-private-node-deployment.yaml
-kubectl apply -f tezos-public-node-stateful-set.yaml
-```
-
-Note that alphanet is configured by default. To bake on the mainnet, edit the `image:` values to set the container tag to `mainnet`.
-
-Get the public IPs of the Kubernetes nodes as well as the nodePorts of the exposed services:
-
-```
-kubectl get nodes --output wide
-kubectl get service tezos-remote-signer-forwarder --output yaml
-```
-
-Open the port in the VPC:
-
-```
-gcloud compute firewall-rules create myservice --network "projects/<MY PROJECT>/global/networks/tezos-gke-network" --allow tcp:<NODE PORT>
-```
-
-The remote signer may now connect to the ip/port combination. The `remote-signer` folder contains systemd scripts to ensure that this will reliably work and retry on failure.
-
-Copy these files to `/etc/systemd/system/` on the remote signer, set the IP/port correctly inside the scripts then issue:
-
-```
-systemctl enable tezos-signer
-systemctl enable tezos-signer-forwarder
-systemctl start tezos-signer
-systemctl start tezos-signer-forwarder
-```
+This will take time as it will:
+* create a Google Cloud project
+* create a Kubernetes cluster
+* build the necessary containers locally
+* build the kubernetes baker
 
 Security considerations
 -----------------------
