@@ -162,3 +162,8 @@ variable "hot_wallet_private_key" {
   type = string
   description = "The private key of the hot wallet or payout wallet (where rewards come from)"
 }
+
+variable "tezos_network" {
+  type =string
+  description = "The tezos network (alphanet and mainnet supported)"
+}
