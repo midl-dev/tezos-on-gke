@@ -42,7 +42,7 @@ spec:
           mountPath: /var/run/tezos/client
       initContainers:
       - name: tezos-client-configure-node-connectivity
-        image: tezos/tezos:alphanet
+        image: tezos/tezos
         args: [ "tezos-client", "-p", "$(PROTOCOL_SHORT)", "-d", "/var/run/tezos/client", "-A", "tezos-private-node-rpc", "-P", "8732", "config", "init", "-o", "/var/run/tezos/client/config" ]
         env:
         - name: PROTOCOL_SHORT
@@ -54,7 +54,7 @@ spec:
         - name: tezos-payout-client-storage
           mountPath: /var/run/tezos/client
       - name: tezos-client-import-payout-key
-        image: tezos/tezos:alphanet
+        image: tezos/tezos
         # -f is to force key re-import (in case it's already here)
         args: [ "tezos-client", "-p", "$(PROTOCOL_SHORT)", "-c", "/var/run/tezos/client/config", "import", "secret", "key", "k8s-payer", "unencrypted:$(HOT_WALLET_PRIVATE_KEY)", "-f" ]
         env:

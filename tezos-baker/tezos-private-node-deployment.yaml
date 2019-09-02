@@ -117,7 +117,7 @@ spec:
         fsGroup: 100
       containers:
       - name: tezos-private-node
-        image: tezos/tezos:alphanet
+        image: tezos/tezos
         args: [ "tezos-node", "--private-mode", "--peer", "tezos-public-node-0.tezos-public-node", "--peer", "tezos-public-node-1.tezos-public-node", "--connections", "2", "--history-mode", "full", "--rpc-addr", "0.0.0.0:8732" ]
         ports:
         - containerPort: 9732
@@ -134,7 +134,7 @@ spec:
           name: tezos-checker
         livenessProbe:
           httpGet:
-            path: /
+            
             port: 31764
           initialDelaySeconds: 240
           periodSeconds: 15
@@ -151,7 +151,7 @@ spec:
         - configMapRef:
             name: tezos-configmap
       - name: tezos-accuser
-        image: tezos/tezos:alphanet
+        image: tezos/tezos
         args: [ "tezos-accuser" ]
         env:
         - name: NODE_HOST
@@ -182,7 +182,7 @@ spec:
             name: tezos-configmap
       initContainers:
       - name: import-baking-key
-        image: tezos/tezos:alphanet
+        image: tezos/tezos
         # -f is to force key re-import (in case it's already here)
         # -p is to prevent it from forcing a connection to the node, useless in that case (and to eliminate dummy errors)
         args: [ "tezos-client", "-p", "$(PROTOCOL_SHORT)", "import", "secret", "key", "k8s-baker", "http://tezos-remote-signer:8443/$(PUBLIC_BAKING_KEY)", "-f" ]

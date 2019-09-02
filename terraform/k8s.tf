@@ -81,7 +81,7 @@ resources:
 
 imageTags:
   - name: tezos/tezos
-    newTag: alphanet
+    newTag: ${var.tezos_network}
   - name: tezos-baker-with-remote-signer
     newName: gcr.io/${google_container_cluster.tezos_baker.project}/tezos-baker-with-remote-signer
     newTag: latest
