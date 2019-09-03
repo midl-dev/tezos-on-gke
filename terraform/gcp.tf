@@ -12,7 +12,7 @@ provider "google-beta" {
 # Generate a random id for the project - GCP projects must have globally
 # unique names
 resource "random_id" "project_random" {
-  prefix      = var.project_prefix
+  prefix      = "var.project_prefix-${var.tezos_network}"
   byte_length = "8"
 }
 
