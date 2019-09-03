@@ -43,7 +43,7 @@ gcloud auth configure-docker --project "${google_container_cluster.tezos_baker.p
 
 find ${path.module}/../docker -mindepth 1 -type d  -printf '%f\n'| while read container; do
   pushd ${path.module}/../docker/$container
-  sed -i "s/((tezos_network))/${var.tezos_network}/"
+  sed -e "s/((tezos_network))/${var.tezos_network}/" Dockerfile.template > Dockerfile
   tag="gcr.io/${google_container_cluster.tezos_baker.project}/$container:latest"
   docker build -t $tag .
   docker push $tag

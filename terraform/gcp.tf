@@ -160,7 +160,7 @@ data "google_container_engine_versions" "versions" {
 resource "google_container_cluster" "tezos_baker" {
   provider = google-beta
 
-  name     = "tezos-baker"
+  name     = "tezos-${var.tezos_network}-baker"
   project  = local.tezos_baker_project_id
   location = var.region
   node_locations = var.node_locations
