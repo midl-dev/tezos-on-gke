@@ -10,6 +10,17 @@ spec:
     requests:
       storage: 1Gi
 ---
+apiVersion: v1
+kind: Service
+metadata:
+  name: payout-json
+spec:
+  ports:
+  - port: 80
+  selector:
+    app: backerei-payout-sender
+  clusterIP: None
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -40,6 +51,12 @@ spec:
         - name: tezos-payout-client-storage
           readOnly: true
           mountPath: /var/run/tezos/client
+      - name: payout-exposer
+        image: nginx
+        volumeMounts:
+        - name: backerei-payout-storage
+          mountPath: /usr/share/nginx/html
+          readOnly: true
       initContainers:
       - name: tezos-client-configure-node-connectivity
         image: tezos/tezos
