@@ -12,7 +12,7 @@ provider "google-beta" {
 # Generate a random id for the project - GCP projects must have globally
 # unique names
 resource "random_id" "project_random" {
-  prefix      = "var.project_prefix-${var.tezos_network}"
+  prefix      = var.tezos_network
   byte_length = "8"
 }
 
@@ -160,7 +160,7 @@ data "google_container_engine_versions" "versions" {
 resource "google_container_cluster" "tezos_baker" {
   provider = google-beta
 
-  name     = "tezos-${var.tezos_network}-baker"
+  name     = "tezos-baker"
   project  = local.tezos_baker_project_id
   location = var.region
   node_locations = var.node_locations

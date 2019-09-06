@@ -18,7 +18,7 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 100Gi
+      storage: 230Gi
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -57,6 +57,8 @@ spec:
   - Egress
   egress:
   - ports:
+    - port: 80
+      protocol: TCP
     - port: 443
       protocol: TCP
     - port: 53
@@ -118,7 +120,7 @@ spec:
       containers:
       - name: tezos-private-node
         image: tezos/tezos
-        args: [ "tezos-node", "--private-mode", "--peer", "tezos-public-node-0.tezos-public-node", "--peer", "tezos-public-node-1.tezos-public-node", "--connections", "2", "--history-mode", "full", "--rpc-addr", "0.0.0.0:8732" ]
+        args: [ "tezos-node", "--private-mode", "--peer", "tezos-public-node-0.tezos-public-node", "--peer", "tezos-public-node-1.tezos-public-node", "--connections", "2", "--history-mode", "archive", "--rpc-addr", "0.0.0.0:8732" ]
         ports:
         - containerPort: 9732
           name: tezos-port
@@ -200,16 +202,16 @@ spec:
         volumeMounts:
         - name: tezos-private-client-storage
           mountPath: /var/run/tezos/client
-      - name: tezos-chain-downloader
-        image: tezos-chain-downloader
+      - name: tezos-archive-downloader
+        image: tezos-archive-downloader
         args:
-        - "$(SNAPSHOT_URL)"
+        - "$(ARCHIVE_URL)"
         env:
-        - name: SNAPSHOT_URL
+        - name: ARCHIVE_URL
           valueFrom:
             configMapKeyRef:
               name: tezos-configmap
-              key: SNAPSHOT_URL
+              key: ARCHIVE_URL
         volumeMounts:
         - name: tezos-private-node-storage
           mountPath: /var/run/tezos/node

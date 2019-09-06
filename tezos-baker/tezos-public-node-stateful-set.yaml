@@ -57,8 +57,8 @@ spec:
         - name: tezos-public-node-pv-claim
           mountPath: /var/run/tezos/node
       initContainers:
-      - name: tezos-chain-downloader
-        image: tezos-chain-downloader
+      - name: tezos-snapshot-downloader
+        image: tezos-snapshot-downloader
         args:
         - "$(SNAPSHOT_URL)"
         env:
@@ -78,4 +78,4 @@ spec:
       storageClassName: local-ssd
       resources:
         requests:
-          storage: 100Gi
+          storage: 30Gi

@@ -13,10 +13,12 @@ if [ -d ${node_dir}/data/context ]; then
 else
     echo "Did not find pre-existing data, importing blockchain"
     rm -rvf ${node_dir}/*
-    echo "{ "version": "0.0.3" }" > ${node_dir}/version.json
+    mkdir ${node_dir}/data
+    echo '{ "version": "0.0.3" }' > ${node_dir}/version.json
+    echo '{ "version": "0.0.3" }' > ${node_dir}/data/version.json
+    cp -v /usr/local/share/tezos/alphanet_version ${node_dir}
     snapshot=$(echo -n "$@")
     echo "Will download $snapshot"
-    wget "$snapshot" -O ${node_dir}/chain.full
-    sh ${bin_dir}/entrypoint.sh tezos-snapshot-import ${node_dir}/chain.full
-    rm -rvf ${node_dir}/chain.full
+    curl -L $snapshot | lz4 -d | tar -xvf - -C ${node_dir}/data
+    find ${node_dir}
 fi

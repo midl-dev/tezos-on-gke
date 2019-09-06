@@ -30,7 +30,7 @@ spec:
       containers:
       - name: backerei-payout-sender
         image: registry.gitlab.com/ochem/backerei:latest
-        args: [ "--config", "/var/run/backerei/config/backerei.yaml", "payout", "--no-password" ]
+        args: [ "--config", "/var/run/backerei/config/backerei.yaml", "payout", "--no-password", "--continuous" ]
         volumeMounts:
         - name: backerei-payout-storage
           mountPath: /var/run/backerei/payouts
@@ -92,7 +92,7 @@ spec:
         - "--client-config-file"
         - "/var/run/tezos/client/config"
         - "--starting-cycle"
-        - "304"
+        - "144"
         - "--cycle-length"
         - "2048"
         - "--snapshot-interval"

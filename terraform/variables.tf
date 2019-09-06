@@ -20,12 +20,6 @@ variable "project" {
   description = "Project ID where Terraform is authenticated to run to create additional projects. If provided, Terraform will great the GKE and Tezos cluster inside this project. If not given, Terraform will generate a new project."
 }
 
-variable "project_prefix" {
-  type        = string
-  default     = "tzbaker-"
-  description = "String value to prefix the generated project ID with."
-}
-
 variable "billing_account" {
   type        = string
   description = "Billing account ID."
@@ -140,7 +134,12 @@ variable "public_baking_key" {
 
 variable "snapshot_url" {
   type = string
-  description = "The public URL where to download the tezos blockchain snapshot for quicker sync"
+  description = "The public URL where to download the tezos blockchain snapshot for quicker sync of the public nodes"
+}
+
+variable "archive_url" {
+  type = string
+  description = "The public URL where to download the full historical tezos blockchain for quicker sync of the private node"
 }
 
 variable "authorized_signer_key_a" {

@@ -47,6 +47,7 @@ find ${path.module}/../docker -mindepth 1 -type d  -printf '%f\n'| while read co
   tag="gcr.io/${google_container_cluster.tezos_baker.project}/$container:latest"
   docker build -t $tag .
   docker push $tag
+  rm -v Dockerfile
   popd
 done
 EOF
@@ -91,8 +92,11 @@ imageTags:
   - name: tezos-remote-signer-forwarder
     newName: gcr.io/${google_container_cluster.tezos_baker.project}/tezos-remote-signer-forwarder
     newTag: latest
-  - name: tezos-chain-downloader
-    newName: gcr.io/${google_container_cluster.tezos_baker.project}/tezos-chain-downloader
+  - name: tezos-snapshot-downloader
+    newName: gcr.io/${google_container_cluster.tezos_baker.project}/tezos-snapshot-downloader
+    newTag: latest
+  - name: tezos-archive-downloader
+    newName: gcr.io/${google_container_cluster.tezos_baker.project}/tezos-archive-downloader
     newTag: latest
   - name: tezos-private-node-connectivity-checker
     newName: gcr.io/${google_container_cluster.tezos_baker.project}/tezos-private-node-connectivity-checker
@@ -102,6 +106,7 @@ configMapGenerator:
 - name: tezos-configmap
   literals:
   - SNAPSHOT_URL="${var.snapshot_url}"
+  - ARCHIVE_URL="${var.archive_url}"
   - PUBLIC_BAKING_KEY="${var.public_baking_key}"
   - NODE_HOST="localhost"
   - PROTOCOL="004-Pt24m4xi"
