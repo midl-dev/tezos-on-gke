@@ -109,11 +109,11 @@ spec:
         - "--client-config-file"
         - "/var/run/tezos/client/config"
         - "--starting-cycle"
-        - "144"
+        - "313"
         - "--cycle-length"
-        - "2048"
+        - "$(CYCLE_LENGTH)"
         - "--snapshot-interval"
-        - "128"
+        - "$(SNAPSHOT_INTERVAL)"
         volumeMounts:
         - name: backerei-config-storage
           mountPath: /var/run/backerei/config
@@ -123,6 +123,16 @@ spec:
             configMapKeyRef:
               name: backerei-payout-configmap
               key: HOT_WALLET_PUBLIC_KEY
+        - name: CYCLE_LENGTH
+          valueFrom:
+            configMapKeyRef:
+              name: backerei-payout-configmap
+              key: CYCLE_LENGTH
+        - name: SNAPSHOT_INTERVAL
+          valueFrom:
+            configMapKeyRef:
+              name: backerei-payout-configmap
+              key: SNAPSHOT_INTERVAL
         - name: PUBLIC_BAKING_KEY
           valueFrom:
             configMapKeyRef:

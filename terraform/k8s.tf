@@ -119,6 +119,8 @@ configMapGenerator:
 - name: backerei-payout-configmap
   literals:
   - HOT_WALLET_PUBLIC_KEY="${var.hot_wallet_public_key}" 
+  - SNAPSHOT_INTERVAL="${ var.tezos_network == "mainnet" ? 256 : 128 }"
+  - CYCLE_LENGTH="${ var.tezos_network == "mainnet" ? 4096 : 2048 }"
 
 patchesStrategicMerge:
 - loadbalancerpatch.yaml
