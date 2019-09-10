@@ -41,7 +41,7 @@ spec:
       containers:
       - name: backerei-payout-sender
         image: registry.gitlab.com/ochem/backerei:latest
-        args: [ "--config", "/var/run/backerei/config/backerei.yaml", "payout", "--no-password", "--continuous" ]
+        args: [ "--config", "/var/run/backerei/config/backerei.yaml", "payout", "--no-password", "--continuous", "--no-dry-run" ]
         volumeMounts:
         - name: backerei-payout-storage
           mountPath: /var/run/backerei/payouts
@@ -114,6 +114,8 @@ spec:
         - "$(CYCLE_LENGTH)"
         - "--snapshot-interval"
         - "$(SNAPSHOT_INTERVAL)"
+        - "--preserved-cycles"
+        - "$(PRESERVED_CYCLES)"
         volumeMounts:
         - name: backerei-config-storage
           mountPath: /var/run/backerei/config
@@ -128,6 +130,11 @@ spec:
             configMapKeyRef:
               name: backerei-payout-configmap
               key: CYCLE_LENGTH
+        - name: PRESERVED_CYCLES
+          valueFrom:
+            configMapKeyRef:
+              name: backerei-payout-configmap
+              key: PRESERVED_CYCLES
         - name: SNAPSHOT_INTERVAL
           valueFrom:
             configMapKeyRef:
