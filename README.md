@@ -45,20 +45,6 @@ The private Tezos Node must not run in two locations at once, lest you are at ri
 
 It is recommended that the signer have a redundant power supply as well as battery backup. It should also have redundant access to the internet. It should be kept in a location with physical access control as any disconnection event on the Ledger wallet will require entering the PIN.
 
-Remote signer
--------------
-
-You need a Raspberry Pi with a fresh Raspbian install and remote ssh access.
-
-In the `remote-signer` directory, edit the `tezos-remote-signer.yaml` file to set the ip address of your Pi.
-
-Run the ansible fully automated install:
-
-```
-cd remote-signer
-ansible-playbook tezos-remote-signer.yaml --inventory-file inventory
-```
-
 Dependencies
 ------------
 
@@ -107,6 +93,10 @@ This will take time as it will:
 * create a Kubernetes cluster
 * build the necessary containers locally
 * build the kubernetes baker
+
+Then set up the signers and have them connect to the public endpoint.
+
+Then, fund your payout wallet, and send a test transaction from it to somewhere else (this is necessary to reveal the payout key).
 
 Security considerations
 -----------------------

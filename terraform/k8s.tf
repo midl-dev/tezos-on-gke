@@ -122,6 +122,7 @@ configMapGenerator:
   - SNAPSHOT_INTERVAL="${ var.tezos_network == "mainnet" ? 256 : 128 }"
   - CYCLE_LENGTH="${ var.tezos_network == "mainnet" ? 4096 : 2048 }"
   - PRESERVED_CYCLES="${ var.tezos_network == "mainnet" ? 5 : 3 }"
+  - PAYOUT_DELAY="${ var.payout_delay }"
 
 patchesStrategicMerge:
 - loadbalancerpatch.yaml

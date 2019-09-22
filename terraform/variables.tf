@@ -166,3 +166,8 @@ variable "tezos_network" {
   type =string
   description = "The tezos network (alphanet and mainnet supported)"
 }
+
+variable "payout_delay" {
+  type =string
+  description = "Number of cycles to delay the payout compared to PRESERVED_CYCLES (can be negatives to pay out in advance)"
+}

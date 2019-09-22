@@ -116,6 +116,8 @@ spec:
         - "$(SNAPSHOT_INTERVAL)"
         - "--preserved-cycles"
         - "$(PRESERVED_CYCLES)"
+        - "--payout-delay"
+        - "$(PAYOUT_DELAY)"
         volumeMounts:
         - name: backerei-config-storage
           mountPath: /var/run/backerei/config
@@ -135,6 +137,11 @@ spec:
             configMapKeyRef:
               name: backerei-payout-configmap
               key: PRESERVED_CYCLES
+        - name: PAYOUT_DELAY
+          valueFrom:
+            configMapKeyRef:
+              name: backerei-payout-configmap
+              key: PAYOUT_DELAY
         - name: SNAPSHOT_INTERVAL
           valueFrom:
             configMapKeyRef:

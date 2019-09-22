@@ -49,7 +49,7 @@ spec:
       containers:
       - name: tezos-public-node
         image: tezos/tezos
-        args: [ "tezos-node" ]
+        args: [ "tezos-node", "--history-mode", "experimental-rolling" ]
         ports:
         - containerPort: 9732
           name: tezos-port

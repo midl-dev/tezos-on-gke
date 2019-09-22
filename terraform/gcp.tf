@@ -171,7 +171,6 @@ resource "google_container_cluster" "tezos_baker" {
   initial_node_count = var.kubernetes_nodes_per_zone
 
   min_master_version = data.google_container_engine_versions.versions.latest_master_version
-  node_version       = data.google_container_engine_versions.versions.latest_master_version
 
   logging_service    = var.kubernetes_logging_service
   monitoring_service = var.kubernetes_monitoring_service
@@ -269,6 +268,7 @@ resource "google_container_node_pool" "tezos_baker_node_pool" {
   name       = "tzbaker-pool"
   location   = var.region
 
+  version       = data.google_container_engine_versions.versions.latest_node_version
   cluster    = "${google_container_cluster.tezos_baker.name}"
   node_count = 1
 
