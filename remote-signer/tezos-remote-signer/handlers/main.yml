@@ -5,5 +5,3 @@
   service: name=ssh state=restarted
 - name: restart ufw
   service: name=ufw state=restarted
-- name: restart fowarder
-  service: name=tezos-signer-forwarder state=restarted

@@ -161,12 +161,6 @@
   systemd:
     daemon_reload: yes
 
-- name: start isp failover script
-  systemd:
-    name: isp-failover
-    state: started
-    enabled: yes
-
 - name: copy all files from templates
   template:
     src: '{{ item.src }}'
@@ -174,7 +168,12 @@
     mode: preserve
   with_filetree: '../templates'
   when: item.state == 'file'
-  notify: restart forwarder
+
+- name: start isp failover script
+  systemd:
+    name: isp-failover
+    state: started
+    enabled: yes
 
 - name: start remote signer
   systemd:
