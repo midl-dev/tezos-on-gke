@@ -1,6 +1,6 @@
 FROM jekyll/jekyll:builder
 
-RUN apk add --no-cache tar python3
+RUN apk add --no-cache tar python3 curl
 
 COPY entrypoint.sh /
 
