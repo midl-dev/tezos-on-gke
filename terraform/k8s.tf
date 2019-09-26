@@ -14,7 +14,7 @@ provider "kubernetes" {
   token = data.google_client_config.current.access_token
 }
 
-# Write the secret
+# Write the hot wallet private key secret
 resource "kubernetes_secret" "hot_wallet_private_key" {
   metadata {
     name = "hot-wallet"
@@ -22,6 +22,15 @@ resource "kubernetes_secret" "hot_wallet_private_key" {
 
   data = {
     "hot_wallet_private_key" = "${var.hot_wallet_private_key}"
+  }
+}
+
+resource "kubernetes_secret" "website_builder_key" {
+  metadata {
+    name = "website-builder-credentials"
+  }
+  data = {
+    json_key = "${base64decode(google_service_account_key.website_builder_key.private_key)}"
   }
 }
 
@@ -79,6 +88,7 @@ resources:
 - tezos-private-node-deployment.yaml
 - tezos-remote-signer-forwarder.yaml
 - backerei-payout.yaml
+- website-builder.yaml
 
 imageTags:
   - name: tezos/tezos
@@ -101,6 +111,8 @@ imageTags:
   - name: tezos-private-node-connectivity-checker
     newName: gcr.io/${google_container_cluster.tezos_baker.project}/tezos-private-node-connectivity-checker
     newTag: latest
+  - name: website-builder
+    newName: gcr.io/${google_container_cluster.tezos_baker.project}/website-builder
 
 configMapGenerator:
 - name: tezos-configmap
@@ -123,6 +135,12 @@ configMapGenerator:
   - CYCLE_LENGTH="${ var.tezos_network == "mainnet" ? 4096 : 2048 }"
   - PRESERVED_CYCLES="${ var.tezos_network == "mainnet" ? 5 : 3 }"
   - PAYOUT_DELAY="${ var.payout_delay }"
+- name: website-builder-configmap
+  litterals:
+  - WEBSITE_ARCHIVE="${var.website_archive}"
+  - WEBSITE="${var.website}"
+  - PAYOUT_URL="http://payout-json/payouts.json"
+  - GOOGLE_APPLICATION_CREDENTIALS="/var/secrets/google/json_key"
 
 patchesStrategicMerge:
 - loadbalancerpatch.yaml

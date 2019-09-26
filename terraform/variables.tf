@@ -171,3 +171,13 @@ variable "payout_delay" {
   type =string
   description = "Number of cycles to delay the payout compared to PRESERVED_CYCLES (can be negatives to pay out in advance)"
 }
+
+variable "website" {
+  type = string
+  description = "address of the baker's static website hosted on gcp"
+}
+
+variable "website_archive" {
+  type = string
+  description = "URL of the archive for the jekyll website to deploy"
+}

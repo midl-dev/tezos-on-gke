@@ -35,8 +35,7 @@ data "google_project" "tezos_baker" {
 # existing data project resource One will be populated and the other will be
 # null
 locals {
-  tezos_baker_project_id = element(
-    concat(
+  tezos_baker_project_id = element( concat(
       data.google_project.tezos_baker.*.project_id,
       google_project.tezos_baker.*.project_id,
     ),
@@ -316,6 +315,31 @@ resource "google_compute_address" "signer_forwarder_target" {
   project = local.tezos_baker_project_id
 
   depends_on = [google_project_service.service]
+}
+
+resource "google_storage_bucket" "website" {
+  name     = var.website
+  project  = var.project
+
+  website {
+    main_page_suffix = "index.html"
+    not_found_page   = "404.html"
+  }
+}
+
+resource "google_service_account" "website_pusher" {
+  account_id   = "myaccount"
+  display_name = "My Service Account"
+}
+
+resource "google_storage_bucket_iam_member" "member" {
+  bucket = "${google_storage_bucket.website.name}"
+  role        = "roles/storage.objectAdmin"
+  member      = "serviceAccount:${google_service_account.website_pusher.email}"
+}
+
+resource "google_service_account_key" "website_builder_key" {
+  service_account_id = "${google_service_account.website_pusher.name}"
 }
 
 output "signer_forwarder_target_address" {

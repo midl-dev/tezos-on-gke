@@ -1,0 +1,24 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: website-builder
+spec:
+  # every 4 hours
+  schedule: "0 */4 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          volumes:
+          - name: website-builder-credentials
+            secret:
+              secretName: website-builder-credentials
+          containers:
+          - name: website-builder
+            image: website-builder
+            volumeMounts:
+            - name: website-builder-credentials
+              mountPath: /var/secrets/google
+            envFrom:
+            - configMapRef:
+                name: website-builder-configmap
