@@ -136,7 +136,7 @@ configMapGenerator:
   - PRESERVED_CYCLES="${ var.tezos_network == "mainnet" ? 5 : 3 }"
   - PAYOUT_DELAY="${ var.payout_delay }"
 - name: website-builder-configmap
-  litterals:
+  literals:
   - WEBSITE_ARCHIVE="${var.website_archive}"
   - WEBSITE="${var.website}"
   - PAYOUT_URL="http://payout-json/payouts.json"

@@ -319,7 +319,7 @@ resource "google_compute_address" "signer_forwarder_target" {
 
 resource "google_storage_bucket" "website" {
   name     = var.website
-  project  = var.project
+  project = local.tezos_baker_project_id
 
   website {
     main_page_suffix = "index.html"
@@ -330,6 +330,7 @@ resource "google_storage_bucket" "website" {
 resource "google_service_account" "website_pusher" {
   account_id   = "myaccount"
   display_name = "My Service Account"
+  project = local.tezos_baker_project_id
 }
 
 resource "google_storage_bucket_iam_member" "member" {
