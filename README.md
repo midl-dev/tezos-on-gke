@@ -92,11 +92,24 @@ This will take time as it will:
 * create a Google Cloud project
 * create a Kubernetes cluster
 * build the necessary containers locally
-* build the kubernetes baker
+* spin up the public nodes and private baker nodes
+* build the payout agent
+* build and deploy the baker website (optional)
 
 Then set up the signers and have them connect to the public endpoint.
 
 Then, fund your payout wallet, and send a test transaction from it to somewhere else (this is necessary to reveal the payout key).
+
+Website
+-------
+
+The kubernetes infrastructure is optionally configured to deploy a static Jekyll website in a GCP storage bucket.
+
+This allows you to build your baker's website where delegates can check their contribution and payouts.
+
+You can pass a `website` variable to terraform to make that happen.
+
+However, this will not work until you verify your website domain name using the [Google Webmaster Central](https://cloud.google.com/storage/docs/domain-name-verification) and add the Terraform admin account to the list of verified domain owners.
 
 Security considerations
 -----------------------

@@ -328,8 +328,8 @@ resource "google_storage_bucket" "website" {
 }
 
 resource "google_service_account" "website_pusher" {
-  account_id   = "myaccount"
-  display_name = "My Service Account"
+  account_id   = "website-pusher"
+  display_name = "Tezos Website Pusher"
   project = local.tezos_baker_project_id
 }
 
@@ -339,8 +339,14 @@ resource "google_storage_bucket_iam_member" "member" {
   member      = "serviceAccount:${google_service_account.website_pusher.email}"
 }
 
+resource "google_storage_bucket_iam_member" "make_public" {
+  bucket = "${google_storage_bucket.website.name}"
+  role        = "roles/storage.objectViewer"
+  member      = "allUsers"
+}
+
 resource "google_service_account_key" "website_builder_key" {
-  service_account_id = "${google_service_account.website_pusher.name}"
+  service_account_id = google_service_account.website_pusher.name
 }
 
 output "signer_forwarder_target_address" {

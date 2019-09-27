@@ -24,4 +24,6 @@ popd
 find
 
 # send website to google storage for website serving
+gcloud auth activate-service-account --key-file $GOOGLE_APPLICATION_CREDENTIALS
+
 gsutil rsync -R _site gs://$WEBSITE
