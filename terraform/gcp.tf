@@ -317,8 +317,13 @@ resource "google_compute_address" "signer_forwarder_target" {
   depends_on = [google_project_service.service]
 }
 
+
+resource "random_id" "rnd" {
+  byte_length = 4
+}
+
 resource "google_storage_bucket" "website" {
-  name     = var.website
+  name     = "tezos-baker-website-static-bucket-${random_id.rnd.hex}"
   project = local.tezos_baker_project_id
 
   website {
@@ -347,6 +352,15 @@ resource "google_storage_bucket_iam_member" "make_public" {
 
 resource "google_service_account_key" "website_builder_key" {
   service_account_id = google_service_account.website_pusher.name
+}
+
+resource "google_dns_managed_zone" "baker_dns_zone" {
+  project = local.tezos_baker_project_id
+  name = "baker-dns-zone"
+  dns_name = "${var.website}."
+
+  depends_on = [google_project_service.service]
+
 }
 
 output "signer_forwarder_target_address" {

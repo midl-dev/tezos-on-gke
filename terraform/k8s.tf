@@ -138,7 +138,7 @@ configMapGenerator:
 - name: website-builder-configmap
   literals:
   - WEBSITE_ARCHIVE="${var.website_archive}"
-  - WEBSITE="${var.website}"
+  - WEBSITE_BUCKET_URL="${google_storage_bucket.website.url}"
   - PAYOUT_URL="http://payout-json/payouts.json"
   - GOOGLE_APPLICATION_CREDENTIALS="/var/secrets/google/json_key"
 
