@@ -7,7 +7,10 @@ spec:
   ports:
   - port: 58255
     targetPort: 58255
-    name: ssh-forwarding-ingress
+    name: ssh-forwarding-ingress-1
+  - port: 58256
+    targetPort: 58256
+    name: ssh-forwarding-ingress-2
   selector:
     app: tezos-remote-signer-forwarder
 ---
@@ -42,6 +45,8 @@ spec:
       protocol: UDP
     - port: 58255
       protocol: TCP
+    - port: 58256
+      protocol: TCP
   - ports:
     - port: 8443
       protocol: TCP
@@ -53,17 +58,17 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: tezos-remote-signer-forwarder
+  name: tezos-remote-signer-forwarder-1
 spec:
   selector:
     matchLabels:
-      app: tezos-remote-signer-forwarder
+      app: tezos-remote-signer-forwarder-1
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
-        app: tezos-remote-signer-forwarder
+        app: tezos-remote-signer-forwarder-1
     spec:
       securityContext:
         fsGroup: 100
@@ -76,13 +81,40 @@ spec:
         - containerPort: 8443
           name: signer
         env:
-        - name: AUTHORIZED_SIGNER_KEY_A
+        - name: AUTHORIZED_SIGNER_KEY
           valueFrom:
             configMapKeyRef:
-              name: remote-signer-forwarder-configmap
-              key: AUTHORIZED_SIGNER_KEY_A
-        - name: AUTHORIZED_SIGNER_KEY_B
+              name: remote-signer-forwarder-1-configmap
+              key: AUTHORIZED_SIGNER_KEY
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tezos-remote-signer-forwarder-2
+spec:
+  selector:
+    matchLabels:
+      app: tezos-remote-signer-forwarder-2
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: tezos-remote-signer-forwarder-2
+    spec:
+      securityContext:
+        fsGroup: 100
+      containers:
+      - name: tezos-remote-signer-forwarder
+        image: tezos-remote-signer-forwarder
+        ports:
+        - containerPort: 58256
+          name: ssh
+        - containerPort: 8443
+          name: signer
+        env:
+        - name: AUTHORIZED_SIGNER_KEY
           valueFrom:
             configMapKeyRef:
-              name: remote-signer-forwarder-configmap
-              key: AUTHORIZED_SIGNER_KEY_B
+              name: remote-signer-forwarder-2-configmap
+              key: AUTHORIZED_SIGNER_KEY

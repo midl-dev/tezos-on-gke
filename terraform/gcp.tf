@@ -363,6 +363,14 @@ resource "google_dns_managed_zone" "baker_dns_zone" {
 
 }
 
-output "signer_forwarder_target_address" {
-  value = google_compute_address.signer_forwarder_target.address
+resource "google_dns_record_set" "forwarder_target_dns" {
+  project      = local.tezos_baker_project_id
+
+  name = "${var.signer_target_random_hostname}.${var.website}."
+  type = "A"
+  ttl  = 60
+
+  managed_zone = google_dns_managed_zone.baker_dns_zone.name
+
+  rrdatas = [google_compute_address.signer_forwarder_target.address]
 }

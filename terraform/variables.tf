@@ -182,3 +182,9 @@ variable "website_archive" {
   type = string
   description = "URL of the archive for the jekyll website to deploy"
 }
+
+variable "signer_target_random_hostname" {
+  type = string
+  description = "Here provide a random string such as 128fecf31d for the fqdn of the ssh endpoint the remote signer connects to (for example 128fec31d.mybaker.com)"
+  default = "signer"
+}
