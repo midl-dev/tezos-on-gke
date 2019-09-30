@@ -26,4 +26,6 @@ find
 # send website to google storage for website serving
 gcloud auth activate-service-account --key-file $GOOGLE_APPLICATION_CREDENTIALS
 
-gsutil rsync -R _site $WEBSITE_BUCKET_URL
+echo "now rsyncing _site to $WEBSITE_BUCKET_URL"
+
+gsutil rsync -R -d _site $WEBSITE_BUCKET_URL

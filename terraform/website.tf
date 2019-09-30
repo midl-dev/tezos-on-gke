@@ -9,7 +9,6 @@ resource "google_compute_target_http_proxy" "http" {
   project      = local.tezos_baker_project_id
   name    = "baker-website-http-proxy"
   url_map = google_compute_url_map.urlmap.name
-
 }
 
 resource "google_compute_global_forwarding_rule" "http" {
@@ -21,7 +20,6 @@ resource "google_compute_global_forwarding_rule" "http" {
   port_range = "80"
 
   depends_on = [google_compute_global_address.default]
-
 }
 
 # ------------------------------------------------------------------------------
@@ -39,16 +37,27 @@ resource "google_compute_global_forwarding_rule" "https" {
 
 }
 
+resource "google_compute_managed_ssl_certificate" "default" {
+  provider = "google-beta"
+  project      = local.tezos_baker_project_id
+
+  name = "baker-website-cert"
+
+  managed {
+    domains = ["${var.website}."]
+  }
+}
 # ------------------------------------------------------------------------------
 # CREATE A CORRESPONDING GOOGLE CERTIFICATE THAT WE CAN ATTACH TO THE LOAD BALANCER
 # ------------------------------------------------------------------------------
 
 resource "google_compute_target_https_proxy" "default" {
+  provider = "google-beta"
   project      = local.tezos_baker_project_id
   name    = "baker-website-https-proxy"
   url_map = google_compute_url_map.urlmap.name
 
-  ssl_certificates = google_compute_ssl_certificate.certificate.*.self_link
+  ssl_certificates = [ google_compute_managed_ssl_certificate.default.self_link ]
 }
 
 # ------------------------------------------------------------------------------
@@ -101,51 +110,5 @@ resource "google_compute_url_map" "urlmap" {
     name            = "all"
     default_service = google_compute_backend_bucket.website_backend.self_link
 
-  }
-}
-
-
-# ------------------------------------------------------------------------------
-# IF SSL IS ENABLED, CREATE A SELF-SIGNED CERTIFICATE
-# ------------------------------------------------------------------------------
-
-resource "tls_self_signed_cert" "cert" {
-
-  key_algorithm   = "RSA"
-  private_key_pem = join("", tls_private_key.private_key.*.private_key_pem)
-
-  subject {
-    common_name  = var.website
-    organization = "Tezos Baker"
-  }
-
-  validity_period_hours = 12
-
-  allowed_uses = [
-    "key_encipherment",
-    "digital_signature",
-    "server_auth",
-  ]
-}
-
-resource "tls_private_key" "private_key" {
-  algorithm   = "RSA"
-  ecdsa_curve = "P256"
-}
-
-# ------------------------------------------------------------------------------
-# CREATE A CORRESPONDING GOOGLE CERTIFICATE THAT WE CAN ATTACH TO THE LOAD BALANCER
-# ------------------------------------------------------------------------------
-
-resource "google_compute_ssl_certificate" "certificate" {
-  project      = local.tezos_baker_project_id
-
-  name_prefix = "tezos-baker-website-cert"
-  description = "SSL Certificate"
-  private_key = join("", tls_private_key.private_key.*.private_key_pem)
-  certificate = join("", tls_self_signed_cert.cert.*.cert_pem)
-
-  lifecycle {
-    create_before_destroy = true
   }
 }

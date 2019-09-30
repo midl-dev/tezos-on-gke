@@ -109,7 +109,7 @@ This allows you to build your baker's website where delegates can check their co
 
 You can pass a `website` variable to terraform to make that happen.
 
-However, this will not work until you verify your website domain name using the [Google Webmaster Central](https://cloud.google.com/storage/docs/domain-name-verification) and add the Terraform admin account to the list of verified domain owners.
+You will have to configure your DNS registrar to point to the Google nameservers.
 
 Security considerations
 -----------------------
