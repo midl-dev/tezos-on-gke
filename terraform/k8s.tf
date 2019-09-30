@@ -124,12 +124,10 @@ configMapGenerator:
   - PROTOCOL="004-Pt24m4xi"
   - PROTOCOL_SHORT="Pt24m4xi"
   - DATA_DIR=/var/run/tezos
-- name: remote-signer-forwarder-1-configmap
+- name: remote-signer-forwarder-configmap
   literals:
-  - AUTHORIZED_SIGNER_KEY="${var.authorized_signer_key_a}"
-- name: remote-signer-forwarder-2-configmap
-  literals:
-  - AUTHORIZED_SIGNER_KEY="${var.authorized_signer_key_b}"
+  - AUTHORIZED_SIGNER_KEY_A="${var.authorized_signer_key_a}"
+  - AUTHORIZED_SIGNER_KEY_B="${var.authorized_signer_key_b}"
 - name: backerei-payout-configmap
   literals:
   - HOT_WALLET_PUBLIC_KEY="${var.hot_wallet_public_key}" 
