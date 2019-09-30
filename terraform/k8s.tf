@@ -102,6 +102,9 @@ imageTags:
   - name: tezos-remote-signer-forwarder
     newName: gcr.io/${google_container_cluster.tezos_baker.project}/tezos-remote-signer-forwarder
     newTag: latest
+  - name: tezos-remote-signer-load-balancer
+    newName: gcr.io/${google_container_cluster.tezos_baker.project}/tezos-remote-signer-load-balancer
+    newTag: latest
   - name: tezos-snapshot-downloader
     newName: gcr.io/${google_container_cluster.tezos_baker.project}/tezos-snapshot-downloader
     newTag: latest

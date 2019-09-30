@@ -1,0 +1,7 @@
+FROM tezos/tezos:((tezos_network))
+RUN apk --no-cache add haproxy
+COPY haproxy.cfg /usr/local/etc/haproxy/haproxy.cfg
+COPY tezos-signer-checker.sh /usr/local/bin/tezos-signer-checker.sh
+COPY entrypoint.sh /
+ENTRYPOINT [ "/entrypoint.sh" ]
+CMD []

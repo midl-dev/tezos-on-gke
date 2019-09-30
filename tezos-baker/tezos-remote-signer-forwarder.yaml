@@ -17,7 +17,7 @@ metadata:
   name: tezos-remote-signer
 spec:
   ports:
-  - port: 8443
+  - port: 8445
     name: remote-signer
   selector:
     app: tezos-remote-signer-forwarder
@@ -43,7 +43,7 @@ spec:
     - port: 58255
       protocol: TCP
   - ports:
-    - port: 8443
+    - port: 8445
       protocol: TCP
     from:
     - podSelector:
@@ -74,7 +74,9 @@ spec:
         - containerPort: 58255
           name: ssh
         - containerPort: 8443
-          name: signer
+          name: signer-a
+        - containerPort: 8444
+          name: signer-b
         env:
         - name: AUTHORIZED_SIGNER_KEY_A
           valueFrom:
@@ -86,3 +88,19 @@ spec:
             configMapKeyRef:
               name: remote-signer-forwarder-configmap
               key: AUTHORIZED_SIGNER_KEY_B
+      - name: tezos-remote-signer-loadbalancer
+        image: tezos-remote-signer-loadbalancer
+        ports:
+        - containerPort: 8445
+          name: signer
+        env:
+        - name: PROTOCOL_SHORT
+          valueFrom:
+            configMapKeyRef:
+              name: tezos-configmap
+              key: PROTOCOL_SHORT
+        - name: PUBLIC_BAKING_KEY
+          valueFrom:
+            configMapKeyRef:
+              name: tezos-configmap
+              key: PUBLIC_BAKING_KEY
