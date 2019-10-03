@@ -5,5 +5,4 @@
   roles:
   - tezos-remote-signer
   vars:
-      gke_public_ip: <load balancer ip goes here>
-
+      gke_signer_hostname: <signer ssh ingress load balancer fqdn goes here>

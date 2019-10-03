@@ -1,5 +1,6 @@
 [tezos-remote-signer]
-<signer ip goes here>
+<first signer ip goes here> remote_signer_port=8443
+<second signer ip goes here> remote_signer_port=8444
 
 [tezos-remote-signer:vars]
 ansible_ssh_user=pi
