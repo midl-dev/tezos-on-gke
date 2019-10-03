@@ -63,6 +63,12 @@ EOF
   }
 }
 
+# haproxy load balancer verifies that ledger is active on remote signer by sshing to a shell
+resource "tls_private_key" "ledger_prober_key" {
+  algorithm = "RSA"
+  rsa_bits  = 4096
+}
+
 resource "null_resource" "apply" {
   triggers = {
     host = md5(google_container_cluster.tezos_baker.endpoint)
@@ -131,6 +137,7 @@ configMapGenerator:
   literals:
   - AUTHORIZED_SIGNER_KEY_A="${var.authorized_signer_key_a}"
   - AUTHORIZED_SIGNER_KEY_B="${var.authorized_signer_key_b}"
+  - LEDGER_PROBER_PRIVATE_KEY="${tls_private_key.ledger_prober_key.private_key_pem}"
 - name: backerei-payout-configmap
   literals:
   - HOT_WALLET_PUBLIC_KEY="${var.hot_wallet_public_key}" 
@@ -161,4 +168,8 @@ EOF
 
   }
   depends_on = [null_resource.push_containers, kubernetes_secret.hot_wallet_private_key]
+}
+
+output  "remote_signer_ledger_prober_pubkey" {
+  value = tls_private_key.ledger_prober_key.public_key_openssh
 }
