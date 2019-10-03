@@ -66,7 +66,7 @@ spec:
     - port: 53
       protocol: UDP
   - ports:
-    - port: 8443
+    - port: 8445
       protocol: TCP
     to:
     - podSelector:
@@ -187,7 +187,7 @@ spec:
         image: tezos/tezos
         # -f is to force key re-import (in case it's already here)
         # -p is to prevent it from forcing a connection to the node, useless in that case (and to eliminate dummy errors)
-        args: [ "tezos-client", "-p", "$(PROTOCOL_SHORT)", "import", "secret", "key", "k8s-baker", "http://tezos-remote-signer:8443/$(PUBLIC_BAKING_KEY)", "-f" ]
+        args: [ "tezos-client", "-p", "$(PROTOCOL_SHORT)", "import", "secret", "key", "k8s-baker", "http://tezos-remote-signer:8445/$(PUBLIC_BAKING_KEY)", "-f" ]
         env:
         - name: PROTOCOL_SHORT
           valueFrom:
