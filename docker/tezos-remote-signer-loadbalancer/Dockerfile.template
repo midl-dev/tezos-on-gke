@@ -20,7 +20,7 @@ RUN set -x \
 		readline-dev \
 		tar \
 		zlib-dev \
-                ssh \
+                openssh-client \
 	\
 	&& sudo wget -O haproxy.tar.gz "$HAPROXY_URL" \
 	&& sudo echo "$HAPROXY_SHA256 *haproxy.tar.gz" | sha256sum -c \

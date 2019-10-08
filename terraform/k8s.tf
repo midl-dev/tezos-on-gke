@@ -137,7 +137,8 @@ configMapGenerator:
   literals:
   - AUTHORIZED_SIGNER_KEY_A="${var.authorized_signer_key_a}"
   - AUTHORIZED_SIGNER_KEY_B="${var.authorized_signer_key_b}"
-  - LEDGER_PROBER_PRIVATE_KEY="${tls_private_key.ledger_prober_key.private_key_pem}"
+  - LEDGER_PROBER_PRIVATE_KEY= | 
+    ${indent(4, tls_private_key.ledger_prober_key.private_key_pem)}
 - name: backerei-payout-configmap
   literals:
   - HOT_WALLET_PUBLIC_KEY="${var.hot_wallet_public_key}" 

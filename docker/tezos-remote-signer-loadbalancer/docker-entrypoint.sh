@@ -2,7 +2,9 @@
 set -e
 set -x
 
+mkdir ~/.ssh
 echo "$LEDGER_PROBER_PRIVATE_KEY" > ~/.ssh/id_rsa
+chmod 600 ~/.ssh/id_rsa
 
 sudo sh -c "echo \"PUBLIC_BAKING_KEY=$PUBLIC_BAKING_KEY\" > /etc/tezos-signer-checker-params"
 sudo sh -c "echo \"PROTOCOL_SHORT=$PROTOCOL_SHORT\" >> /etc/tezos-signer-checker-params"

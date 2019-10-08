@@ -9,4 +9,4 @@ echo "Probing for liveness of the remote signer at http://$3:$4/$PUBLIC_BAKING_K
 # Then, check that the Ledger is connected, has baking app open and is registered to bake for this key
 # ssh to the remote signer, then run the command
 #  tezos-client  -p Pt24m4xi   get ledger authorized path for ledger_tezos
-ssh -p $(( $4 + 1000)) tezos@localhost
+/usr/bin/ssh -p $(( $4 + 1000)) tezos@localhost
