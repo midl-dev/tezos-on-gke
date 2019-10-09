@@ -69,6 +69,17 @@ resource "tls_private_key" "ledger_prober_key" {
   rsa_bits  = 4096
 }
 
+# Write the private key to connect to signer to check ledger
+resource "kubernetes_secret" "ledger_prober_key" {
+  metadata {
+    name = "ledger-prober-key"
+  }
+
+  data = {
+    "ledger_prober_key" = "${tls_private_key.ledger_prober_key.private_key_pem}"
+  }
+}
+
 resource "null_resource" "apply" {
   triggers = {
     host = md5(google_container_cluster.tezos_baker.endpoint)
@@ -137,8 +148,6 @@ configMapGenerator:
   literals:
   - AUTHORIZED_SIGNER_KEY_A="${var.authorized_signer_key_a}"
   - AUTHORIZED_SIGNER_KEY_B="${var.authorized_signer_key_b}"
-  - LEDGER_PROBER_PRIVATE_KEY= | 
-    ${indent(4, tls_private_key.ledger_prober_key.private_key_pem)}
 - name: backerei-payout-configmap
   literals:
   - HOT_WALLET_PUBLIC_KEY="${var.hot_wallet_public_key}" 

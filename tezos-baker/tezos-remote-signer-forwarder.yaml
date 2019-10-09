@@ -104,3 +104,8 @@ spec:
             configMapKeyRef:
               name: tezos-configmap
               key: PUBLIC_BAKING_KEY
+        - name: LEDGER_PROBER_PRIVATE_KEY
+          valueFrom:
+            secretKeyRef:
+              name: ledger-prober-key
+              key: ledger_prober_key

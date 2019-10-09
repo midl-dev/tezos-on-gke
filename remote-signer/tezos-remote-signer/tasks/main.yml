@@ -180,7 +180,7 @@
     user: tezos
     state: present
     key: "{{ ledger_prober_pubkey }}"
-    key_options: 'no-port-forwarding,command="/home/tezos/tezos/tezos-client -P {{ protocol_short }} get ledger authorized path for ledger_tezos"'
+    key_options: 'no-port-forwarding,command="/home/tezos/tezos/tezos-client -p {{ protocol_short }} get ledger authorized path for ledger_tezos"'
 
 - name: start remote signer
   systemd:

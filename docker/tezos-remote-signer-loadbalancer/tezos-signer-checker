@@ -3,10 +3,17 @@
 # First, check that the remote signer is reachable
 
 source /etc/tezos-signer-checker-params
-echo "Probing for liveness of the remote signer at http://$3:$4/$PUBLIC_BAKING_KEY"
-/usr/local/bin/tezos-client --protocol $PROTOCOL_SHORT -d /var/run/tezos/client -c /var/run/tezos/client/config import secret key k8s-baker "http://$3:$4/$PUBLIC_BAKING_KEY" -f
+echo "$3:$4 Livelessness check 1: Probing for liveness of the remote signer at http://$3:$4/$PUBLIC_BAKING_KEY"
+if /usr/local/bin/tezos-client --protocol $PROTOCOL_SHORT -d /var/run/tezos/client -c /var/run/tezos/client/config import secret key k8s-baker "http://$3:$4/$PUBLIC_BAKING_KEY" -f; then
+    echo "$3:$4 Livelessness check 1 passed"
+else
+    echo "$3:$4 Livelessness check 1 failed"
+fi
 
-# Then, check that the Ledger is connected, has baking app open and is registered to bake for this key
-# ssh to the remote signer, then run the command
-#  tezos-client  -p Pt24m4xi   get ledger authorized path for ledger_tezos
-/usr/bin/ssh -p $(( $4 + 1000)) tezos@localhost
+
+echo "$3:$4 Livelessness check 2: Check that the Ledger is connected, has baking app open and is registered to bake for this key"
+if /usr/bin/ssh -i /home/tezos/.ssh/id_rsa -T -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p $(( $4 + 1000)) tezos@localhost; then
+    echo "$3:$4 Livelessness check 2 passed"
+else
+    echo "$3:$4 Livelessness check 2 failed"
+fi
