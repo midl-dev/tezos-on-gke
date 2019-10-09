@@ -20,7 +20,6 @@ RUN set -x \
 		readline-dev \
 		tar \
 		zlib-dev \
-                openssh-client \
 	\
 	&& sudo wget -O haproxy.tar.gz "$HAPROXY_URL" \
 	&& sudo echo "$HAPROXY_SHA256 *haproxy.tar.gz" | sha256sum -c \
@@ -51,6 +50,7 @@ RUN set -x \
 			| awk 'system("[ -e /usr/local/lib/" $1 " ]") == 0 { next } { print "so:" $1 }' \
 	)" \
 	&& sudo apk add --no-network --virtual .haproxy-rundeps $runDeps \
+        && sudo apk add --no-cache openssh-client \
 	&& sudo apk del --no-network .build-deps
 
 # https://www.haproxy.org/download/1.8/doc/management.txt
