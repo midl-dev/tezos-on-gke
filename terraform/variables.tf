@@ -188,3 +188,18 @@ variable "signer_target_random_hostname" {
   description = "Here provide a random string such as 128fecf31d for the fqdn of the ssh endpoint the remote signer connects to (for example 128fec31d.mybaker.com)"
   default = "signer"
 }
+
+variable "cloudflare_email" {
+  type = string
+  description = "cloudflare login email, for https"
+}
+
+variable "cloudflare_api_key" {
+  type = string
+  description = "cloudflare api key, for https"
+}
+
+variable "cloudflare_account_id" {
+  type = string
+  description = "cloudflare zone id for website"
+}
