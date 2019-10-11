@@ -8,6 +8,7 @@ if /usr/local/bin/tezos-client --protocol $PROTOCOL_SHORT -d /var/run/tezos/clie
     echo "$3:$4 Livelessness check 1 passed"
 else
     echo "$3:$4 Livelessness check 1 failed"
+    exit 1
 fi
 
 
@@ -16,4 +17,5 @@ if /usr/bin/ssh -i /home/tezos/.ssh/id_rsa -T -o StrictHostKeyChecking=no -o Use
     echo "$3:$4 Livelessness check 2 passed"
 else
     echo "$3:$4 Livelessness check 2 failed"
+    exit 1
 fi

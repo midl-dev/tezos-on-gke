@@ -61,22 +61,6 @@ resource "google_compute_target_https_proxy" "default" {
 }
 
 # ------------------------------------------------------------------------------
-# IF DNS ENTRY REQUESTED, CREATE A RECORD POINTING TO THE PUBLIC IP OF THE CLB
-# ------------------------------------------------------------------------------
-
-resource "google_dns_record_set" "dns" {
-  project      = local.tezos_baker_project_id
-
-  name = "${var.website}."
-  type = "A"
-  ttl  = 60
-
-  managed_zone = google_dns_managed_zone.baker_dns_zone.name
-
-  rrdatas = [google_compute_global_address.default.address]
-}
-
-# ------------------------------------------------------------------------------
 # CREATE THE BACKEND BUCKET
 # ------------------------------------------------------------------------------
 

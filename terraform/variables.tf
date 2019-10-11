@@ -203,3 +203,18 @@ variable "cloudflare_account_id" {
   type = string
   description = "cloudflare zone id for website"
 }
+
+variable "dns_mx_record_1" {
+  type = string
+  description = "first mx record for email associated to domain"
+}
+
+variable "dns_mx_record_2" {
+  type = string
+  description = "second mx record for email associated to domain"
+}
+
+variable "dns_spf_record" {
+  type = string
+  description = "dns spf record for email anti-spoofing"
+}

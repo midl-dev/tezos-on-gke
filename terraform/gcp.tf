@@ -353,24 +353,3 @@ resource "google_storage_bucket_iam_member" "make_public" {
 resource "google_service_account_key" "website_builder_key" {
   service_account_id = google_service_account.website_pusher.name
 }
-
-resource "google_dns_managed_zone" "baker_dns_zone" {
-  project = local.tezos_baker_project_id
-  name = "baker-dns-zone"
-  dns_name = "${var.website}."
-
-  depends_on = [google_project_service.service]
-
-}
-
-resource "google_dns_record_set" "forwarder_target_dns" {
-  project      = local.tezos_baker_project_id
-
-  name = "${var.signer_target_random_hostname}.${var.website}."
-  type = "A"
-  ttl  = 60
-
-  managed_zone = google_dns_managed_zone.baker_dns_zone.name
-
-  rrdatas = [google_compute_address.signer_forwarder_target.address]
-}
