@@ -11,6 +11,8 @@ else
     exit 1
 fi
 
+# do not perform second check for now, it doesn't really work well
+exit 0
 
 echo "$3:$4 Livelessness check 2: Check that the Ledger is connected, has baking app open and is registered to bake for this key"
 if /usr/bin/ssh -i /home/tezos/.ssh/id_rsa -T -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p $(( $4 + 1000)) tezos@localhost; then
