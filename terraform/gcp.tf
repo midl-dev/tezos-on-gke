@@ -330,6 +330,7 @@ resource "google_storage_bucket" "website" {
     main_page_suffix = "index.html"
     not_found_page   = "404.html"
   }
+  force_destroy = true
 }
 
 resource "google_service_account" "website_pusher" {
