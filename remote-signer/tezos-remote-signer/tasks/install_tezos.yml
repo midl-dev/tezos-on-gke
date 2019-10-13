@@ -1,10 +1,10 @@
 ---
-# install tezoa as tezos user
+# install tezos as tezos user
 #
 - git:
     repo: 'https://gitlab.com/tezos/tezos.git'
     dest: /home/tezos/tezos
-    version: alphanet
+    version: {{tezos_network }}
     
 - name: Check that signer present
   stat:

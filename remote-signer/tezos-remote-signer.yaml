@@ -6,5 +6,6 @@
   - tezos-remote-signer
   vars:
       gke_signer_hostname: <signer ssh ingress load balancer fqdn goes here>
-      ledger_prober_pubkey: <pubic key coming from terraform output for the ledger prober on k8s>
-      protocol_short: <the tezos protocol short version>
+      ledger_prober_pubkey: <The haproxy remote signer prober sshs to the signer for probing the ledger. The pubic key to this effect is coming from terraform output>
+      protocol_short: <the tezos protocol short version (not necessarily a problem if it's wrong, just here to prevent the signer from attempting to talk to the client>
+      tezos_network: <the tezos network, alphanet or mainnet>
