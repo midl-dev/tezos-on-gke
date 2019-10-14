@@ -194,7 +194,7 @@
     state: started
     enabled: yes
 
-- name: tell the host about our servers it might want to ssh to
-  known_hosts:
-    user: tezos
-    name: "{{ gke_signer_hostname }}"
+- name: add the forwarding endpoint to known hosts
+  become: yes
+  become_user: tezos
+  shell: "ssh-keyscan -H {{ gke_signer_hostname }} >> /home/tezos/.ssh/known_hosts"
