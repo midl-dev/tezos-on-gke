@@ -14,6 +14,8 @@ You also need
 
 In the `remote-signer` directory, edit the `inventory` file to set the ip address of your Pi.
 
+Edit the tezos-remote-signer.yaml with the required parameters.
+
 Run the ansible fully automated install:
 
 ```
@@ -76,3 +78,35 @@ ansible-playbook tezos-remote-signer.yaml --inventory-file inventory
 ```
 
 It will run to completion. As it compiles Tezos on a very low-power CPU, it will take several hours to complete.
+
+Set up the signers
+==================
+
+You need both Ledgers connected to your signers to be configured with the same recovery phrase, this way they sign the same account.
+
+*This is your baking key. Keep it safe.*
+
+Open the Ledgers' baking apps then issue the following commands:
+
+```
+tezos-signer list connected ledgers
+```
+
+It will give you a command with an animal menmonic address to import the key. Enter it in your terminal. Note that you need to import it to both the client and the signer.
+
+```
+tezos-signer import secret key ledger_tezos "ledger://<mnemonic>/ed25519/0'/0'" 
+tezos-client import secret key ledger_tezos "ledger://<mnemonic>/ed25519/0'/0'" 
+```
+
+For each of these commands, you need to match the address displayed on the screen with the Ledger screen, then approve with the Ledger button.
+
+You may replace the `0'/0'` value with `0'/1'` or more. This is useful when using the same setup with alphanet to use the same hardware but not the same keys.
+
+Finally you need to set the ledger to bake for this key:
+
+```
+./tezos-client setup ledger to bake for ledger_tezos --main-chain-id NetXdQprcVkpaWU
+```
+
+Again you need to approve using the Ledger button.

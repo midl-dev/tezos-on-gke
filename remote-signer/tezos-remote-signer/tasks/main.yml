@@ -38,8 +38,8 @@
 - name: Update apt cache
   apt: update_cache=yes cache_valid_time=3600
 
-- name: Upgrade APT to the latest packages
-  apt: upgrade=safe
+  #- name: Upgrade APT to the latest packages
+  #  apt: upgrade=safe
 
 - name: Disallow password authentication
   lineinfile: dest=/etc/ssh/sshd_config
@@ -193,3 +193,8 @@
     name: tezos-signer-forwarder
     state: started
     enabled: yes
+
+- name: tell the host about our servers it might want to ssh to
+  known_hosts:
+    user: tezos
+    name: "{{ gke_signer_hostname }}"

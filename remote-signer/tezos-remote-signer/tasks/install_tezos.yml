@@ -4,7 +4,7 @@
 - git:
     repo: 'https://gitlab.com/tezos/tezos.git'
     dest: /home/tezos/tezos
-    version: {{tezos_network }}
+    version: '{{ tezos_network }}'
     
 - name: Check that signer present
   stat:
