@@ -160,7 +160,7 @@ variable "hot_wallet_public_key" {
 
 variable "hot_wallet_private_key" {
   type = string
-  description = "The private key of the hot wallet or payout wallet (where rewards come from)"
+  description = "The private key of the hot wallet or payout wallet (where rewards come from). must be unencrypted and without the unencrypted: string"
 }
 
 variable "tezos_network" {

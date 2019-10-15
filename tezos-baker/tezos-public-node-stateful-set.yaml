@@ -49,7 +49,8 @@ spec:
       containers:
       - name: tezos-public-node
         image: tezos/tezos
-        args: [ "tezos-node", "--history-mode", "experimental-rolling" ]
+        #args: [ "tezos-node", "--history-mode", "experimental-rolling" ]
+        args: [ "tezos-node" ]
         ports:
         - containerPort: 9732
           name: tezos-port
@@ -78,4 +79,4 @@ spec:
       storageClassName: local-ssd
       resources:
         requests:
-          storage: 30Gi
+          storage: 60Gi

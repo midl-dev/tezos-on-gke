@@ -197,4 +197,8 @@
 - name: add the forwarding endpoint to known hosts
   become: yes
   become_user: tezos
-  shell: "ssh-keyscan -H {{ gke_signer_hostname }} >> /home/tezos/.ssh/known_hosts"
+  shell: |
+      host={{ gke_signer_hostname }}
+      grep "${host,,}" ~/.ssh/known_hosts || ssh-keyscan -p 58255 "${host,,}" >> ~/.ssh/known_hosts
+  args:
+    executable: /bin/bash
