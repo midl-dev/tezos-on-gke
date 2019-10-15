@@ -32,6 +32,23 @@ resource "cloudflare_record" "www" {
   proxied = true
 }
 
+resource "cloudflare_record" "no_proxy" {
+  # Google cloud wants valid dns resolution before issuing the certificate.
+  # If cloudflare is used as DNS, this won't work with the true website name
+  # since it resolves to cloudflare proxy.
+  # Instead, we create a special random "no proxy" record
+  # so the certificate is created and renewed over time
+  # and we can use cloudflare "strict" mode.
+  # There is an apparent contradiction because the actual website
+  # does not have this exact name, but cloudflare hits the
+  # ip address directly anyway so it does not matter.
+  zone_id  = cloudflare_zone.tezos_baker_zone.id
+  name    = random_string.no_proxy_hostname.result
+  value   = google_compute_global_address.default.address
+  type    = "A"
+  proxied = false
+}
+
 resource "cloudflare_record" "main" {
   zone_id  = cloudflare_zone.tezos_baker_zone.id
   name    = "@"

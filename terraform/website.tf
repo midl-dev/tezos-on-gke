@@ -37,6 +37,12 @@ resource "google_compute_global_forwarding_rule" "https" {
 
 }
 
+resource "random_string" "no_proxy_hostname" {
+  length = 16
+  special = false
+  upper = false
+}
+
 resource "google_compute_managed_ssl_certificate" "default" {
   provider = "google-beta"
   project      = local.tezos_baker_project_id
@@ -44,7 +50,7 @@ resource "google_compute_managed_ssl_certificate" "default" {
   name = "baker-website-cert"
 
   managed {
-    domains = ["${var.website}."]
+    domains = ["${random_string.no_proxy_hostname.result}.${var.website}."]
   }
 }
 # ------------------------------------------------------------------------------
