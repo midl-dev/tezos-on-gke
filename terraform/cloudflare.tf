@@ -20,7 +20,7 @@ resource "cloudflare_zone_settings_override" "example-com-settings" {
     tls_1_3 = "on"
     automatic_https_rewrites = "on"
     always_use_https = "on"
-    ssl = "strict"
+    ssl = "full"
   }
 }
 
