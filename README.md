@@ -84,8 +84,8 @@ export GOOGLE_APPLICATION_CREDENTIALS=${TF_CREDS}
 export GOOGLE_PROJECT=${TF_ADMIN}
 
 terraform init
-terraform plan -out out.plan
-terraform apply out.plan
+terraform plan -out plan.out
+terraform apply plan.out
 ```
 
 This will take time as it will:
@@ -99,6 +99,27 @@ This will take time as it will:
 Then set up the signers and have them connect to the public endpoint.
 
 Then, fund your payout wallet, and send a test transaction from it to somewhere else (this is necessary to reveal the payout key).
+
+Apply an update
+---------------
+
+If you have pulled the most recent version of `tezos-on-gke` and wish to apply updates, you may do so with a `terraform taint`:
+
+```
+terraform taint null_resource.push_containers && terraform taint null_resource.apply && terraform plan -out plan.out
+terraform apply plan.out
+```
+
+This will rebuild the containers locally, then do a `kubectl apply` to push the most recent changes to your cluster.
+
+Protocol update
+---------------
+
+When the Tezos protocol changes, be sure to edit the terraform variables `protocol` and `protocol_short` to match the new version.
+
+On your machine, issue `docker pull tezos/tezos:mainnet` to ensure you have the latest version of the baker and endorser.
+
+Then, apply the changes. Your baker will restart with the right baking and endorsing daemons.
 
 Website
 -------
