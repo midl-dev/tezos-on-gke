@@ -218,3 +218,15 @@ variable "dns_spf_record" {
   type = string
   description = "dns spf record for email anti-spoofing"
 }
+
+variable "protocol" {
+  type = string
+  description = "the tezos protocol currently in use"
+  default = "005-PsBabyM1"
+}
+
+variable "protocol_short" {
+  type = string
+  description = "the shot string describing the protocol"
+  default = "PsBabyM1"
+}

@@ -141,8 +141,8 @@ configMapGenerator:
   - ARCHIVE_URL="${var.archive_url}"
   - PUBLIC_BAKING_KEY="${var.public_baking_key}"
   - NODE_HOST="localhost"
-  - PROTOCOL="004-Pt24m4xi"
-  - PROTOCOL_SHORT="Pt24m4xi"
+  - PROTOCOL="${var.protocol}"
+  - PROTOCOL_SHORT="${var.protocol_short}"
   - DATA_DIR=/var/run/tezos
 - name: remote-signer-forwarder-configmap
   literals:
