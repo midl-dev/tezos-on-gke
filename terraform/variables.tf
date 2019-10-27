@@ -230,3 +230,14 @@ variable "protocol_short" {
   description = "the shot string describing the protocol"
   default = "PsBabyM1"
 }
+
+variable "payout_fee" {
+  type = string
+  description = "the fee, formatted in 'numerator % denominator', for example '11 % 100' for a 11% fee"
+  default = "10 % 100"
+}
+
+variable "payout_starting_cycle" {
+  type = string
+  description = "the number of first cycle for which you want to send payouts. for safety, so you don't send older payments again"
+}

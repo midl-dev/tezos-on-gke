@@ -155,6 +155,8 @@ configMapGenerator:
   - CYCLE_LENGTH="${ var.tezos_network == "mainnet" ? 4096 : 2048 }"
   - PRESERVED_CYCLES="${ var.tezos_network == "mainnet" ? 5 : 3 }"
   - PAYOUT_DELAY="${ var.payout_delay }"
+  - PAYOUT_FEE="${ var.payout_fee }"
+  - PAYOUT_STARTING_CYCLE="${ var.payout_starting_cycle }"
 - name: website-builder-configmap
   literals:
   - WEBSITE_ARCHIVE="${var.website_archive}"

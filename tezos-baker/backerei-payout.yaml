@@ -109,7 +109,7 @@ spec:
         - "--client-config-file"
         - "/var/run/tezos/client/config"
         - "--starting-cycle"
-        - "313"
+        - "$(PAYOUT_STARTING_CYCLE)"
         - "--cycle-length"
         - "$(CYCLE_LENGTH)"
         - "--snapshot-interval"
@@ -118,6 +118,9 @@ spec:
         - "$(PRESERVED_CYCLES)"
         - "--payout-delay"
         - "$(PAYOUT_DELAY)"
+        - "--pay-estimated-rewards"
+        - "--fee"
+        - "$(PAYOUT_FEE)"
         volumeMounts:
         - name: backerei-config-storage
           mountPath: /var/run/backerei/config
@@ -152,6 +155,16 @@ spec:
             configMapKeyRef:
               name: tezos-configmap
               key: PUBLIC_BAKING_KEY
+        - name: PAYOUT_FEE
+          valueFrom:
+            configMapKeyRef:
+              name: backerei-payout-configmap
+              key: PAYOUT_FEE
+        - name: PAYOUT_STARTING_CYCLE
+          valueFrom:
+            configMapKeyRef:
+              name: backerei-payout-configmap
+              key: PAYOUT_STARTING_CYCLE
       volumes:
       - name: tezos-payout-client-storage
         emptyDir: {}
