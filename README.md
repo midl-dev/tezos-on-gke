@@ -13,11 +13,11 @@ Features:
 * ssh endpoint for remote signing
 * compatible with mainnet and alphanet
 * blockchain snapshot download and import from a public URL for faster synchronization of the nodes
+* automatic payouts from a hot wallet with Backerei
+* support for two highly available signers
+* deploy everything in just one command
 * TODO:
-  * one-command deployment with Cloud Deployment Manager
-  * automatic payouts from a hot wallet with Backerei
-  * support for two highly available signers
-  * liveliness check of signers with canary signatures
+  * metric-based monitoring and alerting with prometheus
 
 Architecture
 ------------
@@ -48,9 +48,9 @@ It is recommended that the signer have a redundant power supply as well as batte
 Dependencies
 ------------
 
-1. Download and install [Terraform][terraform].
+1. Download and install [Terraform](https://terraform.io)
 
-1. Download, install, and configure the [Google Cloud SDK][sdk]. You will need
+1. Download, install, and configure the [Google Cloud SDK](https://cloud.google.com/sdk/). You will need
    to configure your default application credentials so Terraform can run. It
    will run against your default project, but all resources are created in the
    (new) project that it creates.
@@ -64,7 +64,7 @@ Dependencies
 How to deploy
 -------------
 
-You need a Google Cloud Organization. You will be able to create one as an individual by registering a domain name, or you may use your company's organization.
+You need a Google Cloud Organization. You will be able to create one as an individual by registering a domain name.
 
 You need to use a gcloud account as a user that has permission to create new projects. See [instructions for Terraform service account creation](https://cloud.google.com/community/tutorials/managing-gcp-projects-with-terraform) from Google.
 
@@ -75,7 +75,8 @@ You need to use a gcloud account as a user that has permission to create new pro
 ```
 cd terraform
 
-# The next 6 lines are only necessary if you are using a terraform service account. Alternatively, create a project manually and pass it as parameter.
+# The next 6 lines are only necessary if you are using a terraform service account.
+# Alternatively, create a project manually and pass it as parameter.
 export TF_VAR_org_id=YOUR_ORG_ID
 export TF_VAR_billing_account=YOUR_BILLING_ACCOUNT_ID
 export TF_ADMIN=${USER}-terraform-admin
