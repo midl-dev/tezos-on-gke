@@ -47,6 +47,15 @@ The private Tezos Node must not run in two locations at once, lest you are at ri
 
 It is recommended that the signer have a redundant power supply as well as battery backup. It should also have redundant access to the internet. It should be kept in a location with physical access control as any disconnection event on the Ledger wallet will require entering the PIN.
 
+Cost
+----
+
+With the default variables, the setup runs in two n1-standard-2 VMs on GCP platform, and uses SSDs as storage. The cost per month is approximately 150 USD. There are a few options to reduce the costs:
+
+* Switch to two n1-standard-1 VMs. It is enough once the blockchain is synchronized, however for initial synchronization larger VMs tend to help. Kubernetes allow you to perform this change without downtime.
+* Switch to magnetic drives instead of SSDs
+* Switch over to the [new storage backend](https://tezos.gitlab.io/releases/october-2019.html) which is much more efficient and will allow to provision smaller drives
+
 Dependencies
 ------------
 
