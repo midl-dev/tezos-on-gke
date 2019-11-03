@@ -1,5 +1,5 @@
-[WIP] Tezos-on-GKE
-==================
+Tezos-on-GKE
+============
 
 [Tezos](http://tezos.gitlab.io/mainnet/) is a [delegated proof of stake](https://bitshares.org/technology/delegated-proof-of-stake-consensus/) blockchain protocol.
 
