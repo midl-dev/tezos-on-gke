@@ -19,6 +19,8 @@ Features:
 * TODO:
   * metric-based monitoring and alerting with prometheus
 
+A reference deployment of this infrastructure is at [hodl.farm](https://hodl.farm).
+
 Architecture
 ------------
 
