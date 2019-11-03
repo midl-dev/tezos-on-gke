@@ -32,7 +32,7 @@ A private Tezos baking node performs signing, endorsing and accusing. It synchro
 
 An ssh endpoint is accessed by the remote signer (outside of GKE) to establish a tunnel to the signing daemon.
 
-The remote signer is connected to a Ledger Nano S running the [Tezos Baking app](https://github.com/obsidiansystems/ledger-app-tezos).
+Instructions and code to set up the remote signers are at https://github.com/hodl-dot-farm/tezos-remote-signer-os
 
 <img src="./k8s-baker.svg">
 
