@@ -63,23 +63,6 @@ EOF
   }
 }
 
-# haproxy load balancer verifies that ledger is active on remote signer by sshing to a shell
-resource "tls_private_key" "ledger_prober_key" {
-  algorithm = "RSA"
-  rsa_bits  = 4096
-}
-
-# Write the private key to connect to signer to check ledger
-resource "kubernetes_secret" "ledger_prober_key" {
-  metadata {
-    name = "ledger-prober-key"
-  }
-
-  data = {
-    "ledger_prober_key" = "${tls_private_key.ledger_prober_key.private_key_pem}"
-  }
-}
-
 resource "null_resource" "apply" {
   triggers = {
     host = md5(google_container_cluster.tezos_baker.endpoint)
@@ -180,8 +163,4 @@ EOF
 
   }
   depends_on = [null_resource.push_containers, kubernetes_secret.hot_wallet_private_key]
-}
-
-output  "remote_signer_ledger_prober_pubkey" {
-  value = tls_private_key.ledger_prober_key.public_key_openssh
 }

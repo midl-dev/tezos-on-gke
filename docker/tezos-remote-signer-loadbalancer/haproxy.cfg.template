@@ -19,5 +19,5 @@ backend tezos-signer-backends
     option forwardfor
     server tezos-signer-1 localhost:8443 check inter 15000
     server tezos-signer-2 localhost:8444 check inter 15000
-    option external-check
-    external-check command /bin/tezos-signer-checker
+    option httpchk GET /keys/${PUBLIC_BAKING_KEY}
+    http-check expect status 200

@@ -94,18 +94,8 @@ spec:
         - containerPort: 8445
           name: signer
         env:
-        - name: PROTOCOL_SHORT
-          valueFrom:
-            configMapKeyRef:
-              name: tezos-configmap
-              key: PROTOCOL_SHORT
         - name: PUBLIC_BAKING_KEY
           valueFrom:
             configMapKeyRef:
               name: tezos-configmap
               key: PUBLIC_BAKING_KEY
-        - name: LEDGER_PROBER_PRIVATE_KEY
-          valueFrom:
-            secretKeyRef:
-              name: ledger-prober-key
-              key: ledger_prober_key

@@ -2,14 +2,9 @@
 set -e
 set -x
 
-mkdir ~/.ssh
-echo "$LEDGER_PROBER_PRIVATE_KEY" > ~/.ssh/id_rsa
-chmod 600 ~/.ssh/id_rsa
-
-sudo sh -c "echo \"PUBLIC_BAKING_KEY=$PUBLIC_BAKING_KEY\" > /etc/tezos-signer-checker-params"
-sudo sh -c "echo \"PROTOCOL_SHORT=$PROTOCOL_SHORT\" >> /etc/tezos-signer-checker-params"
-/usr/local/bin/tezos-client -p $PROTOCOL_SHORT -d /var/run/tezos/client config init -o /var/run/tezos/client/config
+envsubst < /usr/local/etc/haproxy/haproxy.cfg.template > /usr/local/etc/haproxy/haproxy.cfg
 echo "haproxy tezos signer load balancer is starting"
+
 # first arg is `-f` or `--some-option`
 if [ "${1#-}" != "$1" ]; then
 	set -- haproxy "$@"
