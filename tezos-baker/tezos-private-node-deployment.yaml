@@ -183,11 +183,10 @@ spec:
         - configMapRef:
             name: tezos-configmap
       initContainers:
-      - name: import-baking-key
-        image: tezos/tezos
-        # -f is to force key re-import (in case it's already here)
-        # -p is to prevent it from forcing a connection to the node, useless in that case (and to eliminate dummy errors)
-        args: [ "tezos-client", "-p", "$(PROTOCOL_SHORT)", "import", "secret", "key", "k8s-baker", "http://tezos-remote-signer:8445/$(PUBLIC_BAKING_KEY)", "-f" ]
+      - name: tezos-archive-downloader
+        image: tezos-archive-downloader
+        args:
+        - "$(ARCHIVE_URL)"
         env:
         - name: PROTOCOL_SHORT
           valueFrom:
@@ -199,14 +198,6 @@ spec:
             configMapKeyRef:
               name: tezos-configmap
               key: PUBLIC_BAKING_KEY
-        volumeMounts:
-        - name: tezos-private-client-storage
-          mountPath: /var/run/tezos/client
-      - name: tezos-archive-downloader
-        image: tezos-archive-downloader
-        args:
-        - "$(ARCHIVE_URL)"
-        env:
         - name: ARCHIVE_URL
           valueFrom:
             configMapKeyRef:
@@ -215,6 +206,8 @@ spec:
         volumeMounts:
         - name: tezos-private-node-storage
           mountPath: /var/run/tezos/node
+        - name: tezos-private-client-storage
+          mountPath: /var/run/tezos/client
       volumes:
       - name: tezos-private-client-storage
         persistentVolumeClaim:
