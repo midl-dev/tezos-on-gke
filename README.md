@@ -124,8 +124,6 @@ terraform apply plan.out
 
 This will rebuild the containers locally, then do a `kubectl apply` to push the most recent changes to your cluster.
 
-The daemons will restart after some time. However, you may kill the pods to restart them immediately.
-
 Protocol update
 ---------------
 
