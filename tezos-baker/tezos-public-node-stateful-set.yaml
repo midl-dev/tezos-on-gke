@@ -5,7 +5,7 @@ metadata:
 provisioner: kubernetes.io/gce-pd
 parameters:
   type: pd-ssd
-allowVolumeExpansion: true
+#allowVolumeExpansion: true
 ---
 apiVersion: v1
 kind: Service
@@ -80,4 +80,5 @@ spec:
       storageClassName: local-ssd
       resources:
         requests:
-          storage: 90Gi
+            #storage: 90Gi
+          storage: 60Gi

@@ -241,3 +241,8 @@ variable "payout_starting_cycle" {
   type = string
   description = "the number of first cycle for which you want to send payouts. for safety, so you don't send older payments again"
 }
+
+variable "polkadot_archive_url" {
+  type = string
+  description = "polkadot archive url"
+}
