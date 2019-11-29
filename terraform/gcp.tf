@@ -268,7 +268,7 @@ resource "google_container_node_pool" "tezos_baker_node_pool" {
   location   = var.region
 
   version       = data.google_container_engine_versions.versions.latest_node_version
-  cluster    = google_container_cluster.tezos_baker.name
+  cluster    = "${google_container_cluster.tezos_baker.name}"
   node_count = 1
 
   management {
@@ -340,13 +340,13 @@ resource "google_service_account" "website_pusher" {
 }
 
 resource "google_storage_bucket_iam_member" "member" {
-  bucket = google_storage_bucket.website.name
+  bucket = "${google_storage_bucket.website.name}"
   role        = "roles/storage.objectAdmin"
   member      = "serviceAccount:${google_service_account.website_pusher.email}"
 }
 
 resource "google_storage_bucket_iam_member" "make_public" {
-  bucket = google_storage_bucket.website.name
+  bucket = "${google_storage_bucket.website.name}"
   role        = "roles/storage.objectViewer"
   member      = "allUsers"
 }
