@@ -44,7 +44,7 @@ resource "random_string" "no_proxy_hostname" {
 }
 
 resource "google_compute_managed_ssl_certificate" "default" {
-  provider = "google-beta"
+  provider = google-beta
   project      = local.tezos_baker_project_id
 
   name = "baker-website-cert"
@@ -58,7 +58,7 @@ resource "google_compute_managed_ssl_certificate" "default" {
 # ------------------------------------------------------------------------------
 
 resource "google_compute_target_https_proxy" "default" {
-  provider = "google-beta"
+  provider = google-beta
   project      = local.tezos_baker_project_id
   name    = "baker-website-https-proxy"
   url_map = google_compute_url_map.urlmap.name
@@ -74,7 +74,7 @@ resource "google_compute_backend_bucket" "website_backend" {
   project      = local.tezos_baker_project_id
   name        = "website-backend-bucket"
   description = "Tezos backend website"
-  bucket_name = "${google_storage_bucket.website.name}"
+  bucket_name = google_storage_bucket.website.name
   enable_cdn  = true
 }
 
