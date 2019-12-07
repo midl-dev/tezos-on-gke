@@ -2,6 +2,26 @@ terraform {
   required_version = ">= 0.12"
 }
 
+#
+# Google Cloud Platform options
+# ------------------------------
+
+variable "org_id" {
+  type        = string
+  description = "Organization ID."
+}
+
+variable "billing_account" {
+  type        = string
+  description = "Billing account ID."
+}
+
+variable "project" {
+  type        = string
+  default     = ""
+  description = "Project ID where Terraform is authenticated to run to create additional projects. If provided, Terraform will great the GKE and Tezos cluster inside this project. If not given, Terraform will generate a new project."
+}
+
 variable "region" {
   type        = string
   default     = "us-central1"
@@ -11,18 +31,7 @@ variable "region" {
 variable "node_locations" {
   type  = list
   default = [ "us-central1-b", "us-central1-f" ]
-  description = "list of locations within the regions where to deploy the nodes"
-}
-
-variable "project" {
-  type        = string
-  default     = ""
-  description = "Project ID where Terraform is authenticated to run to create additional projects. If provided, Terraform will great the GKE and Tezos cluster inside this project. If not given, Terraform will generate a new project."
-}
-
-variable "billing_account" {
-  type        = string
-  description = "Billing account ID."
+  description = "List of locations within the regions where to deploy the nodes."
 }
 
 variable "kubernetes_instance_type" {
@@ -55,6 +64,7 @@ variable "project_services" {
   ]
   description = "List of services to enable on the project."
 }
+
 #
 # Kubernetes options
 # ------------------------------
@@ -123,121 +133,124 @@ variable "kubernetes_master_authorized_networks" {
   description = "List of CIDR blocks to allow access to the master's API endpoint. This is specified as a slice of objects, where each object has a display_name and cidr_block attribute. The default behavior is to allow anyone (0.0.0.0/0) access to the endpoint. You should restrict access to external IPs that need to access the cluster."
 }
 
-variable "org_id" {
-  type        = string
-  description = "Organization ID."
-}
-
-variable "public_baking_key" {
-  type  = string
-  description = "The public baker tz1 public key that delegators delegate to"
-}
-
-variable "snapshot_url" {
-  type = string
-  description = "The public URL where to download the tezos blockchain snapshot for quicker sync of the public nodes"
-}
-
-variable "archive_url" {
-  type = string
-  description = "The public URL where to download the full historical tezos blockchain for quicker sync of the private node"
-}
-
-variable "authorized_signer_key_a" {
-  type = string
-  description = "Public key of the first remote signer"
-}
-
-variable "authorized_signer_key_b" {
-  type = string
-  description = "Public key of the first remote signer"
-}
-
-variable "hot_wallet_public_key" {
-  type = string
-  description = "The public key of the hot wallet or payout wallet (where rewards come from)"
-}
-
-variable "hot_wallet_private_key" {
-  type = string
-  description = "The private key of the hot wallet or payout wallet (where rewards come from). must be unencrypted and without the unencrypted: string"
-}
-
-variable "tezos_network" {
-  type =string
-  description = "The tezos network (alphanet and mainnet supported)"
-}
-
-variable "payout_delay" {
-  type =string
-  description = "Number of cycles to delay the payout compared to PRESERVED_CYCLES (can be negatives to pay out in advance)"
-}
-
-variable "website" {
-  type = string
-  description = "address of the baker's static website hosted on gcp"
-}
-
-variable "website_archive" {
-  type = string
-  description = "URL of the archive for the jekyll website to deploy"
-}
-
-variable "signer_target_random_hostname" {
-  type = string
-  description = "Here provide a random string such as 128fecf31d for the fqdn of the ssh endpoint the remote signer connects to (for example 128fec31d.mybaker.com)"
-  default = "signer"
-}
+#
+# Cloudflare options
+# ------------------------------
 
 variable "cloudflare_email" {
   type = string
-  description = "cloudflare login email, for https"
+  description = "Cloudflare login email, for https."
 }
 
 variable "cloudflare_api_key" {
   type = string
-  description = "cloudflare api key, for https"
+  description = "Cloudflare API key, for https."
 }
 
 variable "cloudflare_account_id" {
   type = string
-  description = "cloudflare zone id for website"
+  description = "Cloudflare account id for website."
 }
 
 variable "dns_mx_record_1" {
   type = string
-  description = "first mx record for email associated to domain"
+  description = "First mx record for email associated to domain."
 }
 
 variable "dns_mx_record_2" {
   type = string
-  description = "second mx record for email associated to domain"
+  description = "Second mx record for email associated to domain."
 }
 
 variable "dns_spf_record" {
   type = string
-  description = "dns spf record for email anti-spoofing"
+  description = "DNS spf record for email anti-spoofing."
+}
+
+#
+# Tezos node and baker options
+# ------------------------------
+
+variable "public_baking_key" {
+  type  = string
+  description = "The public baker tz1 public key that delegators delegate to."
+}
+
+variable "snapshot_url" {
+  type = string
+  description = "The public URL where to download the Tezos blockchain snapshot for quicker sync of the public nodes."
+}
+
+variable "archive_url" {
+  type = string
+  description = "The public URL where to download the full historical Tezos blockchain for quicker sync of the private node."
+}
+
+variable "authorized_signer_key_a" {
+  type = string
+  description = "Public key of the first remote signer."
+}
+
+variable "authorized_signer_key_b" {
+  type = string
+  description = "Public key of the first remote signer."
+}
+
+variable "hot_wallet_public_key" {
+  type = string
+  description = "The public key of the hot wallet or payout wallet (where rewards come from)."
+}
+
+variable "hot_wallet_private_key" {
+  type = string
+  description = "The private key of the hot wallet or payout wallet (where rewards come from). must be unencrypted and without the unencrypted: string."
+}
+
+variable "tezos_network" {
+  type =string
+  description = "The Tezos network (alphanet and mainnet supported)."
+}
+
+variable "payout_delay" {
+  type =string
+  description = "Number of cycles to delay the payout compared to PRESERVED_CYCLES (can be negatives to pay out in advance)."
+}
+
+variable "website" {
+  type = string
+  description = "Address of the baker's static website hosted on GCP."
+}
+
+variable "website_archive" {
+  type = string
+  description = "URL of the archive for the Jekyll website to deploy."
+}
+
+variable "signer_target_random_hostname" {
+  type = string
+  description = "Random string such as 128fecf31d for the fqdn of the ssh endpoint the remote signer connects to (for example 128fec31d.mybaker.com)."
+  default = "signer"
 }
 
 variable "protocol" {
   type = string
-  description = "the tezos protocol currently in use"
+  description = "The Tezos protocol currently in use."
   default = "005-PsBabyM1"
 }
 
 variable "protocol_short" {
   type = string
-  description = "the shot string describing the protocol"
+  description = "The shot string describing the protocol."
   default = "PsBabyM1"
 }
 
 variable "payout_fee" {
   type = string
-  description = "the fee, formatted in 'numerator % denominator', for example '11 % 100' for a 11% fee"
+  description = "The fee, formatted in 'numerator % denominator', for example '11 % 100' for a 11% fee."
   default = "10 % 100"
 }
 
 variable "payout_starting_cycle" {
   type = string
-  description = "the number of first cycle for which you want to send payouts. for safety, so you don't send older payments again"
+  description = "The number of first cycle for which you want to send payouts. for safety, so you don't send older payments again."
 }
