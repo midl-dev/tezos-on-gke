@@ -1,5 +1,0 @@
-FROM tezos/tezos:((tezos_network))
-RUN sudo apk add curl lz4
-COPY tezos-archive-downloader.sh /
-ENTRYPOINT ["/tezos-archive-downloader.sh"]
-CMD []

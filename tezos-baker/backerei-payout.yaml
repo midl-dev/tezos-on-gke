@@ -41,10 +41,11 @@ spec:
       containers:
       - name: backerei-payout-sender
         image: registry.gitlab.com/ochem/backerei:latest
-        args: [ "--config", "/var/run/backerei/config/backerei.yaml", "payout", "--no-password", "--continuous", "--no-dry-run" ]
+        args: [ "--config", "/var/run/backerei/config/backerei.yaml", "payout", "--no-password", "--continuous" ]
         volumeMounts:
         - name: backerei-payout-storage
           mountPath: /var/run/backerei/payouts
+          readOnly: true
         - name: backerei-config-storage
           readOnly: true
           mountPath: /var/run/backerei/config
@@ -56,7 +57,6 @@ spec:
         volumeMounts:
         - name: backerei-payout-storage
           mountPath: /usr/share/nginx/html
-          readOnly: true
       initContainers:
       - name: tezos-client-configure-node-connectivity
         image: tezos/tezos

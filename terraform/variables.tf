@@ -133,14 +133,14 @@ variable "public_baking_key" {
   description = "The public baker tz1 public key that delegators delegate to"
 }
 
-variable "snapshot_url" {
+variable "rolling_snapshot_url" {
   type = string
   description = "The public URL where to download the tezos blockchain snapshot for quicker sync of the public nodes"
 }
 
-variable "archive_url" {
+variable "full_snapshot_url" {
   type = string
-  description = "The public URL where to download the full historical tezos blockchain for quicker sync of the private node"
+  description = "The public URL where to download the tezos blockchain snapshot for quicker sync of the public nodes"
 }
 
 variable "authorized_signer_key_a" {
@@ -166,6 +166,16 @@ variable "hot_wallet_private_key" {
 variable "tezos_network" {
   type =string
   description = "The tezos network (alphanet and mainnet supported)"
+}
+
+variable "tezos_sentry_version" {
+  type =string
+  description = "The tezos container version for sentry nodes"
+}
+
+variable "tezos_private_version" {
+  type =string
+  description = "The tezos container version for private node"
 }
 
 variable "payout_delay" {
@@ -240,4 +250,9 @@ variable "payout_fee" {
 variable "payout_starting_cycle" {
   type = string
   description = "the number of first cycle for which you want to send payouts. for safety, so you don't send older payments again"
+}
+
+variable "polkadot_archive_url" {
+  type = string
+  description = "polkadot archive url"
 }

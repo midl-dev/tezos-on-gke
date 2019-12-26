@@ -1,4 +1,4 @@
-FROM tezos/tezos:((tezos_network))
+FROM tezos/tezos:((tezos_private_version))
 COPY tezos-baker-with-remote-signer.sh /
 ENTRYPOINT ["/tezos-baker-with-remote-signer.sh"]
 CMD []

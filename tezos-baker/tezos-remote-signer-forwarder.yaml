@@ -88,6 +88,9 @@ spec:
             configMapKeyRef:
               name: remote-signer-forwarder-configmap
               key: AUTHORIZED_SIGNER_KEY_B
+        resources:
+          limits:
+            cpu: 0
       - name: tezos-remote-signer-loadbalancer
         image: tezos-remote-signer-loadbalancer
         ports:
@@ -99,3 +102,6 @@ spec:
             configMapKeyRef:
               name: tezos-configmap
               key: PUBLIC_BAKING_KEY
+        resources:
+          limits:
+            cpu: 0

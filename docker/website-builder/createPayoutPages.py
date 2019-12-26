@@ -26,7 +26,7 @@ for cycle,cycle_val in raw_payouts["payoutsByCycle"].items():
         if delegator_val["estimatedRewards"] != "0":
             delegators[delegator].append("|%s|%sꜩ|%sꜩ|%s|%s|" % (cycle, int(delegator_val["balance"]) / 1000000,
             int(delegator_val["estimatedRewards"]) / 1000000,
-            "%s%%" % round( 1 - ( 0.95 * int(delegator_val["estimatedRewards"]) / int(delegator_val["finalRewards"]) ) , 3) if "finalRewards" in delegator_val else "Not yet known",
+            "%s%%" % round( ( 1 - ( 0.95 * int(delegator_val["estimatedRewards"]) / int(delegator_val["finalRewards"]) ) ) * 100, 3) if "finalRewards" in delegator_val else "Not yet known",
             payout_operation ) )
 
 for delegator, delegator_val in delegators.items():
