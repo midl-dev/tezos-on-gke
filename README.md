@@ -13,7 +13,6 @@ Features:
 * ssh endpoint for remote signing
 * compatible with mainnet and alphanet
 * blockchain snapshot download and import from a public URL for faster synchronization of the nodes
-* automatic payouts from a hot wallet with Backerei
 * support for two highly available signers
 * deploy everything in just one command
 * TODO:
@@ -33,6 +32,9 @@ A private Tezos baking node performs signing, endorsing and accusing. It synchro
 An ssh endpoint is accessed by the remote signer (outside of GKE) to establish a tunnel to the signing daemon.
 
 Instructions and code to set up the remote signers are at https://github.com/hodl-dot-farm/tezos-remote-signer-os
+
+Optionally, you can set up a secondary cluster to perform monitoring of the baking operations, delegate payout and baking website update. For a solo baking operation, payout and website are not needed. The source code for the auxiliary cluster is at https://github.com/hodl-dot-farm/tezos-auxiliary-cluster
+
 
 <img src="./k8s-baker.svg">
 
@@ -54,7 +56,6 @@ With the default variables, the setup runs in two n1-standard-2 VMs on GCP platf
 
 * Switch to two n1-standard-1 VMs. It is enough once the blockchain is synchronized, however for initial synchronization larger VMs tend to help. Kubernetes allow you to perform this change without downtime.
 * Switch to magnetic drives instead of SSDs
-* Switch over to the [new storage backend](https://tezos.gitlab.io/releases/october-2019.html) which is much more efficient and will allow to provision smaller drives
 
 Dependencies
 ------------
@@ -120,12 +121,8 @@ This will take time as it will:
 * create a Kubernetes cluster
 * build the necessary containers locally
 * spin up the public nodes and private baker nodes
-* build the payout agent
-* build and deploy the baker website (optional)
 
 Then set up the signers and have them connect to the public endpoint.
-
-Then, fund your payout wallet, and send a test transaction from it to somewhere else (this is necessary to reveal the payout key).
 
 Apply an update
 ---------------
@@ -150,16 +147,6 @@ On your machine, issue `docker pull tezos/tezos:mainnet` to ensure you have the 
 
 Then, apply the changes. Your baker will restart with the right baking and endorsing daemons.
 
-Website
--------
-
-The kubernetes infrastructure is optionally configured to deploy a static Jekyll website in a GCP storage bucket.
-
-This allows you to build your baker's website where delegates can check their contribution and payouts.
-
-You can pass a `website` variable to terraform to make that happen.
-
-You will have to configure your DNS registrar to point to the Google nameservers.
 
 Security considerations
 -----------------------
