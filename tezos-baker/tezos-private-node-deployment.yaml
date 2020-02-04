@@ -18,7 +18,7 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 300Gi
+      storage: 90Gi
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -120,7 +120,7 @@ spec:
       containers:
       - name: tezos-private-node
         image: tezos/tezos
-        args: [ "tezos-node", "--private-mode", "--peer", "tezos-public-node-0.tezos-public-node", "--peer", "tezos-public-node-1.tezos-public-node", "--connections", "2", "--history-mode", "archive", "--rpc-addr", "0.0.0.0:8732" ]
+        args: [ "tezos-node", "--private-mode", "--peer", "tezos-public-node-0.tezos-public-node", "--peer", "tezos-public-node-1.tezos-public-node", "--connections", "2", "--rpc-addr", "0.0.0.0:8732" ]
         ports:
         - containerPort: 9732
           name: tezos-port
@@ -129,17 +129,18 @@ spec:
         volumeMounts:
         - name: tezos-private-node-storage
           mountPath: /var/run/tezos/node
-      - name: tezos-private-node-connectivity-checker
-        image: tezos-private-node-connectivity-checker
+        resources:
+          limits:
+            cpu: 0
+      - name: tezos-prometheus-exporter
+        image: ecadlabs/tezos_exporter
+        args: [ "-tezos-node-url", "http://localhost:8732/" ]
         ports:
-        - containerPort: 31764
-          name: tezos-checker
-        livenessProbe:
-          httpGet:
-            
-            port: 31764
-          initialDelaySeconds: 240
-          periodSeconds: 15
+        - containerPort: 9489
+          name: prom-exporter
+        resources:
+          limits:
+            cpu: 0
       - name: tezos-endorser-with-remote-signer
         image: tezos-endorser-with-remote-signer
         args: [ "k8s-baker" ]
@@ -152,6 +153,9 @@ spec:
         envFrom:
         - configMapRef:
             name: tezos-configmap
+        resources:
+          limits:
+            cpu: 0
       - name: tezos-accuser
         image: tezos/tezos
         args: [ "tezos-accuser" ]
@@ -170,6 +174,9 @@ spec:
         - name: tezos-private-client-storage
           readOnly: true
           mountPath: /var/run/tezos/client
+        resources:
+          limits:
+            cpu: 0
       - name: tezos-baker-with-remote-signer
         image: tezos-baker-with-remote-signer
         args: [ "k8s-baker" ]
@@ -182,11 +189,28 @@ spec:
         envFrom:
         - configMapRef:
             name: tezos-configmap
+        resources:
+          limits:
+            cpu: 0
       initContainers:
-      - name: tezos-archive-downloader
-        image: tezos-archive-downloader
+      - name: tezos-snapshot-downloader
+        image: tezos-snapshot-downloader
         args:
-        - "$(ARCHIVE_URL)"
+        - "$(FULL_SNAPSHOT_URL)"
+        env:
+        - name: FULL_SNAPSHOT_URL
+          valueFrom:
+            configMapKeyRef:
+              name: tezos-configmap
+              key: FULL_SNAPSHOT_URL
+        resources:
+          limits:
+            cpu: 0
+        volumeMounts:
+        - name: tezos-private-node-storage
+          mountPath: /var/run/tezos/node
+      - name: tezos-key-importer
+        image: tezos-key-importer
         env:
         - name: PROTOCOL_SHORT
           valueFrom:
@@ -198,16 +222,14 @@ spec:
             configMapKeyRef:
               name: tezos-configmap
               key: PUBLIC_BAKING_KEY
-        - name: ARCHIVE_URL
-          valueFrom:
-            configMapKeyRef:
-              name: tezos-configmap
-              key: ARCHIVE_URL
         volumeMounts:
         - name: tezos-private-node-storage
           mountPath: /var/run/tezos/node
         - name: tezos-private-client-storage
           mountPath: /var/run/tezos/client
+        resources:
+          limits:
+            cpu: 0
       volumes:
       - name: tezos-private-client-storage
         persistentVolumeClaim:

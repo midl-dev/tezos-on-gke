@@ -16,7 +16,7 @@ else
     echo "Did not find pre-existing data, importing blockchain"
     rm -rvf ${node_dir}/*
     mkdir ${node_dir}/data
-    echo '{ "version": "0.0.3" }' > ${node_dir}/version.json
+    echo '{ "version": "0.0.4" }' > ${node_dir}/version.json
     cp -v /usr/local/share/tezos/alphanet_version ${node_dir}
     snapshot=$(echo -n "$@")
     snapshot_file=${node_dir}/chain.snapshot

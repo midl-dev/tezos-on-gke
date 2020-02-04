@@ -52,7 +52,9 @@ gcloud auth configure-docker --project "${google_container_cluster.tezos_baker.p
 
 find ${path.module}/../docker -mindepth 1 -type d  -printf '%f\n'| while read container; do
   pushd ${path.module}/../docker/$container
-  sed -e "s/((tezos_network))/${var.tezos_network}/" Dockerfile.template > Dockerfile
+  cp Dockerfile.template Dockerfile
+  sed -i "s/((tezos_sentry_version))/${var.tezos_sentry_version}/" Dockerfile
+  sed -i "s/((tezos_private_version))/${var.tezos_private_version}/" Dockerfile
   tag="gcr.io/${google_container_cluster.tezos_baker.project}/$container:latest"
   docker build -t $tag .
   docker push $tag
@@ -87,12 +89,13 @@ resources:
 - tezos-public-node-stateful-set.yaml
 - tezos-private-node-deployment.yaml
 - tezos-remote-signer-forwarder.yaml
-- backerei-payout.yaml
-- website-builder.yaml
 
 imageTags:
   - name: tezos/tezos
-    newTag: ${var.tezos_network}
+    newTag: ${var.tezos_private_version}
+  - name: tezos/tezos-public
+    newName: tezos/tezos
+    newTag: ${var.tezos_sentry_version}
   - name: tezos-baker-with-remote-signer
     newName: gcr.io/${google_container_cluster.tezos_baker.project}/tezos-baker-with-remote-signer
     newTag: latest
@@ -111,6 +114,9 @@ imageTags:
   - name: tezos-archive-downloader
     newName: gcr.io/${google_container_cluster.tezos_baker.project}/tezos-archive-downloader
     newTag: latest
+  - name: tezos-key-importer
+    newName: gcr.io/${google_container_cluster.tezos_baker.project}/tezos-key-importer
+    newTag: latest
   - name: tezos-private-node-connectivity-checker
     newName: gcr.io/${google_container_cluster.tezos_baker.project}/tezos-private-node-connectivity-checker
     newTag: latest
@@ -120,8 +126,8 @@ imageTags:
 configMapGenerator:
 - name: tezos-configmap
   literals:
-  - SNAPSHOT_URL="${var.snapshot_url}"
-  - ARCHIVE_URL="${var.archive_url}"
+  - ROLLING_SNAPSHOT_URL="${var.rolling_snapshot_url}"
+  - FULL_SNAPSHOT_URL="${var.full_snapshot_url}"
   - PUBLIC_BAKING_KEY="${var.public_baking_key}"
   - NODE_HOST="localhost"
   - PROTOCOL="${var.protocol}"

@@ -5,7 +5,7 @@ metadata:
 provisioner: kubernetes.io/gce-pd
 parameters:
   type: pd-ssd
-allowVolumeExpansion: true
+#allowVolumeExpansion: true
 ---
 apiVersion: v1
 kind: Service
@@ -49,26 +49,28 @@ spec:
         fsGroup: 100
       containers:
       - name: tezos-public-node
-        image: tezos/tezos
-        #args: [ "tezos-node", "--history-mode", "experimental-rolling" ]
-        args: [ "tezos-node" ]
+        image: tezos/tezos-public
+        args: [ "tezos-node", "--history-mode", "experimental-rolling" ]
         ports:
         - containerPort: 9732
           name: tezos-port
         volumeMounts:
         - name: tezos-public-node-pv-claim
           mountPath: /var/run/tezos/node
+        resources:
+          limits:
+            cpu: 0
       initContainers:
       - name: tezos-snapshot-downloader
         image: tezos-snapshot-downloader
         args:
-        - "$(SNAPSHOT_URL)"
+        - "$(ROLLING_SNAPSHOT_URL)"
         env:
-        - name: SNAPSHOT_URL
+        - name: ROLLING_SNAPSHOT_URL
           valueFrom:
             configMapKeyRef:
               name: tezos-configmap
-              key: SNAPSHOT_URL
+              key: ROLLING_SNAPSHOT_URL
         volumeMounts:
         - name: tezos-public-node-pv-claim
           mountPath: /var/run/tezos/node
@@ -80,4 +82,4 @@ spec:
       storageClassName: local-ssd
       resources:
         requests:
-          storage: 90Gi
+          storage: 30Gi

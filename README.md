@@ -72,6 +72,21 @@ Dependencies
 
 1. install and configure docker
 
+
+Prepare archie and snapshot
+----------------------------
+
+You need to provide the url where to download an archive and a snapshot in order to bootstrap your baker.
+
+To generate a snapshot, simply follow the instructions in `tezos-node snapshot export --help`
+
+To generate an archive in lz4 format, sync a full node in archive mode, then do:
+
+```
+cd ~/.tezos-node
+tar cvf - context store |  lz4 > mainnet.archive.tar.lz4
+```
+
 How to deploy
 -------------
 
