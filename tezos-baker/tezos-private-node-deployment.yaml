@@ -132,17 +132,12 @@ spec:
         resources:
           limits:
             cpu: 0
-      - name: tezos-private-node-connectivity-checker
-        image: tezos-private-node-connectivity-checker
+      - name: tezos-prometheus-exporter
+        image: ecadlabs/tezos_exporter
+        args: [ "-tezos-node-url", "http://localhost:8732/" ]
         ports:
-        - containerPort: 31764
-          name: tezos-checker
-        livenessProbe:
-          httpGet:
-            
-            port: 31764
-          initialDelaySeconds: 240
-          periodSeconds: 15
+        - containerPort: 9489
+          name: prom-exporter
         resources:
           limits:
             cpu: 0
