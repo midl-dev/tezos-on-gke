@@ -1,0 +1,151 @@
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: local-ssd
+provisioner: kubernetes.io/gce-pd
+parameters:
+  type: pd-ssd
+#allowVolumeExpansion: true
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tezos-private-endorsing-node
+spec:
+  ports:
+  - port: 9732
+  selector:
+    app: tezos-private-endorsing-node
+  clusterIP: None
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tezos-private-endorsing-node-rpc
+spec:
+  ports:
+  - port: 8732
+  selector:
+    app: tezos-private-endorsing-node
+  clusterIP: None
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: tezos-private-endorsing-node
+spec:
+  selector:
+    matchLabels:
+      app: tezos-private-endorsing-node # Label selector that determines which Pods belong to the StatefulSet
+                 # Must match spec: template: metadata: labels
+  serviceName: "tezos-private-endorsing-node"
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: tezos-private-endorsing-node # Pod template's label selector
+    spec:
+      securityContext:
+        fsGroup: 100
+      containers:
+      - name: tezos-private-endorsing-node
+        image: tezos/tezos-private
+        args: [ "tezos-node", "--history-mode", "experimental-rolling", "--private-mode", "--peer", "tezos-public-node-0.tezos-public-node", "--peer", "tezos-public-node-1.tezos-public-node", "--peer", "tezos-private-node" "--connections", "3", "--rpc-addr", "0.0.0.0:8732" ]
+        ports:
+        - containerPort: 9732
+          name: tezos-port
+        volumeMounts:
+        - name: tezos-private-endorsing-node-pv-claim
+          mountPath: /var/run/tezos/node
+        resources:
+          limits:
+            cpu: 0
+      initContainers:
+      - name: tezos-snapshot-downloader
+        image: tezos-snapshot-downloader
+        args:
+        - "$(ROLLING_SNAPSHOT_URL)"
+        env:
+        - name: ROLLING_SNAPSHOT_URL
+          valueFrom:
+            configMapKeyRef:
+              name: tezos-configmap
+              key: ROLLING_SNAPSHOT_URL
+        volumeMounts:
+        - name: tezos-private-endorsing-node-pv-claim
+          mountPath: /var/run/tezos/node
+  volumeClaimTemplates:
+  - metadata:
+      name: tezos-private-endorsing-node-pv-claim
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: local-ssd
+      resources:
+        requests:
+          storage: 30Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tezos-endorser
+spec:
+  selector:
+    matchLabels:
+      app: tezos-endorser
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: tezos-endorser
+    spec:
+      securityContext:
+        fsGroup: 100
+      containers:
+      - name: tezos-endorser-with-remote-signer
+        image: tezos-endorser-with-remote-signer
+        args: [ "k8s-baker" ]
+        volumeMounts:
+        - name: tezos-private-client-storage
+          mountPath: /var/run/tezos/client
+        envFrom:
+        - configMapRef:
+            name: tezos-endorser-configmap
+        resources:
+          limits:
+            cpu: 0
+      - name: tezos-accuser
+        image: tezos/tezos
+        args: [ "tezos-accuser" ]
+        env:
+        - name: NODE_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: tezos-configmap
+              key: NODE_HOST
+        - name: PROTOCOL
+          valueFrom:
+            configMapKeyRef:
+              name: tezos-configmap
+              key: PROTOCOL
+        volumeMounts:
+        - name: tezos-private-client-storage
+          readOnly: true
+          mountPath: /var/run/tezos/client
+        resources:
+          limits:
+            cpu: 0
+      initContainers:
+      - name: tezos-key-importer
+        image: tezos-key-importer
+        env:
+        - name: PROTOCOL_SHORT
+          valueFrom:
+            configMapKeyRef:
+              name: tezos-configmap
+              key: PROTOCOL_SHORT
+        - name: PUBLIC_BAKING_KEY
+          valueFrom:
+            configMapKeyRef:
+              name: tezos-configmap
+              key: PUBLIC_BAKING_KEY

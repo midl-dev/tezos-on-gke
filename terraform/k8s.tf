@@ -133,6 +133,13 @@ configMapGenerator:
   - PROTOCOL="${var.protocol}"
   - PROTOCOL_SHORT="${var.protocol_short}"
   - DATA_DIR=/var/run/tezos
+- name: tezos-endorser-configmap
+  literals:
+  - PUBLIC_BAKING_KEY="${var.public_baking_key}"
+  - NODE_HOST="tezos-endorsing-node"
+  - PROTOCOL="${var.protocol}"
+  - PROTOCOL_SHORT="${var.protocol_short}"
+  - DATA_DIR=/var/run/tezos
 - name: remote-signer-forwarder-configmap
   literals:
   - AUTHORIZED_SIGNER_KEY_A="${var.authorized_signer_key_a}"

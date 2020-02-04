@@ -35,6 +35,17 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
+  name: tezos-private-node
+spec:
+  ports:
+  - port: 9732
+  selector:
+    app: tezos-private-baking-node
+  clusterIP: None
+---
+apiVersion: v1
+kind: Service
+metadata:
   name: tezos-private-node-rpc
 spec:
   ports:
@@ -78,6 +89,7 @@ spec:
     to:
     - podSelector:
         matchLabels:
+          app: tezos-public-node
           app: tezos-public-node
   ingress:
   - ports:
@@ -138,42 +150,6 @@ spec:
         ports:
         - containerPort: 9489
           name: prom-exporter
-        resources:
-          limits:
-            cpu: 0
-      - name: tezos-endorser-with-remote-signer
-        image: tezos-endorser-with-remote-signer
-        args: [ "k8s-baker" ]
-        volumeMounts:
-        - name: tezos-private-node-storage
-          readOnly: true
-          mountPath: /var/run/tezos/node
-        - name: tezos-private-client-storage
-          mountPath: /var/run/tezos/client
-        envFrom:
-        - configMapRef:
-            name: tezos-configmap
-        resources:
-          limits:
-            cpu: 0
-      - name: tezos-accuser
-        image: tezos/tezos
-        args: [ "tezos-accuser" ]
-        env:
-        - name: NODE_HOST
-          valueFrom:
-            configMapKeyRef:
-              name: tezos-configmap
-              key: NODE_HOST
-        - name: PROTOCOL
-          valueFrom:
-            configMapKeyRef:
-              name: tezos-configmap
-              key: PROTOCOL
-        volumeMounts:
-        - name: tezos-private-client-storage
-          readOnly: true
-          mountPath: /var/run/tezos/client
         resources:
           limits:
             cpu: 0
