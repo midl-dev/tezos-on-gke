@@ -147,6 +147,12 @@ On your machine, issue `docker pull tezos/tezos:mainnet` to ensure you have the 
 
 Then, apply the changes. Your baker will restart with the right baking and endorsing daemons.
 
+Remotely ssh into the remote signers
+------------------------------------
+
+For remote connectivity and debugging purposes, ssh port 22 for the on-prem remote signers is being forwarded on ports 9443 and 9444.
+
+To connect to the signers, forward port 9443/9444 from the `tezos-remote-signer-forwarder` locally, then ssh to localhost using your private key associated with the public key injected into the baker during initial setup.
 
 Security considerations
 -----------------------
