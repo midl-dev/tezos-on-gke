@@ -1,0 +1,3 @@
+FROM tezos/tezos:((tezos_sentry_version))
+RUN sudo apk add jq
+COPY does-tezos-node-have-connections.sh /usr/local/bin

@@ -39,17 +39,18 @@ resource "null_resource" "push_containers" {
     command = <<EOF
 gcloud auth configure-docker --project "${google_container_cluster.tezos_baker.project}"
 
-find ${path.module}/../docker -mindepth 1 -type d  -printf '%f\n'| while read container; do
+#find ${path.module}/../docker -mindepth 1 -type d  -printf '%f\n'| while read container; do
+  container="tezos-public-node-with-probes"
   pushd ${path.module}/../docker/$container
   cp Dockerfile.template Dockerfile
   sed -i "s/((tezos_sentry_version))/${var.tezos_sentry_version}/" Dockerfile
   sed -i "s/((tezos_private_version))/${var.tezos_private_version}/" Dockerfile
   tag="gcr.io/${google_container_cluster.tezos_baker.project}/$container:latest"
-  docker build -t $tag .
-  docker push $tag
+  podman build --format docker -t $tag .
+  podman push $tag
   rm -v Dockerfile
   popd
-done
+#done
 EOF
   }
 }
@@ -80,11 +81,11 @@ resources:
 - tezos-remote-signer-forwarder.yaml
 
 imageTags:
+  - name: tezos-public-node-with-probes
+    newName: gcr.io/${google_container_cluster.tezos_baker.project}/tezos-public-node-with-probes
+    newTag: latest
   - name: tezos/tezos
     newTag: ${var.tezos_private_version}
-  - name: tezos/tezos-public
-    newName: tezos/tezos
-    newTag: ${var.tezos_sentry_version}
   - name: tezos-baker-with-remote-signer
     newName: gcr.io/${google_container_cluster.tezos_baker.project}/tezos-baker-with-remote-signer
     newTag: latest

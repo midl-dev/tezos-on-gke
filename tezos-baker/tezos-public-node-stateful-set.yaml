@@ -49,7 +49,7 @@ spec:
         fsGroup: 100
       containers:
       - name: tezos-public-node
-        image: tezos/tezos-public
+        image: tezos-public-node-with-probes
         args: [ "tezos-node", "--history-mode", "experimental-rolling" ]
         ports:
         - containerPort: 9732
@@ -60,6 +60,13 @@ spec:
         resources:
           limits:
             cpu: 0
+        livenessProbe:
+          # pod is considered dead when number of connections drops to zero
+          exec:
+            command:
+            - /usr/local/bin/does-tezos-node-have-connections.sh
+          periodSeconds: 10
+          failureThreshold: 50
       initContainers:
       - name: tezos-snapshot-downloader
         image: tezos-snapshot-downloader
