@@ -92,13 +92,6 @@ spec:
     - podSelector:
         matchLabels:
           app: tezos-public-node
-  - ports:
-    - port: 8732
-      protocol: TCP
-    from:
-    - podSelector:
-        matchLabels:
-          app: backerei-payout-sender
 ---
 apiVersion: apps/v1
 kind: Deployment

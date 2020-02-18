@@ -196,16 +196,6 @@ variable "authorized_signer_key_b" {
   description = "Public key of the first remote signer."
 }
 
-variable "hot_wallet_public_key" {
-  type = string
-  description = "The public key of the hot wallet or payout wallet (where rewards come from)."
-}
-
-variable "hot_wallet_private_key" {
-  type = string
-  description = "The private key of the hot wallet or payout wallet (where rewards come from). must be unencrypted and without the unencrypted: string."
-}
-
 variable "tezos_network" {
   type =string
   description = "The Tezos network (alphanet and mainnet supported)."
@@ -219,11 +209,6 @@ variable "tezos_sentry_version" {
 variable "tezos_private_version" {
   type =string
   description = "The tezos container version for private node"
-}
-
-variable "payout_delay" {
-  type =string
-  description = "Number of cycles to delay the payout compared to PRESERVED_CYCLES (can be negatives to pay out in advance)."
 }
 
 variable "website" {
@@ -252,17 +237,6 @@ variable "protocol_short" {
   type = string
   description = "The shot string describing the protocol."
   default = "PsBabyM1"
-}
-
-variable "payout_fee" {
-  type = string
-  description = "The fee, formatted in 'numerator % denominator', for example '11 % 100' for a 11% fee."
-  default = "10 % 100"
-}
-
-variable "payout_starting_cycle" {
-  type = string
-  description = "The number of first cycle for which you want to send payouts. for safety, so you don't send older payments again."
 }
 
 variable "polkadot_archive_url" {

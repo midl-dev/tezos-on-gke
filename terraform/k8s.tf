@@ -14,17 +14,6 @@ provider "kubernetes" {
   token = data.google_client_config.current.access_token
 }
 
-# Write the hot wallet private key secret
-resource "kubernetes_secret" "hot_wallet_private_key" {
-  metadata {
-    name = "hot-wallet"
-  }
-
-  data = {
-    "hot_wallet_private_key" = "${var.hot_wallet_private_key}"
-  }
-}
-
 resource "kubernetes_secret" "website_builder_key" {
   metadata {
     name = "website-builder-credentials"
@@ -137,15 +126,6 @@ configMapGenerator:
   literals:
   - AUTHORIZED_SIGNER_KEY_A="${var.authorized_signer_key_a}"
   - AUTHORIZED_SIGNER_KEY_B="${var.authorized_signer_key_b}"
-- name: backerei-payout-configmap
-  literals:
-  - HOT_WALLET_PUBLIC_KEY="${var.hot_wallet_public_key}" 
-  - SNAPSHOT_INTERVAL="${ var.tezos_network == "mainnet" ? 256 : 128 }"
-  - CYCLE_LENGTH="${ var.tezos_network == "mainnet" ? 4096 : 2048 }"
-  - PRESERVED_CYCLES="${ var.tezos_network == "mainnet" ? 5 : 3 }"
-  - PAYOUT_DELAY="${ var.payout_delay }"
-  - PAYOUT_FEE="${ var.payout_fee }"
-  - PAYOUT_STARTING_CYCLE="${ var.payout_starting_cycle }"
 - name: website-builder-configmap
   literals:
   - WEBSITE_ARCHIVE="${var.website_archive}"
@@ -168,5 +148,5 @@ kubectl apply -k .
 EOF
 
   }
-  depends_on = [null_resource.push_containers, kubernetes_secret.hot_wallet_private_key]
+  depends_on = [ null_resource.push_containers ]
 }
