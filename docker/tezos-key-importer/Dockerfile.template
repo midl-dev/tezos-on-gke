@@ -1,0 +1,4 @@
+FROM tezos/tezos:((tezos_sentry_version))
+COPY tezos-key-importer.sh /
+ENTRYPOINT ["/tezos-key-importer.sh"]
+CMD []
