@@ -61,7 +61,7 @@ spec:
           limits:
             cpu: 0
         livenessProbe:
-          # pod is considered dead when number of connections drops to zero
+          # pod is considered dead when number of connections drops to one
           exec:
             command:
             - /usr/local/bin/does-tezos-node-have-connections.sh
