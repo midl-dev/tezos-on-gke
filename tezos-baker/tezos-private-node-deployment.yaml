@@ -113,7 +113,7 @@ spec:
       containers:
       - name: tezos-private-node
         image: tezos/tezos
-        args: [ "tezos-node", "--private-mode", "--peer", "tezos-public-node-0.tezos-public-node", "--peer", "tezos-public-node-1.tezos-public-node", "--connections", "2", "--rpc-addr", "0.0.0.0:8732" ]
+        args: [ "tezos-node", "--private-mode", "--no-bootstrap-peers", "--peer", "tezos-public-node-0.tezos-public-node", "--peer", "tezos-public-node-1.tezos-public-node", "--connections", "2", "--rpc-addr", "0.0.0.0:8732" ]
         ports:
         - containerPort: 9732
           name: tezos-port
