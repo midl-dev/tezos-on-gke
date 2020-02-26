@@ -238,8 +238,3 @@ variable "protocol_short" {
   description = "The shot string describing the protocol."
   default = "PsBabyM1"
 }
-
-variable "polkadot_archive_url" {
-  type = string
-  description = "polkadot archive url"
-}
