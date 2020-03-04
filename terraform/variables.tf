@@ -229,12 +229,12 @@ variable "signer_target_random_hostname" {
 
 variable "protocol" {
   type = string
-  description = "The Tezos protocol currently in use."
-  default = "005-PsBabyM1"
+  description = "The Tezos protocol currently in use, for example 006-PsCARTHA."
+  default = "006-PsCARTHA"
 }
 
 variable "protocol_short" {
   type = string
-  description = "The shot string describing the protocol."
-  default = "PsBabyM1"
+  description = "The shot string describing the protocol, for example PsCARTHA."
+  default = "PsCARTHA"
 }
