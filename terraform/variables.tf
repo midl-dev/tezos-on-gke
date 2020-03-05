@@ -237,6 +237,6 @@ variable "protocol" {
 
 variable "protocol_short" {
   type = string
-  description = "The shot string describing the protocol, for example PsCARTHA."
+  description = "The short string describing the protocol, for example PsCARTHA."
   default = "PsCARTHA"
 }

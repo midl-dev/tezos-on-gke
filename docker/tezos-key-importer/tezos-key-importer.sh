@@ -14,5 +14,5 @@ elif grep $PUBLIC_BAKING_KEY $client_dir/public_key_hashs; then
     echo "Public key already imported, skipping"
 else
     echo "Importing public key http://tezos-remote-signer:8445/$PUBLIC_BAKING_KEY"
-    exec "${bin_dir}/tezos-client" --base_dir $client_dir -p $PROTOCOL_SHORT import secret key k8s-baker http://tezos-remote-signer:8445/$PUBLIC_BAKING_KEY -f
+    exec "${bin_dir}/tezos-client" --base-dir $client_dir -p $PROTOCOL_SHORT import secret key k8s-baker http://tezos-remote-signer:8445/$PUBLIC_BAKING_KEY -f
 fi
