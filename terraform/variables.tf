@@ -36,7 +36,7 @@ variable "node_locations" {
 
 variable "kubernetes_instance_type" {
   type        = string
-  default     = "n1-standard-2"
+  default     = "e2-standard-2"
   description = "Instance type to use for the nodes."
 }
 
