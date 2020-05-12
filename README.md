@@ -23,7 +23,7 @@ A reference deployment of this infrastructure is at [hodl.farm](https://hodl.far
 Brought to you by MIDL.dev
 --------------------------
 
-![MIDL.dev](midl-dev-logo.svg)
+![MIDL.dev](midl-dev-logo.png)
 
 We can deploy and manage a complete Tezos baking infrastructure for you. [Hire us](https://midl.dev).
 
