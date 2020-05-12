@@ -39,7 +39,8 @@ resource "null_resource" "push_containers" {
     command = <<EOF
 gcloud auth configure-docker --project "${google_container_cluster.tezos_baker.project}"
 
-find ${path.module}/../docker -mindepth 1 -type d  -printf '%f\n'| while read container; do
+#find ${path.module}/../docker -mindepth 1 -type d  -printf '%f\n'| while read container; do
+  container="tezos-key-importer"
   pushd ${path.module}/../docker/$container
   cp Dockerfile.template Dockerfile
   sed -i "s/((tezos_sentry_version))/${var.tezos_sentry_version}/" Dockerfile
@@ -49,7 +50,7 @@ find ${path.module}/../docker -mindepth 1 -type d  -printf '%f\n'| while read co
   podman push $tag
   rm -v Dockerfile
   popd
-done
+#done
 EOF
   }
 }
@@ -67,7 +68,7 @@ resource "null_resource" "apply" {
   }
   provisioner "local-exec" {
     command = <<EOF
-gcloud container clusters get-credentials "${google_container_cluster.tezos_baker.name}" --region="${google_container_cluster.tezos_baker.region}" --project="${google_container_cluster.tezos_baker.project}"
+gcloud container clusters get-credentials "${google_container_cluster.tezos_baker.name}" --region="${google_container_cluster.tezos_baker.location}" --project="${google_container_cluster.tezos_baker.project}"
 
 cd ${path.module}/../tezos-baker
 cat << EOK > kustomization.yaml
@@ -93,7 +94,7 @@ imageTags:
     newTag: latest
   - name: tezos-remote-signer-forwarder
     newName: gcr.io/${google_container_cluster.tezos_baker.project}/tezos-remote-signer-forwarder
-    newTag: latest
+    newTag: knownworking
   - name: tezos-remote-signer-loadbalancer
     newName: gcr.io/${google_container_cluster.tezos_baker.project}/tezos-remote-signer-loadbalancer
     newTag: latest

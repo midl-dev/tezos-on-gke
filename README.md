@@ -20,6 +20,13 @@ Features:
 
 A reference deployment of this infrastructure is at [hodl.farm](https://hodl.farm).
 
+Brought to you by MIDL.dev
+--------------------------
+
+![MIDL.dev](midl-dev-logo.svg)
+
+We can deploy and manage a complete Tezos baking infrastructure for you. [Hire us](https://midl.dev).
+
 Architecture
 ------------
 
