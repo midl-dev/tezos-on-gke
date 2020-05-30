@@ -81,7 +81,7 @@ Dependencies
 1. install and configure docker
 
 
-Prepare archie and snapshot
+Prepare archive and snapshot
 ----------------------------
 
 You need to provide the url where to download an archive and a snapshot in order to bootstrap your baker.

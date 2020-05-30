@@ -20,8 +20,10 @@ else
     cp -v /usr/local/share/tezos/alphanet_version ${node_dir}
     snapshot=$(echo -n "$@")
     snapshot_file=${node_dir}/chain.snapshot
-    echo "Will download $snapshot to $snapshot_file"
-    wget "$snapshot" -O ${snapshot_file}
+    #echo "Will download $snapshot to $snapshot_file"
+    curl -s https://api.github.com/repos/Phlogi/tezos-snapshots/releases/latest | jq -r ".assets[] | select(.name) | .browser_download_url" | grep full | xargs wget -q
+    cat mainnet.full.* | xz -d -v -T0 > $snapshot_file
+    #wget "$snapshot" -O ${snapshot_file}
     exec "${node}" snapshot import ${snapshot_file} --data-dir ${node_data_dir}
     find ${node_dir}
     rm -rvf ${snapshot_file}
