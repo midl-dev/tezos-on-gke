@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -e
+set -ex
 
 bin_dir="/usr/local/bin"
 
@@ -17,8 +17,10 @@ printf "Writing custom configuration for private node\n"
 # The purpose of the private mode is to deny any inbound connection. Here, it is desirable to allow inbound connection from the public nodes in the same cluster, so when the public nodes start, they immediately reconnect to the private node. In private mode, we must wait for the private node to reconnect to the public node. We have observed that it can take hours and we have lost delegations because of this...
 # The network policy and hard-coding of bootstrap peers below ensure that the node is effectively in private mode. It only talks to the public nodes.
 rm -rvf ${node_dir}/data/config.json
+mkdir -p ${node_dir}/data
 cat << EOF > ${node_dir}/data/config.json
 { "data-dir": "/var/run/tezos/node/data",
+  "network": "$TEZOS_NETWORK",
   "rpc": { "listen-addrs": [ ":8732", "0.0.0.0:8732" ] },
   "p2p":
     { "bootstrap-peers":
@@ -32,11 +34,17 @@ cat << EOF > ${node_dir}/data/config.json
   "shell": { "chain_validator": { "bootstrap_threshold": 1 } } }
 EOF
 
+cat ${node_dir}/data/config.json
+
 if [ -z "$PUBLIC_BAKING_KEY" ]; then
     echo "No public key to import, skipping"
 elif grep $PUBLIC_BAKING_KEY $client_dir/public_key_hashs; then
     echo "Public key already imported, skipping"
+elif [ ! -z "$INSECURE_PRIVATE_BAKING_KEY" ]; then
+    echo "Importing private/public baking key (insecure!)"
+/usr/local/bin/tezos-client -p $PROTOCOL_SHORT --base-dir $client_dir import secret key k8s-baker unencrypted:$INSECURE_PRIVATE_BAKING_KEY -f
 else
+    echo "No insecure private baking key set, assuming hardware security module in use"
     echo "Importing public key http://tezos-remote-signer:8445/$PUBLIC_BAKING_KEY"
     exec "${bin_dir}/tezos-client" --base-dir $client_dir -p $PROTOCOL_SHORT import secret key k8s-baker http://tezos-remote-signer:8445/$PUBLIC_BAKING_KEY -f
 fi

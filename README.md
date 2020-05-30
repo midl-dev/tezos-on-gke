@@ -5,119 +5,159 @@ Tezos-on-GKE
 
 This deploys a fully featured, [best practices](https://medium.com/tezos/its-a-baker-s-life-for-me-c214971201e1) Tezos baking service on Google Kubernetes Engine.
 
-This setup does not include the signer for the baking keys. These keys should be exposed by a remote signer connected to a Hardware Security Module under your control.
+The private baking key can be managed two ways:
+
+* a hot private key stored as a Kubernetes secret for testing purposes
+* support for a ssh-tunneled remote signing setup, for production mainnet bakers
 
 Features:
 
 * high availaibility baking, endorsing and accusing
+* baking node is protected behind two sentry nodes
 * ssh endpoint for remote signing
-* compatible with mainnet and alphanet
-* blockchain snapshot download and import from a public URL for faster synchronization of the nodes
+* compatible with Tezos mainnet and testnets such as Carthagenet
+* blockchain snapshot download and import for faster synchronization of the nodes
 * support for two highly available signers
 * deploy everything in just one command
 * TODO:
   * metric-based monitoring and alerting with prometheus
 
-A reference deployment of this infrastructure is at [hodl.farm](https://hodl.farm).
-
 Brought to you by MIDL.dev
 --------------------------
 
-![MIDL.dev](midl-dev-logo.png)
+<img src="midl-dev-logo.png" alt="MIDL.dev" height="100"/>
 
-We can deploy and manage a complete Tezos baking infrastructure for you. [Hire us](https://midl.dev).
+We maintain a reference architecture for Tezos baking, free for anyone to use.
+
+We help you deploy and manage a complete Tezos baking operation. [Hire us](https://midl.dev).
 
 Architecture
 ------------
 
-This is a Kubernetes private cluster with two nodes located in two Google Cloud zones.
+This is a Kubernetes private cluster with two nodes located in two Google Cloud zones, in the same region.
 
-A StatefulSet of two public nodes is connected to the Tezos peer to peer network. As the cluster sits behind a NAT, the nodes initiate connections to public nodes, but are not discoverable.
+The sentry (public) nodes are a StatefulSet of two pods, one in each zone. They connect to the peer-to-peer network.
 
-A private Tezos baking node performs signing, endorsing and accusing. It synchronizes exclusively with the two public nodes belonging to the cluster.
+A private node performs bakings and endorsements. It connects exclusively to the two public nodes belonging to the cluster.
 
-An ssh endpoint is accessed by the remote signer (outside of GKE) to establish a tunnel to the signing daemon.
+The baker node uses a [Regional Persistent Disk](https://cloud.google.com/compute/docs/disks/#repds) so it can be respun quickly in the other node from the pool if the first node goes offline for any reason, for example base OS upgrade.
 
-Instructions and code to set up the remote signers are at https://github.com/hodl-dot-farm/tezos-remote-signer-os
-
-Optionally, you can set up a secondary cluster to perform monitoring of the baking operations, delegate payout and baking website update. For a solo baking operation, payout and website are not needed. The source code for the auxiliary cluster is at https://github.com/hodl-dot-farm/tezos-auxiliary-cluster
-
-
-<img src="./k8s-baker.svg">
-
-High availability
------------------
-
-Google guarantees 99.99% SLA on a highly available cluster provided that the Kubernetes deployment itself is highly available. We are using different means to this end.
-
-The StatefulSet ensures that each public Tezos node is running in a different cluster node, so a zone failure does not affect functionality.
-
-The private Tezos Node must not run in two locations at once, lest you are at risk of double baking and getting your funds slashed. Instead of a StatefulSet, a highly available pod backed by a [Regional Persistent Disk](https://cloud.google.com/compute/docs/disks/#repds) is used. In case of a Google Zone maintenance or failure, the baking pod is restarted in the other zone in an already synchronized state.
-
-It is recommended that the signer have a redundant power supply as well as battery backup. It should also have redundant access to the internet. It should be kept in a location with physical access control as any disconnection event on the Ledger wallet will require entering the PIN.
+The setup is production hardened:
+* usage of kubernetes secrets to store sensitive values such as node keys. They are created securely from terraform variables,
+* network policies to restrict communication between pods. For example, only sentries can peer with the validator node.
 
 Cost
 ----
 
-With the default variables, the setup runs in two n1-standard-2 VMs on GCP platform, and uses SSDs as storage. The cost per month is approximately 150 USD. There are a few options to reduce the costs:
+Deploying will incur Google Compute Engine charges, specifically:
 
-* Switch to two n1-standard-1 VMs. It is enough once the blockchain is synchronized, however for initial synchronization larger VMs tend to help. Kubernetes allow you to perform this change without downtime.
-* Switch to magnetic drives instead of SSDs
+* virtual machines
+* regional persistent SSD storage
+* network ingress
+* NAT forwarding
 
-Dependencies
-------------
+# How to deploy
+
+*WARNING: Use judgement and care in your network interactions, otherwise loss of funds may occur.*
+
+## Prerequisites
 
 1. Download and install [Terraform](https://terraform.io)
 
-1. Download, install, and configure the [Google Cloud SDK](https://cloud.google.com/sdk/). You will need
-   to configure your default application credentials so Terraform can run. It
-   will run against your default project, but all resources are created in the
-   (new) project that it creates.
+1. Download, install, and configure the [Google Cloud SDK](https://cloud.google.com/sdk/).
 
 1. Install the [kubernetes
    CLI](https://kubernetes.io/docs/tasks/tools/install-kubectl/) (aka
    `kubectl`)
 
-1. install and configure docker
 
+## Authentication
 
-Prepare archive and snapshot
-----------------------------
+Using your Google account, active your Google Cloud access.
 
-You need to provide the url where to download an archive and a snapshot in order to bootstrap your baker.
+Login to gcloud using `gcloud auth login`
 
-To generate a snapshot, simply follow the instructions in `tezos-node snapshot export --help`
-
-To generate an archive in lz4 format, sync a full node in archive mode, then do:
+Set up [Google Default Application Credentials](https://cloud.google.com/docs/authentication/production) by issuing the command:
 
 ```
-cd ~/.tezos-node
-tar cvf - context store |  lz4 > mainnet.archive.tar.lz4
+gcloud auth application-default login
 ```
 
-How to deploy
--------------
+NOTE: for production deployments, the method above is not recommended. Instead, you should use a Terraform service account following [these instructions](docs/production-hardening.md).
 
-You need a Google Cloud Organization. You will be able to create one as an individual by registering a domain name.
 
-You need to use a gcloud account as a user that has permission to create new projects. See [instructions for Terraform service account creation](https://cloud.google.com/community/tutorials/managing-gcp-projects-with-terraform) from Google.
+## Populate terraform variables
 
-1. Collect the necessary information and put it in `terraform.tfvars`
+All custom values unique to your deployment are set as terraform variables. You must populate these variables manually before deploying the setup.
+
+A simple way is to populate a file called `terraform.tfvars`.
+
+NOTE: `terraform.tfvars` is not recommended for a production deployment. See [production hardening](docs/production-hardening.md).
+
+First, go to `terraform` folder:
+
+```
+cd terraform
+```
+
+Below is a list of variables you must set.
+
+### Google Cloud project
+
+A default Google Cloud project should have been created when you activated your account. Verify its ID with `gcloud projects list`. You may also create a dedicated project to deploy the cluster.
+
+Set the project id in the `project` terraform variable.
+
+NOTE: if you created a [terraform service account](docs/production-hardening.md), leave this variable empty.
+
+### Tezos network
+
+Set the `tezos_network` variable to the network to use (`mainnet`, `carthagenet`, etc)
+
+### Baking address
+
+Set the `public_baking_key` variable to the baking address.
+
+For testnets or test deployments only: set the `insecure_private_baking_key` to the unencrypted private key to be used.
+
+**Attention!** Leaving a private baking key on a cloud platform is not recommended when funds are present. For production bakers, leave this variable empty. Leaving it empty will prompt terraform to create a ssh endpoint for remote signers to connect to.
+
+To generate a public/private keypair, you can use the tezos client:
+
+```
+tezos-client gen keys insecure-baker
+# if you do not have a node running locally, there will be an error, but the key was created anyway
+tezos-client show address insecure-baker -S
+```
+
+Set `public_baking_key` to the value displayed after `Hash:` and `insecure_private_baking_key` to the value displayed after `Secret key: unencrypted:`.
+
+If you do not have the tezos client installed locally, you can use the docker Tezos container:
+
+```
+docker run --name=my-tezos-client tezos/tezos:latest-release tezos-client gen keys insecure-baker
+# again, if you do not have a node running locally, there will be an error, but the key was created anyway
+docker commit my-tezos-client my-tezos-client
+docker run my-tezos-client tezos-client show address insecure-baker -S
+```
+
+
+### Full example
+
+Here is a full example `terraform.tfvars` configuration. Obviously do not use this one as the private key is now widely known:
+
+```
+project="beaming-essence-20718"
+tezos_network="carthagenet"
+public_baking_key="tz1YmsrYxQFJo5nGj4MEaXMPdLrcRf2a5mAU"
+insecure_private_baking_key="edsk3cftTNcJnxb7ehCxYeCaKPT7mjycdMxgFisLixrQ9bZuTG2yZK"
+```
+
+## Deploy!
 
 1. Run the following:
 
 ```
-cd terraform
-
-# The next 6 lines are only necessary if you are using a terraform service account.
-# Alternatively, create a project manually and pass it as parameter.
-export TF_VAR_org_id=YOUR_ORG_ID
-export TF_VAR_billing_account=YOUR_BILLING_ACCOUNT_ID
-export TF_ADMIN=${USER}-terraform-admin
-export TF_CREDS=~/.config/gcloud/${USER}-terraform-admin.json
-export GOOGLE_APPLICATION_CREDENTIALS=${TF_CREDS}
-export GOOGLE_PROJECT=${TF_ADMIN}
-
 terraform init
 terraform plan -out plan.out
 terraform apply plan.out
@@ -129,10 +169,25 @@ This will take time as it will:
 * build the necessary containers locally
 * spin up the public nodes and private baker nodes
 
-Then set up the signers and have them connect to the public endpoint.
+### Connect to the cluster
 
-Apply an update
----------------
+Once the command returns, you can verify that the pods are up by running:
+
+```
+kubectl get pods
+```
+
+You should see 2 public nodes and one private node.
+
+Display the log of a public node and observe it sync:
+
+```
+kubectl logs -f tezos-public-node-0 --tail=10
+```
+
+## Day 2 operations
+
+### Apply an update
 
 If you have pulled the most recent version of `tezos-on-gke` and wish to apply updates, you may do so with a `terraform taint`:
 
@@ -145,31 +200,24 @@ This will rebuild the containers locally, then do a `kubectl apply` to push the 
 
 The daemons will restart after some time. However, you may kill the pods to restart them immediately.
 
-Protocol update
----------------
+### Tezos Protocol update
 
 When the Tezos protocol changes, be sure to edit the terraform variables `protocol` and `protocol_short` to match the new version.
 
-On your machine, issue `docker pull tezos/tezos:mainnet` to ensure you have the latest version of the baker and endorser.
-
 Then, apply the changes. Your baker will restart with the right baking and endorsing daemons.
 
-Remotely ssh into the remote signers
-------------------------------------
+### Remotely ssh into the remote signers
 
 For remote connectivity and debugging purposes, ssh port 22 for the on-prem remote signers is being forwarded on ports 9443 and 9444.
 
 To connect to the signers, forward port 9443/9444 from the `tezos-remote-signer-forwarder` locally, then ssh to localhost using your private key associated with the public key injected into the baker during initial setup.
 
-Security considerations
------------------------
+## Wrapping up
 
-The main security risk of this setup is operator error. It is recommended to stage any new deployment of this code to an alphanet cluster before rolling it out against actual funds.
+To delete everything and terminate all the charges, issue the command:
 
-Another risk is related to the avaialability of the signer.
+```
+terraform destroy
+```
 
-The baking keys can not be kept in a cold storage address, since a message must be signed for each endorsment. But they must be protected by some sort of hardware bastion, so if an attacker gains access to any part of the setup, they may not walk away with the keys. In this simple setup, we used a Ledger Nano. Larger operations may use a cloud HSM.
-
-The Ledger Nano baking app is deliberately separate from the regular Tezos app, so it can not be used to send payouts to delegators. The payouts should be sent from another address, which is kept in a hot wallet. It is discouraged to automate replenishing the payout address from the baking address, as this would require the baking address to be kept in a hot wallet.
-
-There are also risks inherent with using GCP, such as loosing access to your credentials, getting hacked, or getting your account terminated by your provider.
+Alternatively, go to the GCP console and delete the project.

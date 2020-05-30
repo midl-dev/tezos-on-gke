@@ -1,0 +1,66 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+- tezos-public-node-stateful-set.yaml
+- tezos-private-node-deployment.yaml
+%{ if insecure_private_baking_key == "" }
+- tezos-remote-signer-forwarder.yaml
+%{ endif }
+
+imageTags:
+  - name: tezos-public-node-with-probes
+    newName: gcr.io/${project}/tezos-public-node-with-probes
+    newTag: latest
+  - name: tezos/tezos
+    newTag: ${tezos_private_version}
+  - name: tezos-baker-with-remote-signer
+    newName: gcr.io/${project}/tezos-baker-with-remote-signer
+    newTag: latest
+  - name: tezos-endorser-with-remote-signer
+    newName: gcr.io/${project}/tezos-endorser-with-remote-signer
+    newTag: latest
+  - name: tezos-remote-signer-forwarder
+    newName: gcr.io/${project}/tezos-remote-signer-forwarder
+    newTag: latest
+  - name: tezos-remote-signer-loadbalancer
+    newName: gcr.io/${project}/tezos-remote-signer-loadbalancer
+    newTag: latest
+  - name: tezos-snapshot-downloader
+    newName: gcr.io/${project}/tezos-snapshot-downloader
+    newTag: latest
+  - name: tezos-rolling-snapshot-downloader
+    newName: gcr.io/${project}/tezos-rolling-snapshot-downloader
+    newTag: latest
+  - name: tezos-archive-downloader
+    newName: gcr.io/${project}/tezos-archive-downloader
+    newTag: latest
+  - name: tezos-key-importer
+    newName: gcr.io/${project}/tezos-key-importer
+    newTag: latest
+  - name: tezos-private-node-connectivity-checker
+    newName: gcr.io/${project}/tezos-private-node-connectivity-checker
+    newTag: latest
+
+configMapGenerator:
+- name: tezos-configmap
+  literals:
+  - PUBLIC_BAKING_KEY="${public_baking_key}"
+  - INSECURE_PRIVATE_BAKING_KEY="${insecure_private_baking_key}"
+  - REMOTE_SIGNER_IN_USE=${remote_signer_in_use}"
+  - NODE_HOST="localhost"
+  - TEZOS_NETWORK=${tezos_network}"
+  - PROTOCOL="${protocol}"
+  - PROTOCOL_SHORT="${protocol_short}"
+  - DATA_DIR=/run/tezos
+%{ if insecure_private_baking_key == "" }
+- name: remote-signer-forwarder-configmap
+  literals:
+  - AUTHORIZED_SIGNER_KEY_A="${authorized_signer_key_a}"
+  - AUTHORIZED_SIGNER_KEY_B="${authorized_signer_key_b}"
+%{ endif }
+
+%{ if insecure_private_baking_key == "" }
+patchesStrategicMerge:
+- loadbalancerpatch.yaml
+%{ endif }

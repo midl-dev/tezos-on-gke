@@ -50,7 +50,7 @@ spec:
       containers:
       - name: tezos-public-node
         image: tezos-public-node-with-probes
-        args: [ "tezos-node", "--history-mode", "experimental-rolling", "--peer", "tezos-private-baking-node" ]
+        args: [ "tezos-node", "--history-mode", "experimental-rolling", "--peer", "tezos-private-baking-node", "--network", "$(TEZOS_NETWORK)" ]
         ports:
         - containerPort: 9732
           name: tezos-port
@@ -67,20 +67,24 @@ spec:
             - /usr/local/bin/does-tezos-node-have-connections.sh
           periodSeconds: 10
           failureThreshold: 50
-      initContainers:
-      - name: tezos-snapshot-downloader
-        image: tezos-snapshot-downloader
-        args:
-        - "$(ROLLING_SNAPSHOT_URL)"
         env:
-        - name: ROLLING_SNAPSHOT_URL
+        - name: TEZOS_NETWORK
           valueFrom:
             configMapKeyRef:
               name: tezos-configmap
-              key: ROLLING_SNAPSHOT_URL
+              key: TEZOS_NETWORK
+      initContainers:
+      - name: tezos-rolling-snapshot-downloader
+        image: tezos-rolling-snapshot-downloader
         volumeMounts:
         - name: tezos-public-node-pv-claim
           mountPath: /var/run/tezos/node
+        env:
+        - name: TEZOS_NETWORK
+          valueFrom:
+            configMapKeyRef:
+              name: tezos-configmap
+              key: TEZOS_NETWORK
   volumeClaimTemplates:
   - metadata:
       name: tezos-public-node-pv-claim

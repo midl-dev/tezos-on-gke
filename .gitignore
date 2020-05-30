@@ -1,3 +1,8 @@
 terraform/terraform.tfvars
-tezos-baker/kustomization.yaml
-tezos-baker/loadbalancerpatch.yaml
+terraform/terraform.tfstate
+terraform/.terraform
+terraform-no-cluster-create/terraform.tfvars
+terraform-no-cluster-create/terraform.tfstate
+terraform-no-cluster-create/.terraform
+k8s/kustomization.yaml
+k8s/loadbalancerpatch.yaml

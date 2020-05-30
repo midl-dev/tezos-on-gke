@@ -188,28 +188,36 @@ spec:
       initContainers:
       - name: tezos-snapshot-downloader
         image: tezos-snapshot-downloader
-        args:
-        - "$(FULL_SNAPSHOT_URL)"
-        env:
-        - name: FULL_SNAPSHOT_URL
-          valueFrom:
-            configMapKeyRef:
-              name: tezos-configmap
-              key: FULL_SNAPSHOT_URL
         resources:
           limits:
             cpu: 0
         volumeMounts:
         - name: tezos-private-node-storage
           mountPath: /var/run/tezos/node
+        env:
+        - name: TEZOS_NETWORK
+          valueFrom:
+            configMapKeyRef:
+              name: tezos-configmap
+              key: TEZOS_NETWORK
       - name: tezos-key-importer
         image: tezos-key-importer
         env:
+        - name: TEZOS_NETWORK
+          valueFrom:
+            configMapKeyRef:
+              name: tezos-configmap
+              key: TEZOS_NETWORK
         - name: PROTOCOL_SHORT
           valueFrom:
             configMapKeyRef:
               name: tezos-configmap
               key: PROTOCOL_SHORT
+        - name: INSECURE_PRIVATE_BAKING_KEY
+          valueFrom:
+            configMapKeyRef:
+              name: tezos-configmap
+              key: INSECURE_PRIVATE_BAKING_KEY
         - name: PUBLIC_BAKING_KEY
           valueFrom:
             configMapKeyRef:
