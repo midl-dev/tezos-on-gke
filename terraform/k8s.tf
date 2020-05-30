@@ -1,4 +1,4 @@
-# Query the client configuration for our current service account, which shoudl
+# Query the client configuration for our current service account, which should
 # have permission to talk to the GKE cluster since it created it.
 data "google_client_config" "current" {
 }
@@ -39,8 +39,7 @@ resource "null_resource" "push_containers" {
     command = <<EOF
 gcloud auth configure-docker --project "${google_container_cluster.tezos_baker.project}"
 
-#find ${path.module}/../docker -mindepth 1 -type d  -printf '%f\n'| while read container; do
-  container="tezos-key-importer"
+find ${path.module}/../docker -mindepth 1 -type d  -printf '%f\n'| while read container; do
   pushd ${path.module}/../docker/$container
   cp Dockerfile.template Dockerfile
   sed -i "s/((tezos_sentry_version))/${var.tezos_sentry_version}/" Dockerfile
@@ -50,7 +49,7 @@ gcloud auth configure-docker --project "${google_container_cluster.tezos_baker.p
   podman push $tag
   rm -v Dockerfile
   popd
-#done
+done
 EOF
   }
 }

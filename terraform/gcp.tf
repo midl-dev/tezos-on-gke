@@ -181,11 +181,6 @@ resource "google_container_cluster" "tezos_baker" {
 
   # Configure various addons
   addons_config {
-    # Disable the Kubernetes dashboard, which is often an attack vector. The
-    # cluster can still be managed via the GKE UI.
-    kubernetes_dashboard {
-      disabled = true
-    }
 
     # Enable network policy configurations (like Calico).
     network_policy_config {
@@ -295,7 +290,7 @@ resource "google_container_node_pool" "tezos_baker_node_pool" {
     workload_metadata_config {
       node_metadata = "SECURE"
     }
-    preemptible  = true
+    preemptible  = false
     image_type = "COS"
     disk_type = "pd-standard"
 
