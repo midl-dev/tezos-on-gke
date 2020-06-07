@@ -45,6 +45,7 @@ resource "local_file" "k8s_kustomization" {
        "public_baking_key": var.public_baking_key,
        "insecure_private_baking_key": var.insecure_private_baking_key,
        "tezos_private_version": var.tezos_private_version,
+       "tezos_network": var.tezos_network,
        "protocol": var.protocol,
        "protocol_short": var.protocol_short,
        "authorized_signer_key_a": var.authorized_signer_key_a,

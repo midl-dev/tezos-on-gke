@@ -197,6 +197,11 @@ spec:
       - name: tezos-key-importer
         image: tezos-key-importer
         env:
+        - name: TEZOS_NETWORK
+          valueFrom:
+            configMapKeyRef:
+              name: tezos-configmap
+              key: TEZOS_NETWORK
         - name: PROTOCOL_SHORT
           valueFrom:
             configMapKeyRef:

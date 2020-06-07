@@ -64,7 +64,8 @@ variable "authorized_signer_key_b" {
 
 variable "tezos_network" {
   type =string
-  description = "The Tezos network (alphanet and mainnet supported)."
+  description = "The tezos network i.e. mainnet, carthagenet..."
+  default = "mainnet"
 }
 
 variable "tezos_sentry_version" {

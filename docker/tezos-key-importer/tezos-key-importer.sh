@@ -19,6 +19,7 @@ printf "Writing custom configuration for private node\n"
 rm -rvf ${node_dir}/data/config.json
 cat << EOF > ${node_dir}/data/config.json
 { "data-dir": "/var/run/tezos/node/data",
+  "network" "${TEZOS_NETWORK}",
   "rpc": { "listen-addrs": [ ":8732", "0.0.0.0:8732" ] },
   "p2p":
     { "bootstrap-peers":
