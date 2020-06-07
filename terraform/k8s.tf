@@ -44,6 +44,7 @@ resource "local_file" "k8s_kustomization" {
      { "project" : module.terraform-gke-blockchain.project,
        "public_baking_key": var.public_baking_key,
        "insecure_private_baking_key": var.insecure_private_baking_key,
+       "remote_signer_in_use": var.insecure_private_baking_key == "" ? "true" : "false",
        "tezos_private_version": var.tezos_private_version,
        "tezos_network": var.tezos_network,
        "protocol": var.protocol,

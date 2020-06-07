@@ -25,9 +25,15 @@ node_data_dir="$node_dir/data"
 
 . "$BIN_DIR/entrypoint.inc.sh"
 
+if [ "$REMOTE_SIGNER_IN_USE" == "true" ]; then
+    remote_signer_param="-R \"http://tezos-remote-signer-forwarder:8445/$PUBLIC_BAKING_KEY\""
+else
+    remote_signer_param=""
+fi
+
 wait_for_the_node_to_be_bootstraped
 exec "$endorser" --chain main \
      --base-dir "$client_dir" \
      --addr "$NODE_HOST" --port "$NODE_RPC_PORT" \
-     -R "http://tezos-remote-signer-forwarder:8445/$PUBLIC_BAKING_KEY" \
+     $remote_signer_param \
      run "$@"

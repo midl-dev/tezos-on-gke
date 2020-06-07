@@ -44,7 +44,7 @@ variable "terraform_service_account_credentials" {
 
 variable "public_baking_key" {
   type  = string
-  description = "The public baker tz1 public key that delegators delegate to."
+  description = "The public baker tz1 address that delegators delegate to."
 }
 
 variable "insecure_private_baking_key" {
