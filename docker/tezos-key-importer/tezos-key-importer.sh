@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -e
+set -ex
 
 bin_dir="/usr/local/bin"
 
@@ -19,7 +19,7 @@ printf "Writing custom configuration for private node\n"
 rm -rvf ${node_dir}/data/config.json
 cat << EOF > ${node_dir}/data/config.json
 { "data-dir": "/var/run/tezos/node/data",
-  "network" "${TEZOS_NETWORK}",
+  "network": "$TEZOS_NETWORK",
   "rpc": { "listen-addrs": [ ":8732", "0.0.0.0:8732" ] },
   "p2p":
     { "bootstrap-peers":
@@ -32,6 +32,8 @@ cat << EOF > ${node_dir}/data/config.json
           "max_known_points": [ 32, 24 ], "max_known_peer_ids": [ 32, 24 ] } },
   "shell": { "chain_validator": { "bootstrap_threshold": 1 } } }
 EOF
+
+cat ${node_dir}/data/config.json
 
 if [ -z "$PUBLIC_BAKING_KEY" ]; then
     echo "No public key to import, skipping"

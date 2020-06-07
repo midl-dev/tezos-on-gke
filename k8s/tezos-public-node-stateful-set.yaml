@@ -67,6 +67,12 @@ spec:
             - /usr/local/bin/does-tezos-node-have-connections.sh
           periodSeconds: 10
           failureThreshold: 50
+        env:
+        - name: TEZOS_NETWORK
+          valueFrom:
+            configMapKeyRef:
+              name: tezos-configmap
+              key: TEZOS_NETWORK
       initContainers:
       - name: tezos-rolling-snapshot-downloader
         image: tezos-rolling-snapshot-downloader
