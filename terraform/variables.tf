@@ -55,11 +55,13 @@ variable "insecure_private_baking_key" {
 variable "authorized_signer_key_a" {
   type = string
   description = "Public key of the first remote signer."
+  default = ""
 }
 
 variable "authorized_signer_key_b" {
   type = string
   description = "Public key of the first remote signer."
+  default = ""
 }
 
 variable "tezos_network" {
