@@ -68,16 +68,8 @@ spec:
           periodSeconds: 10
           failureThreshold: 50
       initContainers:
-      - name: tezos-snapshot-downloader
-        image: tezos-snapshot-downloader
-        args:
-        - "$(ROLLING_SNAPSHOT_URL)"
-        env:
-        - name: ROLLING_SNAPSHOT_URL
-          valueFrom:
-            configMapKeyRef:
-              name: tezos-configmap
-              key: ROLLING_SNAPSHOT_URL
+      - name: tezos-rolling-snapshot-downloader
+        image: tezos-rolling-snapshot-downloader
         volumeMounts:
         - name: tezos-public-node-pv-claim
           mountPath: /var/run/tezos/node

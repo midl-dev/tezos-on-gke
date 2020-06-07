@@ -188,14 +188,6 @@ spec:
       initContainers:
       - name: tezos-snapshot-downloader
         image: tezos-snapshot-downloader
-        args:
-        - "$(FULL_SNAPSHOT_URL)"
-        env:
-        - name: FULL_SNAPSHOT_URL
-          valueFrom:
-            configMapKeyRef:
-              name: tezos-configmap
-              key: FULL_SNAPSHOT_URL
         resources:
           limits:
             cpu: 0
@@ -210,6 +202,11 @@ spec:
             configMapKeyRef:
               name: tezos-configmap
               key: PROTOCOL_SHORT
+        - name: INSECURE_PRIVATE_BAKING_KEY
+          valueFrom:
+            configMapKeyRef:
+              name: tezos-configmap
+              key: INSECURE_PRIVATE_BAKING_KEY
         - name: PUBLIC_BAKING_KEY
           valueFrom:
             configMapKeyRef:

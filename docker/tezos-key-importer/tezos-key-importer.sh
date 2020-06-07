@@ -36,7 +36,11 @@ if [ -z "$PUBLIC_BAKING_KEY" ]; then
     echo "No public key to import, skipping"
 elif grep $PUBLIC_BAKING_KEY $client_dir/public_key_hashs; then
     echo "Public key already imported, skipping"
+elif [ ! -z "$INSECURE_PRIVATE_BAKING_KEY" ]; then
+    echo "Importing private/public baking key (insecure!)"
+/usr/local/bin/tezos-client -p $PROTOCOL_SHORT --base-dir $client_dir import secret key k8s-baker unencrypted:$INSECURE_PRIVATE_BAKING_KEY -f
 else
+    echo "No insecure private baking key set, assuming hardware security module in use"
     echo "Importing public key http://tezos-remote-signer:8445/$PUBLIC_BAKING_KEY"
     exec "${bin_dir}/tezos-client" --base-dir $client_dir -p $PROTOCOL_SHORT import secret key k8s-baker http://tezos-remote-signer:8445/$PUBLIC_BAKING_KEY -f
 fi

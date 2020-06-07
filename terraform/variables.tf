@@ -5,11 +5,13 @@ terraform {
 variable "org_id" {
   type        = string
   description = "Organization ID."
+  default = ""
 }
 
 variable "billing_account" {
   type        = string
   description = "Billing account ID."
+  default = ""
 }
 
 variable "project" {
@@ -17,6 +19,13 @@ variable "project" {
   default     = ""
   description = "Project ID where Terraform is authenticated to run to create additional projects. If provided, Terraform will great the GKE and Tezos cluster inside this project. If not given, Terraform will generate a new project."
 }
+
+variable "region" {
+  type        = string
+  default     = "us-central1"
+  description = "Region in which to create the cluster, or region where the cluster exists."
+}
+
 variable "kubernetes_config_context" {
   type = string
   description = "name of the kubernetes context where to create the deployment. Only set when you already have an existing cluster"
@@ -36,6 +45,11 @@ variable "terraform_service_account_credentials" {
 variable "public_baking_key" {
   type  = string
   description = "The public baker tz1 public key that delegators delegate to."
+}
+
+variable "insecure_private_baking_key" {
+  type  = string
+  description = "The private key associated with the public_baking_key. Setting this variable will override the hardware security module configuration. ATTENTION! Do not do that on mainnet. Keep your private key in a HSM instead."
 }
 
 variable "authorized_signer_key_a" {
