@@ -194,6 +194,12 @@ spec:
         volumeMounts:
         - name: tezos-private-node-storage
           mountPath: /var/run/tezos/node
+        env:
+        - name: TEZOS_NETWORK
+          valueFrom:
+            configMapKeyRef:
+              name: tezos-configmap
+              key: TEZOS_NETWORK
       - name: tezos-key-importer
         image: tezos-key-importer
         env:

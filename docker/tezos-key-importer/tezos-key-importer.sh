@@ -17,6 +17,7 @@ printf "Writing custom configuration for private node\n"
 # The purpose of the private mode is to deny any inbound connection. Here, it is desirable to allow inbound connection from the public nodes in the same cluster, so when the public nodes start, they immediately reconnect to the private node. In private mode, we must wait for the private node to reconnect to the public node. We have observed that it can take hours and we have lost delegations because of this...
 # The network policy and hard-coding of bootstrap peers below ensure that the node is effectively in private mode. It only talks to the public nodes.
 rm -rvf ${node_dir}/data/config.json
+mkdir -p ${node_dir}/data
 cat << EOF > ${node_dir}/data/config.json
 { "data-dir": "/var/run/tezos/node/data",
   "network": "$TEZOS_NETWORK",

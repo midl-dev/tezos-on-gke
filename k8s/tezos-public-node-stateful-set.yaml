@@ -79,6 +79,12 @@ spec:
         volumeMounts:
         - name: tezos-public-node-pv-claim
           mountPath: /var/run/tezos/node
+        env:
+        - name: TEZOS_NETWORK
+          valueFrom:
+            configMapKeyRef:
+              name: tezos-configmap
+              key: TEZOS_NETWORK
   volumeClaimTemplates:
   - metadata:
       name: tezos-public-node-pv-claim

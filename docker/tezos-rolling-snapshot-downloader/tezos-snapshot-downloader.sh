@@ -12,6 +12,9 @@ node="$bin_dir/tezos-node"
 if [ -d ${node_dir}/data/context ]; then
     echo "Blockchain has already been imported, exiting"
     exit 0
+elif [ "$TEZOS_NETWORK" != "mainnet" ]; then
+    echo "Not downloading snapshot when network is not mainnet, exiting"
+    exit 0
 else
     echo "Did not find pre-existing data, importing blockchain"
     rm -rvf ${node_dir}/*
