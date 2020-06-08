@@ -28,97 +28,63 @@ Brought to you by MIDL.dev
 
 <img src="midl-dev-logo.png" alt="MIDL.dev" height="100"/>
 
-We help you deploy and manage a complete Tezos baking infrastructure for you. [Hire us](https://midl.dev).
+We maintain a reference architecture for Tezos baking, free for anyone to use.
 
-Architecture
-------------
-
-This is a Kubernetes private cluster with two nodes located in two Google Cloud zones.
-
-A StatefulSet of two public nodes is connected to the Tezos peer to peer network. As the cluster sits behind a NAT, the nodes initiate connections to public nodes, but are not discoverable.
-
-A private Tezos baking node performs signing, endorsing and accusing. It synchronizes exclusively with the two public nodes belonging to the cluster.
-
-An ssh endpoint is accessed by the remote signer (outside of GKE) to establish a tunnel to the signing daemon.
-
-Instructions and code to set up the remote signers are at https://github.com/hodl-dot-farm/tezos-remote-signer-os
-
-Optionally, you can set up a secondary cluster to perform monitoring of the baking operations, delegate payout and baking website update. For a solo baking operation, payout and website are not needed. The source code for the auxiliary cluster is at https://github.com/hodl-dot-farm/tezos-auxiliary-cluster
-
-
-<img src="./k8s-baker.svg">
-
-High availability
------------------
-
-Google guarantees 99.99% SLA on a highly available cluster provided that the Kubernetes deployment itself is highly available. We are using different means to this end.
-
-The StatefulSet ensures that each public Tezos node is running in a different cluster node, so a zone failure does not affect functionality.
-
-The private Tezos Node must not run in two locations at once, lest you are at risk of double baking and getting your funds slashed. Instead of a StatefulSet, a highly available pod backed by a [Regional Persistent Disk](https://cloud.google.com/compute/docs/disks/#repds) is used. In case of a Google Zone maintenance or failure, the baking pod is restarted in the other zone in an already synchronized state.
-
-It is recommended that the signer have a redundant power supply as well as battery backup. It should also have redundant access to the internet. It should be kept in a location with physical access control as any disconnection event on the Ledger wallet will require entering the PIN.
+We help you deploy and manage a complete Tezos baking operation. [Hire us](https://midl.dev).
 
 Cost
 ----
 
-With the default variables, the setup runs in two n1-standard-2 VMs on GCP platform, and uses SSDs as storage. The cost per month is approximately 150 USD. There are a few options to reduce the costs:
+Deploying will incur Google Compute Engine charges, specifically:
 
-* Switch to two n1-standard-1 VMs. It is enough once the blockchain is synchronized, however for initial synchronization larger VMs tend to help. Kubernetes allow you to perform this change without downtime.
-* Switch to magnetic drives instead of SSDs
+* virtual machines
+* regional persistent SSD storage
+* network ingress
+* NAT forwarding
 
-Dependencies
-------------
+# How to deploy
+
+*WARNING: Use judgement and care in your network interactions, otherwise loss of funds may occur.*
+
+## Prerequisites
 
 1. Download and install [Terraform](https://terraform.io)
 
-1. Download, install, and configure the [Google Cloud SDK](https://cloud.google.com/sdk/). You will need
-   to configure your default application credentials so Terraform can run. It
-   will run against your default project, but all resources are created in the
-   (new) project that it creates.
+1. Download, install, and configure the [Google Cloud SDK](https://cloud.google.com/sdk/).
 
 1. Install the [kubernetes
    CLI](https://kubernetes.io/docs/tasks/tools/install-kubectl/) (aka
    `kubectl`)
 
 
-Prepare archive and snapshot
-----------------------------
+## Authentication
 
-You need to provide the url where to download an archive and a snapshot in order to bootstrap your baker.
+Using your Google account, active your Google Cloud access.
 
-To generate a snapshot, simply follow the instructions in `tezos-node snapshot export --help`
+Login to gcloud using `gcloud auth login`
 
-To generate an archive in lz4 format, sync a full node in archive mode, then do:
+Set up [Google Default Application Credentials](https://cloud.google.com/docs/authentication/production) by issuing the command:
 
 ```
-cd ~/.tezos-node
-tar cvf - context store |  lz4 > mainnet.archive.tar.lz4
+gcloud auth application-default login
 ```
 
-How to deploy
--------------
+NOTE: for production deployments, the method above is not recommended. Instead, you should use a Terraform service account following [these instructions](docs/production-hardening.md).
 
-You need a Google Cloud Organization. You will be able to create one as an individual by registering a domain name.
 
-You need to use a gcloud account as a user that has permission to create new projects. See [instructions for Terraform service account creation](https://cloud.google.com/community/tutorials/managing-gcp-projects-with-terraform) from Google.
+## Populate terraform variables
 
-1. Collect the necessary information and put it in `terraform.tfvars`
+All custom values unique to your deployment are set as terraform variables. You must populate these variables manually before deploying the setup.
+
+A simple way is to populate a file called `terraform.tfvars` in the `terraform` folder.
+
+NOTE: `terraform.tfvars` is not recommended for a production deployment. See [production hardening](docs/production-hardening.md).
+
+## Deploy!
 
 1. Run the following:
 
 ```
-cd terraform
-
-# The next 6 lines are only necessary if you are using a terraform service account.
-# Alternatively, create a project manually and pass it as parameter.
-export TF_VAR_org_id=YOUR_ORG_ID
-export TF_VAR_billing_account=YOUR_BILLING_ACCOUNT_ID
-export TF_ADMIN=${USER}-terraform-admin
-export TF_CREDS=~/.config/gcloud/${USER}-terraform-admin.json
-export GOOGLE_APPLICATION_CREDENTIALS=${TF_CREDS}
-export GOOGLE_PROJECT=${TF_ADMIN}
-
 terraform init
 terraform plan -out plan.out
 terraform apply plan.out
