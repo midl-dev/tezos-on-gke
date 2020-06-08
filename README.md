@@ -5,14 +5,17 @@ Tezos-on-GKE
 
 This deploys a fully featured, [best practices](https://medium.com/tezos/its-a-baker-s-life-for-me-c214971201e1) Tezos baking service on Google Kubernetes Engine.
 
-This setup does not include the signer for the baking keys. These keys should be exposed by a remote signer connected to a Hardware Security Module under your control.
+The private baking key can be managed two ways:
+
+* a hot private key stored as a Kubernetes secret for testing purposes
+* support for a ssh-tunneled remote signing setup, for production mainnet bakers
 
 Features:
 
 * high availaibility baking, endorsing and accusing
 * ssh endpoint for remote signing
-* compatible with mainnet and alphanet
-* blockchain snapshot download and import from a public URL for faster synchronization of the nodes
+* compatible with Tezos mainnet and testnets such as Carthagenet
+* blockchain snapshot download and import for faster synchronization of the nodes
 * support for two highly available signers
 * deploy everything in just one command
 * TODO:
@@ -23,9 +26,9 @@ A reference deployment of this infrastructure is at [hodl.farm](https://hodl.far
 Brought to you by MIDL.dev
 --------------------------
 
-![MIDL.dev](midl-dev-logo.png)
+<img src="midl-dev-logo.png" alt="MIDL.dev" height="100"/>
 
-We can deploy and manage a complete Tezos baking infrastructure for you. [Hire us](https://midl.dev).
+We help you deploy and manage a complete Tezos baking infrastructure for you. [Hire us](https://midl.dev).
 
 Architecture
 ------------
@@ -77,8 +80,6 @@ Dependencies
 1. Install the [kubernetes
    CLI](https://kubernetes.io/docs/tasks/tools/install-kubectl/) (aka
    `kubectl`)
-
-1. install and configure docker
 
 
 Prepare archive and snapshot
