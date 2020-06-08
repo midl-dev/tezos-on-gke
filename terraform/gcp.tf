@@ -4,7 +4,7 @@ module "terraform-gke-blockchain" {
   billing_account = var.billing_account
   terraform_service_account_credentials = var.terraform_service_account_credentials
   project = var.project
-  project_prefix = "polkadot"
+  project_prefix = "tezos"
 }
 
 # Query the client configuration for our current service account, which should
