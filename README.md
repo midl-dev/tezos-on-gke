@@ -13,6 +13,7 @@ The private baking key can be managed two ways:
 Features:
 
 * high availaibility baking, endorsing and accusing
+* baking node is protected behind two sentry nodes
 * ssh endpoint for remote signing
 * compatible with Tezos mainnet and testnets such as Carthagenet
 * blockchain snapshot download and import for faster synchronization of the nodes
@@ -20,8 +21,6 @@ Features:
 * deploy everything in just one command
 * TODO:
   * metric-based monitoring and alerting with prometheus
-
-A reference deployment of this infrastructure is at [hodl.farm](https://hodl.farm).
 
 Brought to you by MIDL.dev
 --------------------------
@@ -31,6 +30,21 @@ Brought to you by MIDL.dev
 We maintain a reference architecture for Tezos baking, free for anyone to use.
 
 We help you deploy and manage a complete Tezos baking operation. [Hire us](https://midl.dev).
+
+Architecture
+------------
+
+This is a Kubernetes private cluster with two nodes located in two Google Cloud zones, in the same region.
+
+The sentry (public) nodes are a StatefulSet of two pods, one in each zone. They connect to the peer-to-peer network.
+
+A private node performs bakings and endorsements. It connects exclusively to the two public nodes belonging to the cluster.
+
+The baker node uses a [Regional Persistent Disk](https://cloud.google.com/compute/docs/disks/#repds) so it can be respun quickly in the other node from the pool if the first node goes offline for any reason, for example base OS upgrade.
+
+The setup is production hardened:
+* usage of kubernetes secrets to store sensitive values such as node keys. They are created securely from terraform variables,
+* network policies to restrict communication between pods. For example, only sentries can peer with the validator node.
 
 Cost
 ----
@@ -79,6 +93,28 @@ All custom values unique to your deployment are set as terraform variables. You 
 A simple way is to populate a file called `terraform.tfvars` in the `terraform` folder.
 
 NOTE: `terraform.tfvars` is not recommended for a production deployment. See [production hardening](docs/production-hardening.md).
+
+Below is a list of variables you must set.
+
+### Google Cloud project
+
+A default Google Cloud project should have been created when you activated your account. Verify its ID with `gcloud projects list`. You may also create a dedicated project to deploy the cluster.
+
+Set the project id in the `project` terraform variable.
+
+NOTE: if you created a [terraform service account](docs/production-hardening.md), leave this variable empty.
+
+### Tezos network
+
+Set the `tezos_network` variable to the network to use (`mainnet`, `carthagenet`, etc)
+
+### Baking address
+
+Set the `public_baking_key` variable to the baking address.
+
+For testnets or test deployments only: set the `insecure_private_baking_key` to the unencrypted private key to be used.
+
+Attention! Leaving a private baking key on a cloud platform is not recommended when funds are present. For production bakers, leave this variable empty. Leaving it empty will prompt terraform to create a ssh endpoint for remote signers to connect to.
 
 ## Deploy!
 
@@ -138,3 +174,13 @@ The baking keys can not be kept in a cold storage address, since a message must 
 The Ledger Nano baking app is deliberately separate from the regular Tezos app, so it can not be used to send payouts to delegators. The payouts should be sent from another address, which is kept in a hot wallet. It is discouraged to automate replenishing the payout address from the baking address, as this would require the baking address to be kept in a hot wallet.
 
 There are also risks inherent with using GCP, such as loosing access to your credentials, getting hacked, or getting your account terminated by your provider.
+
+## Wrapping up
+
+To delete everything and terminate all the charges, issue the command:
+
+```
+terraform destroy
+```
+
+Alternatively, go to the GCP console and delete the project.
