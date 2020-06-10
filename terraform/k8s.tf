@@ -77,5 +77,5 @@ kubectl apply -k .
 EOF
 
   }
-  depends_on = [ null_resource.push_containers ]
+  depends_on = [ null_resource.push_containers, local_file.k8s_kustomization, local_file.k8s_load_balancer_patch ]
 }
