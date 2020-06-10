@@ -117,8 +117,6 @@ Protocol update
 
 When the Tezos protocol changes, be sure to edit the terraform variables `protocol` and `protocol_short` to match the new version.
 
-On your machine, issue `docker pull tezos/tezos:mainnet` to ensure you have the latest version of the baker and endorser.
-
 Then, apply the changes. Your baker will restart with the right baking and endorsing daemons.
 
 Remotely ssh into the remote signers
