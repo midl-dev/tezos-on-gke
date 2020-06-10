@@ -90,9 +90,15 @@ NOTE: for production deployments, the method above is not recommended. Instead, 
 
 All custom values unique to your deployment are set as terraform variables. You must populate these variables manually before deploying the setup.
 
-A simple way is to populate a file called `terraform.tfvars` in the `terraform` folder.
+A simple way is to populate a file called `terraform.tfvars`.
 
 NOTE: `terraform.tfvars` is not recommended for a production deployment. See [production hardening](docs/production-hardening.md).
+
+First, go to `terraform` folder:
+
+```
+cd terraform
+```
 
 Below is a list of variables you must set.
 
@@ -114,7 +120,18 @@ Set the `public_baking_key` variable to the baking address.
 
 For testnets or test deployments only: set the `insecure_private_baking_key` to the unencrypted private key to be used.
 
-Attention! Leaving a private baking key on a cloud platform is not recommended when funds are present. For production bakers, leave this variable empty. Leaving it empty will prompt terraform to create a ssh endpoint for remote signers to connect to.
+**Attention!** Leaving a private baking key on a cloud platform is not recommended when funds are present. For production bakers, leave this variable empty. Leaving it empty will prompt terraform to create a ssh endpoint for remote signers to connect to.
+
+### Full example
+
+Here is a full example `terraform.tfvars` configuration. Obviously do not use this one as the private key is now widely known:
+
+```
+project="beaming-essence-20718"
+tezos_network="carthagenet"
+public_baking_key="tz1YmsrYxQFJo5nGj4MEaXMPdLrcRf2a5mAU"
+insecure_private_baking_key="edsk3cftTNcJnxb7ehCxYeCaKPT7mjycdMxgFisLixrQ9bZuTG2yZK"
+```
 
 ## Deploy!
 
@@ -131,8 +148,6 @@ This will take time as it will:
 * create a Kubernetes cluster
 * build the necessary containers locally
 * spin up the public nodes and private baker nodes
-
-Then set up the signers and have them connect to the public endpoint.
 
 Apply an update
 ---------------
