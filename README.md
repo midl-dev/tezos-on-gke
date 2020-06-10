@@ -122,6 +122,26 @@ For testnets or test deployments only: set the `insecure_private_baking_key` to 
 
 **Attention!** Leaving a private baking key on a cloud platform is not recommended when funds are present. For production bakers, leave this variable empty. Leaving it empty will prompt terraform to create a ssh endpoint for remote signers to connect to.
 
+To generate a public/private keypair, you can use the tezos client:
+
+```
+tezos-client gen keys insecure-baker
+# if you do not have a node running locally, there will be an error, but the key was created anyway
+tezos-client show address insecure-baker -S
+```
+
+Set `public_baking_key` to the value displayed after `Hash:` and `insecure_private_baking_key` to the value displayed after `Secret key: unencrypted:`.
+
+If you do not have the tezos client installed locally, you can use the docker Tezos container:
+
+```
+docker run --name=my-tezos-client tezos/tezos:latest-release tezos-client gen keys insecure-baker
+# again, if you do not have a node running locally, there will be an error, but the key was created anyway
+docker commit my-tezos-client my-tezos-client
+docker run my-tezos-client tezos-client show address insecure-baker -S
+```
+
+
 ### Full example
 
 Here is a full example `terraform.tfvars` configuration. Obviously do not use this one as the private key is now widely known:
@@ -149,8 +169,25 @@ This will take time as it will:
 * build the necessary containers locally
 * spin up the public nodes and private baker nodes
 
-Apply an update
----------------
+### Connect to the cluster
+
+Once the command returns, you can verify that the pods are up by running:
+
+```
+kubectl get pods
+```
+
+You should see 2 public nodes and one private node.
+
+Display the log of a public node and observe it sync:
+
+```
+kubectl logs -f tezos-public-node-0 --tail=10
+```
+
+## Day 2 operations
+
+### Apply an update
 
 If you have pulled the most recent version of `tezos-on-gke` and wish to apply updates, you may do so with a `terraform taint`:
 
@@ -163,32 +200,17 @@ This will rebuild the containers locally, then do a `kubectl apply` to push the 
 
 The daemons will restart after some time. However, you may kill the pods to restart them immediately.
 
-Protocol update
----------------
+### Tezos Protocol update
 
 When the Tezos protocol changes, be sure to edit the terraform variables `protocol` and `protocol_short` to match the new version.
 
 Then, apply the changes. Your baker will restart with the right baking and endorsing daemons.
 
-Remotely ssh into the remote signers
-------------------------------------
+### Remotely ssh into the remote signers
 
 For remote connectivity and debugging purposes, ssh port 22 for the on-prem remote signers is being forwarded on ports 9443 and 9444.
 
 To connect to the signers, forward port 9443/9444 from the `tezos-remote-signer-forwarder` locally, then ssh to localhost using your private key associated with the public key injected into the baker during initial setup.
-
-Security considerations
------------------------
-
-The main security risk of this setup is operator error. It is recommended to stage any new deployment of this code to an alphanet cluster before rolling it out against actual funds.
-
-Another risk is related to the avaialability of the signer.
-
-The baking keys can not be kept in a cold storage address, since a message must be signed for each endorsment. But they must be protected by some sort of hardware bastion, so if an attacker gains access to any part of the setup, they may not walk away with the keys. In this simple setup, we used a Ledger Nano. Larger operations may use a cloud HSM.
-
-The Ledger Nano baking app is deliberately separate from the regular Tezos app, so it can not be used to send payouts to delegators. The payouts should be sent from another address, which is kept in a hot wallet. It is discouraged to automate replenishing the payout address from the baking address, as this would require the baking address to be kept in a hot wallet.
-
-There are also risks inherent with using GCP, such as loosing access to your credentials, getting hacked, or getting your account terminated by your provider.
 
 ## Wrapping up
 
