@@ -10,7 +10,7 @@ resource "null_resource" "push_containers" {
     command = <<EOF
 
 
-find ${path.module}/../docker -mindepth 1 -type d  -printf '%f\n'| while read container; do
+find ${path.module}/../docker -mindepth 1 -maxdepth 1 -type d  -printf '%f\n'| while read container; do
   
   pushd ${path.module}/../docker/$container
   cp Dockerfile.template Dockerfile
@@ -59,7 +59,7 @@ mkdir -p ${path.module}/k8s-${var.kubernetes_namespace}
 cp -v ${path.module}/../k8s/*yaml* ${path.module}/k8s-${var.kubernetes_namespace}
 pushd ${path.module}/k8s-${var.kubernetes_namespace}
 cat <<EOK > kustomization.yaml
-templatefile("${path.module}/../k8s/kustomization.yaml.tmpl",
+${templatefile("${path.module}/../k8s/kustomization.yaml.tmpl",
      { "project" : module.terraform-gke-blockchain.project,
        "public_baking_key": var.public_baking_key,
        "insecure_private_baking_key": var.insecure_private_baking_key,
@@ -69,12 +69,12 @@ templatefile("${path.module}/../k8s/kustomization.yaml.tmpl",
        "protocol": var.protocol,
        "protocol_short": var.protocol_short,
        "authorized_signer_key_a": var.authorized_signer_key_a,
-       "authorized_signer_key_b": var.authorized_signer_key_b })
+       "authorized_signer_key_b": var.authorized_signer_key_b })}
 EOK
-if [ "${var.insecure_private_baking_key == "" ? 1 : 0}" -eq "1" ]; then
+if [ '${var.insecure_private_baking_key == "" ? 1 : 0}' -eq "1" ]; then
 cat <<EOLBP > loadbalancerpatch.yaml
-templatefile("${path.module}/../k8s/loadbalancerpatch.yaml.tmpl",
-   { "signer_forwarder_target_address" : google_compute_address.signer_forwarder_target[0].address })
+${templatefile("${path.module}/../k8s/loadbalancerpatch.yaml.tmpl",
+   { "signer_forwarder_target_address" : google_compute_address.signer_forwarder_target[0].address })}
 EOLBP
 fi
 kubectl apply -k .
