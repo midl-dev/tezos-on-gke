@@ -11,6 +11,10 @@ variable "region" {
   type = "string"
 }
 
+variable "node_locations" {
+  type = "list"
+}
+
 variable "kubernetes_endpoint" {
   type = "string"
 }
@@ -45,6 +49,10 @@ output "kubernetes_access_token" {
 
 output "location" {
   value = var.region
+}
+
+output "node_locations" {
+  value = var.node_locations
 }
 
 output "project" {

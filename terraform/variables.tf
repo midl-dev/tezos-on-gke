@@ -26,6 +26,12 @@ variable "region" {
   description = "Region in which to create the cluster, or region where the cluster exists."
 }
 
+variable "node_locations" {
+  type        = list
+  default     = [ "us-central1-b", "us-central1-f" ]
+  description = "Zones in which to create the nodes"
+}
+
 
 variable "kubernetes_namespace" {
   type = string

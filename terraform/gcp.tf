@@ -5,6 +5,8 @@ module "terraform-gke-blockchain" {
   terraform_service_account_credentials = var.terraform_service_account_credentials
   project = var.project
   project_prefix = "tezos"
+  region = var.region
+  node_locations = var.node_locations
 }
 
 # Query the client configuration for our current service account, which should

@@ -71,12 +71,17 @@ ${templatefile("${path.module}/../k8s/kustomization.yaml.tmpl",
        "authorized_signer_key_a": var.authorized_signer_key_a,
        "authorized_signer_key_b": var.authorized_signer_key_b })}
 EOK
-if [ '${var.insecure_private_baking_key == "" ? 1 : 0}' -eq "1" ]; then
+lb_in_use=${var.insecure_private_baking_key == "" ? "true" : "false"}
+if [ "$lb_in_use" == "true" ]; then
 cat <<EOLBP > loadbalancerpatch.yaml
 ${templatefile("${path.module}/../k8s/loadbalancerpatch.yaml.tmpl",
    { "signer_forwarder_target_address" : google_compute_address.signer_forwarder_target[0].address })}
 EOLBP
 fi
+cat <<EORPP > regionalpvpatch.yaml
+${templatefile("${path.module}/../k8s/regionalpvpatch.yaml.tmpl",
+   { "regional_pd_zones" : join(", ", var.node_locations) })}
+EORPP
 kubectl apply -k .
 popd
 rm -rvf ${path.module}/k8s-${var.kubernetes_namespace}

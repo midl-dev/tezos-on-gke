@@ -60,7 +60,8 @@ configMapGenerator:
   - AUTHORIZED_SIGNER_KEY_B="${authorized_signer_key_b}"
 %{ endif }
 
-%{ if insecure_private_baking_key == "" }
 patchesStrategicMerge:
+- regionalpvpatch.yaml
+%{ if insecure_private_baking_key == "" }
 - loadbalancerpatch.yaml
 %{ endif }
