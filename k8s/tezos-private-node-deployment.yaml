@@ -124,6 +124,7 @@ spec:
         resources:
           limits:
             cpu: 0
+        imagePullPolicy: Always
       - name: tezos-prometheus-exporter
         image: ecadlabs/tezos_exporter
         args: [ "-tezos-node-url", "http://localhost:8732/" ]
@@ -133,6 +134,7 @@ spec:
         resources:
           limits:
             cpu: 0
+        imagePullPolicy: Always
       - name: tezos-endorser-with-remote-signer
         image: tezos-endorser-with-remote-signer
         args: [ "k8s-baker" ]
@@ -148,6 +150,7 @@ spec:
         resources:
           limits:
             cpu: 0
+        imagePullPolicy: Always
       - name: tezos-accuser
         image: tezos/tezos
         args: [ "tezos-accuser" ]
@@ -169,6 +172,7 @@ spec:
         resources:
           limits:
             cpu: 0
+        imagePullPolicy: Always
       - name: tezos-baker-with-remote-signer
         image: tezos-baker-with-remote-signer
         args: [ "k8s-baker" ]
@@ -184,6 +188,7 @@ spec:
         resources:
           limits:
             cpu: 0
+        imagePullPolicy: Always
       initContainers:
       - name: tezos-snapshot-downloader
         image: tezos-snapshot-downloader
@@ -199,6 +204,7 @@ spec:
             configMapKeyRef:
               name: tezos-configmap
               key: TEZOS_NETWORK
+        imagePullPolicy: Always
       - name: tezos-key-importer
         image: tezos-key-importer
         env:
@@ -217,6 +223,11 @@ spec:
             configMapKeyRef:
               name: tezos-configmap
               key: INSECURE_PRIVATE_BAKING_KEY
+        - name: KUBERNETES_NAME_PREFIX
+          valueFrom:
+            configMapKeyRef:
+              name: tezos-configmap
+              key: KUBERNETES_NAME_PREFIX
         - name: PUBLIC_BAKING_KEY
           valueFrom:
             configMapKeyRef:
@@ -230,6 +241,7 @@ spec:
         resources:
           limits:
             cpu: 0
+        imagePullPolicy: Always
       volumes:
       - name: tezos-private-client-storage
         persistentVolumeClaim:

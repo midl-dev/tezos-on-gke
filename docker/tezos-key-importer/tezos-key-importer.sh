@@ -24,8 +24,8 @@ cat << EOF > ${node_dir}/data/config.json
   "rpc": { "listen-addrs": [ ":8732", "0.0.0.0:8732" ] },
   "p2p":
     { "bootstrap-peers":
-        [ "tezos-public-node-0.tezos-public-node",
-          "tezos-public-node-1.tezos-public-node" ],
+        [ "${KUBERNETES_NAME_PREFIX}-tezos-public-node-0.${KUBERNETES_NAME_PREFIX}-tezos-public-node",
+          "${KUBERNETES_NAME_PREFIX}-tezos-public-node-1.${KUBERNETES_NAME_PREFIX}-tezos-public-node" ],
       "listen-addr": "[::]:9732",
       "limits":
         { "connection-timeout": 10, "min-connections": 1,

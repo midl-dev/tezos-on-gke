@@ -50,7 +50,7 @@ spec:
       containers:
       - name: tezos-public-node
         image: tezos-public-node-with-probes
-        args: [ "tezos-node", "--history-mode", "experimental-rolling", "--peer", "tezos-private-baking-node", "--network", "$(TEZOS_NETWORK)" ]
+        args: [ "tezos-node", "--history-mode", "experimental-rolling", "--peer", "$(TEZOS_PRIVATE_NODE_NAME)", "--network", "$(TEZOS_NETWORK)" ]
         ports:
         - containerPort: 9732
           name: tezos-port
@@ -68,6 +68,11 @@ spec:
           periodSeconds: 10
           failureThreshold: 50
         env:
+        - name: TEZOS_PRIVATE_NODE_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: tezos-configmap
+              key: TEZOS_PRIVATE_NODE_NAME
         - name: TEZOS_NETWORK
           valueFrom:
             configMapKeyRef:

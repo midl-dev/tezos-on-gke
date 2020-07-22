@@ -58,7 +58,9 @@ configMapGenerator:
   - REMOTE_SIGNER_IN_USE=${remote_signer_in_use}"
   - NODE_HOST="localhost"
   - TEZOS_NETWORK=${tezos_network}"
+  - TEZOS_PRIVATE_NODE_NAME="${kubernetes_name_prefix}-tezos-private-baking-node"
   - PROTOCOL="${protocol}"
+  - KUBERNETES_NAME_PREFIX="${kubernetes_name_prefix}"
   - PROTOCOL_SHORT="${protocol_short}"
   - DATA_DIR=/run/tezos
 %{ if insecure_private_baking_key == "" }

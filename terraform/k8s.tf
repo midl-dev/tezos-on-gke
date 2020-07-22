@@ -7,8 +7,8 @@ resource "null_resource" "push_containers" {
     )
   }
   provisioner "local-exec" {
+    interpreter = [ "/bin/bash", "-c" ]
     command = <<EOF
-#!/bin/bash
 set -x
 
 build_container () {
@@ -53,8 +53,8 @@ resource "kubernetes_namespace" "tezos_namespace" {
 resource "null_resource" "apply" {
   provisioner "local-exec" {
 
+    interpreter = [ "/bin/bash", "-c" ]
     command = <<EOF
-#!/bin/bash
 set -e
 set -x
 gcloud container clusters get-credentials "${module.terraform-gke-blockchain.name}" --region="${module.terraform-gke-blockchain.location}" --project="${module.terraform-gke-blockchain.project}"
