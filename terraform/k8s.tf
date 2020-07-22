@@ -9,10 +9,12 @@ resource "null_resource" "push_containers" {
   provisioner "local-exec" {
     command = <<EOF
 
+set -x
 
-find ${path.module}/../docker -mindepth 1 -maxdepth 1 -type d  -printf '%f\n'| while read container; do
-  
-  cd ${path.module}/../docker/$container
+build_container () {
+  set -x
+  cd $1
+  container=$(basename $1)
   cp Dockerfile.template Dockerfile
   sed -i "s/((tezos_sentry_version))/${var.tezos_sentry_version}/" Dockerfile
   sed -i "s/((tezos_private_version))/${var.tezos_private_version}/" Dockerfile
@@ -25,8 +27,9 @@ EOY
   gcloud builds submit --project ${module.terraform-gke-blockchain.project} --config cloudbuild.yaml .
   rm -v Dockerfile
   rm cloudbuild.yaml
-  cd ${path.module}
-done
+}
+export -f build_container
+find ${path.module}/../docker -mindepth 1 -maxdepth 1 -type d -exec bash -c 'build_container "$0"' {} \; -printf '%f\n'
 EOF
   }
 }
