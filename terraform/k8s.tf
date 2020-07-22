@@ -8,7 +8,7 @@ resource "null_resource" "push_containers" {
   }
   provisioner "local-exec" {
     command = <<EOF
-
+#!/bin/bash
 set -x
 
 build_container () {
@@ -54,13 +54,14 @@ resource "null_resource" "apply" {
   provisioner "local-exec" {
 
     command = <<EOF
+#!/bin/bash
 set -e
 set -x
 gcloud container clusters get-credentials "${module.terraform-gke-blockchain.name}" --region="${module.terraform-gke-blockchain.location}" --project="${module.terraform-gke-blockchain.project}"
 
 mkdir -p ${path.module}/k8s-${var.kubernetes_namespace}
 cp -v ${path.module}/../k8s/*yaml* ${path.module}/k8s-${var.kubernetes_namespace}
-pushd ${path.module}/k8s-${var.kubernetes_namespace}
+cd ${path.module}/k8s-${var.kubernetes_namespace}
 cat <<EOK > kustomization.yaml
 ${templatefile("${path.module}/../k8s/kustomization.yaml.tmpl",
      { "project" : module.terraform-gke-blockchain.project,
@@ -72,21 +73,32 @@ ${templatefile("${path.module}/../k8s/kustomization.yaml.tmpl",
        "protocol": var.protocol,
        "protocol_short": var.protocol_short,
        "authorized_signer_key_a": var.authorized_signer_key_a,
-       "authorized_signer_key_b": var.authorized_signer_key_b })}
+       "authorized_signer_key_b": var.authorized_signer_key_b,
+       "kubernetes_namespace": var.kubernetes_namespace,
+       "kubernetes_name_prefix": var.kubernetes_name_prefix})}
 EOK
 lb_in_use=${var.insecure_private_baking_key == "" ? "true" : "false"}
 if [ "$lb_in_use" == "true" ]; then
 cat <<EOLBP > loadbalancerpatch.yaml
 ${templatefile("${path.module}/../k8s/loadbalancerpatch.yaml.tmpl",
-   { "signer_forwarder_target_address" : google_compute_address.signer_forwarder_target[0].address })}
+   { "signer_forwarder_target_address" : length(google_compute_address.signer_forwarder_target) > 0 ? google_compute_address.signer_forwarder_target[0].address : "" })}
 EOLBP
 fi
 cat <<EORPP > regionalpvpatch.yaml
 ${templatefile("${path.module}/../k8s/regionalpvpatch.yaml.tmpl",
-   { "regional_pd_zones" : join(", ", var.node_locations) })}
+   { "regional_pd_zones" : join(", ", var.node_locations),
+       "kubernetes_name_prefix": var.kubernetes_name_prefix})}
 EORPP
+
+# the two below are necessary because kustomize embedded in the most recent version of kubectl does not apply prefix to volme class
+cat <<EOPVN > prefixedpvnode.yaml
+${templatefile("${path.module}/../k8s/prefixedpvnode.yaml.tmpl", {"kubernetes_name_prefix": var.kubernetes_name_prefix})}
+EOPVN
+cat <<EOPVC > prefixedpvclient.yaml
+${templatefile("${path.module}/../k8s/prefixedpvclient.yaml.tmpl", {"kubernetes_name_prefix": var.kubernetes_name_prefix})}
+EOPVC
 kubectl apply -k .
-popd
+cd ..
 rm -rvf ${path.module}/k8s-${var.kubernetes_namespace}
 EOF
 

@@ -8,39 +8,47 @@ resources:
 - tezos-remote-signer-forwarder.yaml
 %{ endif }
 
+# Adds namespace to all resources.
+namespace: ${kubernetes_namespace}
+
+# Value of this field is prepended to the
+# names of all resources, e.g. a deployment named
+# "wordpress" becomes "alices-wordpress".
+namePrefix: ${kubernetes_name_prefix}-
+
 imageTags:
   - name: tezos-public-node-with-probes
     newName: gcr.io/${project}/tezos-public-node-with-probes
-    newTag: latest
+    newTag: ${kubernetes_namespace}-latest
   - name: tezos/tezos
     newTag: ${tezos_private_version}
   - name: tezos-baker-with-remote-signer
     newName: gcr.io/${project}/tezos-baker-with-remote-signer
-    newTag: latest
+    newTag: ${kubernetes_namespace}-latest
   - name: tezos-endorser-with-remote-signer
     newName: gcr.io/${project}/tezos-endorser-with-remote-signer
-    newTag: latest
+    newTag: ${kubernetes_namespace}-latest
   - name: tezos-remote-signer-forwarder
     newName: gcr.io/${project}/tezos-remote-signer-forwarder
-    newTag: latest
+    newTag: ${kubernetes_namespace}-latest
   - name: tezos-remote-signer-loadbalancer
     newName: gcr.io/${project}/tezos-remote-signer-loadbalancer
-    newTag: latest
+    newTag: ${kubernetes_namespace}-latest
   - name: tezos-snapshot-downloader
     newName: gcr.io/${project}/tezos-snapshot-downloader
-    newTag: latest
+    newTag: ${kubernetes_namespace}-latest
   - name: tezos-rolling-snapshot-downloader
     newName: gcr.io/${project}/tezos-rolling-snapshot-downloader
-    newTag: latest
+    newTag: ${kubernetes_namespace}-latest
   - name: tezos-archive-downloader
     newName: gcr.io/${project}/tezos-archive-downloader
-    newTag: latest
+    newTag: ${kubernetes_namespace}-latest
   - name: tezos-key-importer
     newName: gcr.io/${project}/tezos-key-importer
-    newTag: latest
+    newTag: ${kubernetes_namespace}-latest
   - name: tezos-private-node-connectivity-checker
     newName: gcr.io/${project}/tezos-private-node-connectivity-checker
-    newTag: latest
+    newTag: ${kubernetes_namespace}-latest
 
 configMapGenerator:
 - name: tezos-configmap
@@ -62,6 +70,8 @@ configMapGenerator:
 
 patchesStrategicMerge:
 - regionalpvpatch.yaml
+- prefixedpvnode.yaml
+- prefixedpvclient.yaml
 %{ if insecure_private_baking_key == "" }
 - loadbalancerpatch.yaml
 %{ endif }
