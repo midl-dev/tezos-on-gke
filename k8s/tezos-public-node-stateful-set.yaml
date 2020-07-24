@@ -14,20 +14,27 @@ metadata:
 spec:
   ports:
   - port: 9732
+    name: p2p
+  - port: 8732
+    name: rpc
   selector:
     app: tezos-public-node
   clusterIP: None
 ---
-apiVersion: v1
-kind: Service
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
 metadata:
-  name: tezos-public-node-rpc
-spec:
-  ports:
-  - port: 8732
-  selector:
+  labels:
     app: tezos-public-node
-  clusterIP: None
+    release: monitoring
+  name: tezos-public-noode-monitoring
+spec:
+  endpoints:
+  - interval: 15s
+    port: metrics
+  selector:
+    matchLabels:
+      app: tezos-public-node
 ---
 apiVersion: apps/v1
 kind: StatefulSet
@@ -78,6 +85,16 @@ spec:
             configMapKeyRef:
               name: tezos-configmap
               key: TEZOS_NETWORK
+      - name: tezos-prometheus-exporter
+        image: ecadlabs/tezos_exporter
+        args: [ "-tezos-node-url", "http://localhost:8732/" ]
+        ports:
+        - containerPort: 9489
+          name: metrics
+        resources:
+          limits:
+            cpu: 0
+        imagePullPolicy: Always
       initContainers:
       - name: tezos-rolling-snapshot-downloader
         image: tezos-rolling-snapshot-downloader

@@ -79,26 +79,10 @@ variable "terraform_service_account_credentials" {
 # Tezos node and baker options
 # ------------------------------
 
-variable "public_baking_key" {
-  type  = string
-  description = "The public baker tz1 address that delegators delegate to."
-}
-
-variable "insecure_private_baking_key" {
-  type  = string
-  description = "The private key associated with the public_baking_key. Setting this variable will override the hardware security module configuration. ATTENTION! Do not do that on mainnet. Keep your private key in a HSM instead."
-}
-
-variable "authorized_signer_key_a" {
-  type = string
-  description = "Public key of the first remote signer."
-  default = ""
-}
-
-variable "authorized_signer_key_b" {
-  type = string
-  description = "Public key of the first remote signer."
-  default = ""
+variable "baking_nodes" {
+  type = map
+  description = "Structured data related to baking, including public key and signer configuration"
+  default = {}
 }
 
 variable "tezos_network" {

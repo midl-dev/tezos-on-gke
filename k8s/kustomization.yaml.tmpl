@@ -4,9 +4,7 @@ kind: Kustomization
 resources:
 - tezos-public-node-stateful-set.yaml
 - tezos-private-node-deployment.yaml
-%{ if insecure_private_baking_key == "" }
 - tezos-remote-signer-forwarder.yaml
-%{ endif }
 
 # Adds namespace to all resources.
 namespace: ${kubernetes_namespace}
@@ -53,9 +51,8 @@ imageTags:
 configMapGenerator:
 - name: tezos-configmap
   literals:
-  - PUBLIC_BAKING_KEY="${public_baking_key}"
-  - INSECURE_PRIVATE_BAKING_KEY="${insecure_private_baking_key}"
-  - REMOTE_SIGNER_IN_USE=${remote_signer_in_use}"
+  - PUBLIC_BAKING_KEY="${baking_nodes["custnode"]["STLM"]["public_baking_key"]}"
+  - INSECURE_PRIVATE_BAKING_KEY=""
   - NODE_HOST="localhost"
   - TEZOS_NETWORK=${tezos_network}"
   - TEZOS_PRIVATE_NODE_NAME="${kubernetes_name_prefix}-tezos-private-baking-node"
@@ -63,17 +60,12 @@ configMapGenerator:
   - KUBERNETES_NAME_PREFIX="${kubernetes_name_prefix}"
   - PROTOCOL_SHORT="${protocol_short}"
   - DATA_DIR=/run/tezos
-%{ if insecure_private_baking_key == "" }
 - name: remote-signer-forwarder-configmap
   literals:
-  - AUTHORIZED_SIGNER_KEY_A="${authorized_signer_key_a}"
-  - AUTHORIZED_SIGNER_KEY_B="${authorized_signer_key_b}"
-%{ endif }
+  - SIGNER_DATA=${baking_nodes_json}
 
 patchesStrategicMerge:
 - regionalpvpatch.yaml
 - prefixedpvnode.yaml
 - prefixedpvclient.yaml
-%{ if insecure_private_baking_key == "" }
 - loadbalancerpatch.yaml
-%{ endif }

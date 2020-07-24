@@ -1,3 +1,7 @@
+locals {
+  # TODO : check whether there is any forwarder pubkey
+  remote_signer_in_use = true
+}
 resource "null_resource" "push_containers" {
 
   triggers = {
@@ -36,7 +40,7 @@ EOF
 
 # Provision IP
 resource "google_compute_address" "signer_forwarder_target" {
-  count = var.insecure_private_baking_key == "" ? 1 : 0
+  count = local.remote_signer_in_use ? 1 : 0
   name    = "tezos-baker-lb"
   region  = module.terraform-gke-blockchain.location
   project = module.terraform-gke-blockchain.project
@@ -65,25 +69,19 @@ cd ${path.module}/k8s-${var.kubernetes_namespace}
 cat <<EOK > kustomization.yaml
 ${templatefile("${path.module}/../k8s/kustomization.yaml.tmpl",
      { "project" : module.terraform-gke-blockchain.project,
-       "public_baking_key": var.public_baking_key,
-       "insecure_private_baking_key": var.insecure_private_baking_key,
-       "remote_signer_in_use": var.insecure_private_baking_key == "" ? "true" : "false",
        "tezos_private_version": var.tezos_private_version,
        "tezos_network": var.tezos_network,
        "protocol": var.protocol,
        "protocol_short": var.protocol_short,
-       "authorized_signer_key_a": var.authorized_signer_key_a,
-       "authorized_signer_key_b": var.authorized_signer_key_b,
+       "baking_nodes": var.baking_nodes,
+       "baking_nodes_json": jsonencode(var.baking_nodes),
        "kubernetes_namespace": var.kubernetes_namespace,
        "kubernetes_name_prefix": var.kubernetes_name_prefix})}
 EOK
-lb_in_use=${var.insecure_private_baking_key == "" ? "true" : "false"}
-if [ "$lb_in_use" == "true" ]; then
 cat <<EOLBP > loadbalancerpatch.yaml
 ${templatefile("${path.module}/../k8s/loadbalancerpatch.yaml.tmpl",
    { "signer_forwarder_target_address" : length(google_compute_address.signer_forwarder_target) > 0 ? google_compute_address.signer_forwarder_target[0].address : "" })}
 EOLBP
-fi
 cat <<EORPP > regionalpvpatch.yaml
 ${templatefile("${path.module}/../k8s/regionalpvpatch.yaml.tmpl",
    { "regional_pd_zones" : join(", ", var.node_locations),

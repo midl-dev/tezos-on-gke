@@ -1,6 +1,6 @@
 #!/bin/sh
-echo "$AUTHORIZED_SIGNER_KEY_A" >> /home/signer/.ssh/authorized_keys
-echo "$AUTHORIZED_SIGNER_KEY_B" >> /home/signer/.ssh/authorized_keys
+
+python3 configGenerator.py > /home/signer/.ssh/authorized_keys
 
 # -D: do not daemonize
 # -e : write logs to standard error

@@ -78,19 +78,15 @@ spec:
         - containerPort: 8444
           name: signer-b
         env:
-        - name: AUTHORIZED_SIGNER_KEY_A
+        - name: SIGNER_DATA
           valueFrom:
             configMapKeyRef:
               name: remote-signer-forwarder-configmap
-              key: AUTHORIZED_SIGNER_KEY_A
-        - name: AUTHORIZED_SIGNER_KEY_B
-          valueFrom:
-            configMapKeyRef:
-              name: remote-signer-forwarder-configmap
-              key: AUTHORIZED_SIGNER_KEY_B
+              key: SIGNER_DATA
         resources:
           limits:
             cpu: 0
+        imagePullPolicy: Always
       - name: tezos-remote-signer-loadbalancer
         image: tezos-remote-signer-loadbalancer
         ports:
@@ -105,3 +101,4 @@ spec:
         resources:
           limits:
             cpu: 0
+        imagePullPolicy: Always
