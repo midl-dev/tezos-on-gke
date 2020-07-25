@@ -1,0 +1,38 @@
+bases:
+- ./../tezos-public-node-base
+
+imageTags:
+  - name: tezos-public-node-with-probes
+    newName: gcr.io/${project}/tezos-public-node-with-probes
+    newTag: ${kubernetes_namespace}-latest
+  - name: tezos/tezos
+    newTag: ${tezos_private_version}
+  - name: tezos-remote-signer-forwarder
+    newName: gcr.io/${project}/tezos-remote-signer-forwarder
+    newTag: ${kubernetes_namespace}-latest
+  - name: tezos-snapshot-downloader
+    newName: gcr.io/${project}/tezos-snapshot-downloader
+    newTag: ${kubernetes_namespace}-latest
+  - name: tezos-rolling-snapshot-downloader
+    newName: gcr.io/${project}/tezos-rolling-snapshot-downloader
+    newTag: ${kubernetes_namespace}-latest
+  - name: tezos-archive-downloader
+    newName: gcr.io/${project}/tezos-archive-downloader
+    newTag: ${kubernetes_namespace}-latest
+
+configMapGenerator:
+- name: tezos-configmap
+  literals:
+  - NODE_HOST="localhost"
+  - TEZOS_NETWORK=${tezos_network}"
+  - TEZOS_PRIVATE_NODE_NAME="${kubernetes_name_prefix}-tezos-private-baking-node-custnode"
+  - PROTOCOL="${protocol}"
+  - KUBERNETES_NAME_PREFIX="${kubernetes_name_prefix}"
+  - PROTOCOL_SHORT="${protocol_short}"
+  - DATA_DIR=/run/tezos
+- name: remote-signer-forwarder-configmap
+  literals:
+  - SIGNER_DATA=${baking_nodes_json}
+
+patchesStrategicMerge:
+- loadbalancerpatch.yaml

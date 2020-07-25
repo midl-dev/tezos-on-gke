@@ -1,0 +1,62 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: tezos-remote-signer-loadbalancer
+spec:
+  ports:
+  - port: 8445
+    name: remote-signer
+  selector:
+    app: tezos-remote-signer-loadbalancer
+  clusterIP: None
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: tezos-remote-signer-loadbalancer-policy
+  namespace: default
+spec:
+  podSelector:
+    matchLabels:
+      app: tezos-remote-signer-loadbalancer
+  policyTypes:
+  - Ingress
+  ingress:
+  - ports:
+    - port: 8445
+      protocol: TCP
+    from:
+    - podSelector:
+        matchLabels:
+          app: tezos-private-baking-node
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tezos-remote-signer-loadbalancer
+spec:
+  selector:
+    matchLabels:
+      app: tezos-remote-signer-loadbalancer
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: tezos-remote-signer-loadbalancer
+    spec:
+      securityContext:
+        fsGroup: 100
+      containers:
+      - name: tezos-remote-signer-loadbalancer
+        image: tezos-remote-signer-loadbalancer
+        ports:
+        - containerPort: 8445
+          name: signer
+        envFrom:
+        - configMapRef:
+            name: tezos-remote-signer-loadbalancer-configmap
+        resources:
+          limits:
+            cpu: 0
+        imagePullPolicy: Always

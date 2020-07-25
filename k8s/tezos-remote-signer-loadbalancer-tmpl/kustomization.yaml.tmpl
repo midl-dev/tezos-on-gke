@@ -1,0 +1,16 @@
+bases:
+  - ./../tezos-remote-signer-loadbalancer-base
+
+nameSuffix: -stlm
+
+imageTags:
+  - name: tezos-remote-signer-loadbalancer
+    newName: gcr.io/${project}/tezos-remote-signer-loadbalancer
+    newTag: ${kubernetes_namespace}-latest
+
+configMapGenerator:
+- name: tezos-remote-signer-loadbalancer
+  literals:
+  - PUBLIC_BAKING_KEY="${baking_nodes["custnode"]["STLM"]["public_baking_key"]}"
+  - SIGNER_A_PORT="${baking_nodes["custnode"]["STLM"]["authorized_signers"][0]["signer_port"]}"
+  - SIGNER_B_PORT="${baking_nodes["custnode"]["STLM"]["authorized_signers"][1]["signer_port"]}"

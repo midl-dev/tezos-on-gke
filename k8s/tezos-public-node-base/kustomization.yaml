@@ -1,0 +1,3 @@
+resources:
+- tezos-public-node-stateful-set.yaml
+- tezos-remote-signer-forwarder.yaml

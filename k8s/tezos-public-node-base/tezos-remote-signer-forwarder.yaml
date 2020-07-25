@@ -14,11 +14,13 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: tezos-remote-signer
+  name: tezos-remote-signer-forwarder
 spec:
   ports:
-  - port: 8445
-    name: remote-signer
+  - port: 18443
+    name: remote-signer-a
+  - port: 18444
+    name: remote-signer-b
   selector:
     app: tezos-remote-signer-forwarder
   clusterIP: None
@@ -36,19 +38,17 @@ spec:
   - Ingress
   ingress:
   - ports:
-    - port: 53
-      protocol: TCP
-    - port: 53
-      protocol: UDP
     - port: 58255
       protocol: TCP
   - ports:
-    - port: 8445
+    - port: 18443
+      protocol: TCP
+    - port: 18444
       protocol: TCP
     from:
     - podSelector:
         matchLabels:
-          app: tezos-private-baking-node
+          app: tezos-remote-signer-loadbalancer
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -73,9 +73,9 @@ spec:
         ports:
         - containerPort: 58255
           name: ssh
-        - containerPort: 8443
+        - containerPort: 18443
           name: signer-a
-        - containerPort: 8444
+        - containerPort: 18444
           name: signer-b
         env:
         - name: SIGNER_DATA
@@ -83,21 +83,6 @@ spec:
             configMapKeyRef:
               name: remote-signer-forwarder-configmap
               key: SIGNER_DATA
-        resources:
-          limits:
-            cpu: 0
-        imagePullPolicy: Always
-      - name: tezos-remote-signer-loadbalancer
-        image: tezos-remote-signer-loadbalancer
-        ports:
-        - containerPort: 8445
-          name: signer
-        env:
-        - name: PUBLIC_BAKING_KEY
-          valueFrom:
-            configMapKeyRef:
-              name: tezos-configmap
-              key: PUBLIC_BAKING_KEY
         resources:
           limits:
             cpu: 0

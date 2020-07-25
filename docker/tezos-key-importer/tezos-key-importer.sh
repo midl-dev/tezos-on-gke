@@ -45,6 +45,6 @@ elif [ ! -z "$INSECURE_PRIVATE_BAKING_KEY" ]; then
 /usr/local/bin/tezos-client -p $PROTOCOL_SHORT --base-dir $client_dir import secret key k8s-baker unencrypted:$INSECURE_PRIVATE_BAKING_KEY -f
 else
     echo "No insecure private baking key set, assuming hardware security module in use"
-    echo "Importing public key http://${KUBERNETES_NAME_PREFIX}-tezos-remote-signer:8445/$PUBLIC_BAKING_KEY"
-    exec "${bin_dir}/tezos-client" --base-dir $client_dir -p $PROTOCOL_SHORT import secret key k8s-baker http://${KUBERNETES_NAME_PREFIX}-tezos-remote-signer:8445/$PUBLIC_BAKING_KEY -f
+    echo "Importing public key http://${KUBERNETES_NAME_PREFIX}-tezos-remote-signer-loadbalancer-${CUSTOMER_NAME}:8445/$PUBLIC_BAKING_KEY"
+    exec "${bin_dir}/tezos-client" --base-dir $client_dir -p $PROTOCOL_SHORT import secret key k8s-baker http://${KUBERNETES_NAME_PREFIX}-tezos-remote-signer-loadbalancer-${CUSTOMER_NAME}:8445/$PUBLIC_BAKING_KEY -f
 fi
