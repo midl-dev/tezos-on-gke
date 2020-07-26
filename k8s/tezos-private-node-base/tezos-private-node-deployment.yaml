@@ -88,7 +88,7 @@ spec:
     to:
     - podSelector:
         matchLabels:
-          app: tezos-remote-signer-forwarder
+          app: tezos-remote-signer-loadbalancer
   - ports:
     - port: 9732
       protocol: TCP
@@ -164,7 +164,7 @@ spec:
           mountPath: /var/run/tezos/client
         envFrom:
         - configMapRef:
-            name: tezos-configmap
+            name: tezos-private-node-configmap
         resources:
           limits:
             cpu: 0
@@ -176,12 +176,12 @@ spec:
         - name: NODE_HOST
           valueFrom:
             configMapKeyRef:
-              name: tezos-configmap
+              name: tezos-private-node-configmap
               key: NODE_HOST
         - name: PROTOCOL
           valueFrom:
             configMapKeyRef:
-              name: tezos-configmap
+              name: tezos-private-node-configmap
               key: PROTOCOL
         volumeMounts:
         - name: tezos-private-client-storage
@@ -202,7 +202,7 @@ spec:
           mountPath: /var/run/tezos/client
         envFrom:
         - configMapRef:
-            name: tezos-configmap
+            name: tezos-private-node-configmap
         resources:
           limits:
             cpu: 0
@@ -220,7 +220,7 @@ spec:
         - name: TEZOS_NETWORK
           valueFrom:
             configMapKeyRef:
-              name: tezos-configmap
+              name: tezos-private-node-configmap
               key: TEZOS_NETWORK
         imagePullPolicy: Always
       - name: tezos-key-importer
@@ -229,27 +229,32 @@ spec:
         - name: TEZOS_NETWORK
           valueFrom:
             configMapKeyRef:
-              name: tezos-configmap
+              name: tezos-private-node-configmap
               key: TEZOS_NETWORK
         - name: PROTOCOL_SHORT
           valueFrom:
             configMapKeyRef:
-              name: tezos-configmap
+              name: tezos-private-node-configmap
               key: PROTOCOL_SHORT
         - name: INSECURE_PRIVATE_BAKING_KEY
           valueFrom:
             configMapKeyRef:
-              name: tezos-configmap
+              name: tezos-private-node-configmap
               key: INSECURE_PRIVATE_BAKING_KEY
         - name: KUBERNETES_NAME_PREFIX
           valueFrom:
             configMapKeyRef:
-              name: tezos-configmap
+              name: tezos-private-node-configmap
               key: KUBERNETES_NAME_PREFIX
+        - name: CUSTOMER_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: tezos-private-node-configmap
+              key: CUSTOMER_NAME
         - name: PUBLIC_BAKING_KEY
           valueFrom:
             configMapKeyRef:
-              name: tezos-configmap
+              name: tezos-private-node-configmap
               key: PUBLIC_BAKING_KEY
         volumeMounts:
         - name: tezos-private-node-storage

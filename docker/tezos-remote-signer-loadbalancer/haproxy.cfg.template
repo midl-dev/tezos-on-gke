@@ -17,7 +17,7 @@ backend tezos-signer-backends
     balance first
     mode http
     option forwardfor
-    server tezos-signer-1 localhost:${SIGNER_A_PORT} check inter 15000
-    server tezos-signer-2 localhost:${SIGNER_B_PORT} check inter 15000
+    server tezos-signer-1 xta-tezos-remote-signer-forwarder:${SIGNER_A_PORT} check inter 15000
+    server tezos-signer-2 xta-tezos-remote-signer-forwarder:${SIGNER_B_PORT} check inter 15000
     option httpchk GET /keys/${PUBLIC_BAKING_KEY}
     http-check expect status 200
