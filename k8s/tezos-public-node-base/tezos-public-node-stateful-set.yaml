@@ -57,7 +57,7 @@ spec:
       containers:
       - name: tezos-public-node
         image: tezos-public-node-with-probes
-        args: [ "tezos-node", "--history-mode", "experimental-rolling", "--peer", "$(TEZOS_PRIVATE_NODE_NAME)", "--network", "$(TEZOS_NETWORK)" ]
+        args: [ "tezos-node" ]
         ports:
         - containerPort: 9732
           name: tezos-port
@@ -75,16 +75,12 @@ spec:
           periodSeconds: 10
           failureThreshold: 50
         env:
-        - name: TEZOS_PRIVATE_NODE_NAME
-          valueFrom:
-            configMapKeyRef:
-              name: tezos-configmap
-              key: TEZOS_PRIVATE_NODE_NAME
         - name: TEZOS_NETWORK
           valueFrom:
             configMapKeyRef:
               name: tezos-configmap
               key: TEZOS_NETWORK
+        imagePullPolicy: Always
       - name: tezos-prometheus-exporter
         image: ecadlabs/tezos_exporter
         args: [ "-tezos-node-url", "http://localhost:8732/" ]
@@ -107,6 +103,30 @@ spec:
             configMapKeyRef:
               name: tezos-configmap
               key: TEZOS_NETWORK
+        resources:
+          limits:
+            cpu: 0
+        imagePullPolicy: Always
+      - name: tezos-public-node-configurator
+        image: tezos-public-node-configurator
+        env:
+        - name: PRIVATE_PEER_LIST
+          valueFrom:
+            configMapKeyRef:
+              name: tezos-configmap
+              key: PRIVATE_PEER_LIST
+        - name: TEZOS_NETWORK
+          valueFrom:
+            configMapKeyRef:
+              name: tezos-configmap
+              key: TEZOS_NETWORK
+        volumeMounts:
+        - name: tezos-public-node-pv-claim
+          mountPath: /var/run/tezos/node
+        resources:
+          limits:
+            cpu: 0
+        imagePullPolicy: Always
   volumeClaimTemplates:
   - metadata:
       name: tezos-public-node-pv-claim
