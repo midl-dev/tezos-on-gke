@@ -89,27 +89,31 @@ ${templatefile("${path.module}/../k8s/tezos-public-node-tmpl/loadbalancerpatch.y
    { "signer_forwarder_target_address" : length(google_compute_address.signer_forwarder_target) > 0 ? google_compute_address.signer_forwarder_target[0].address : "" })}
 EOLBP
 
-mkdir -pv tezos-private-node-custnode
-cat <<EOK > tezos-private-node-custnode/kustomization.yaml
+%{ for nodename in keys(var.baking_nodes) }
+mkdir -pv tezos-private-node-${nodename}
+cat <<EOK > tezos-private-node-${nodename}/kustomization.yaml
 ${templatefile("${path.module}/../k8s/tezos-private-node-tmpl/kustomization.yaml.tmpl", local.kubernetes_variables)}
 EOK
-cat <<EORPP > tezos-private-node-custnode/regionalpvpatch.yaml
+cat <<EORPP > tezos-private-node-${nodename}/regionalpvpatch.yaml
 ${templatefile("${path.module}/../k8s/tezos-private-node-tmpl/regionalpvpatch.yaml.tmpl",
    { "regional_pd_zones" : join(", ", var.node_locations),
      "kubernetes_name_prefix": var.kubernetes_name_prefix})}
 EORPP
 # the two below are necessary because kustomize embedded in the most recent version of kubectl does not apply prefix to volume class
-cat <<EOPVN > tezos-private-node-custnode/prefixedpvnode.yaml
+cat <<EOPVN > tezos-private-node-${nodename}/prefixedpvnode.yaml
 ${templatefile("${path.module}/../k8s/tezos-private-node-tmpl/prefixedpvnode.yaml.tmpl", {"kubernetes_name_prefix": var.kubernetes_name_prefix})}
 EOPVN
-cat <<EOPVC > tezos-private-node-custnode/prefixedpvclient.yaml
+cat <<EOPVC > tezos-private-node-${nodename}/prefixedpvclient.yaml
 ${templatefile("${path.module}/../k8s/tezos-private-node-tmpl/prefixedpvclient.yaml.tmpl", {"kubernetes_name_prefix": var.kubernetes_name_prefix})}
 EOPVC
+%{ endfor}
 
-mkdir -pv tezos-remote-signer-loadbalancer-cust001
-cat <<EOK > tezos-remote-signer-loadbalancer-cust001/kustomization.yaml
+%{ for custname in keys(merge(values(var.baking_nodes)...)) }
+mkdir -pv tezos-remote-signer-loadbalancer-${custname}
+cat <<EOK > tezos-remote-signer-loadbalancer-${custname}/kustomization.yaml
 ${templatefile("${path.module}/../k8s/tezos-remote-signer-loadbalancer-tmpl/kustomization.yaml.tmpl", local.kubernetes_variables)}
 EOK
+%{ endfor}
 
 kubectl apply -k .
 cd ${abspath(path.module)}
