@@ -108,6 +108,11 @@ ${templatefile("${path.module}/../k8s/tezos-private-node-tmpl/prefixedpvclient.y
 EOPVC
 
 %{ for custname in keys(var.baking_nodes[nodename]) }
+
+cat <<EOBEP > tezos-private-node-${nodename}/baker_endorser_process_patch_${custname}.yaml
+${templatefile("${path.module}/../k8s/tezos-private-node-tmpl/baker_endorser_process_patch.yaml.tmpl", {"custname": custname})}
+EOBEP
+
 mkdir -pv tezos-remote-signer-loadbalancer-${custname}
 cat <<EOK > tezos-remote-signer-loadbalancer-${custname}/kustomization.yaml
 ${templatefile("${path.module}/../k8s/tezos-remote-signer-loadbalancer-tmpl/kustomization.yaml.tmpl", merge(local.kubernetes_variables, { "custname": custname, "nodename" : nodename} ))}

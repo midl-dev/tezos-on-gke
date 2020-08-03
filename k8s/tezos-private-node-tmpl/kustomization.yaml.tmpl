@@ -24,6 +24,9 @@ imageTags:
   - name: tezos-key-importer
     newName: gcr.io/${project}/tezos-key-importer
     newTag: ${kubernetes_namespace}-latest
+  - name: tezos-private-node-configurator
+    newName: gcr.io/${project}/tezos-private-node-configurator
+    newTag: ${kubernetes_namespace}-latest
   - name: tezos-private-node-connectivity-checker
     newName: gcr.io/${project}/tezos-private-node-connectivity-checker
     newTag: ${kubernetes_namespace}-latest
@@ -31,17 +34,31 @@ imageTags:
 configMapGenerator:
 - name: tezos-private-node-configmap
   literals:
-  - PUBLIC_BAKING_KEY="${baking_nodes["${nodename}"]["cust001"]["public_baking_key"]}"
-  - INSECURE_PRIVATE_BAKING_KEY=""
   - NODE_HOST="localhost"
   - TEZOS_NETWORK=${tezos_network}"
   - PROTOCOL="${protocol}"
   - KUBERNETES_NAME_PREFIX="${kubernetes_name_prefix}"
   - PROTOCOL_SHORT="${protocol_short}"
   - DATA_DIR=/run/tezos
-  - CUSTOMER_NAME="cust001"
+
+%{ for custname in keys(baking_nodes[nodename]) }
+- name: tezos-private-baker-configmap-${custname}
+  literals:
+  - NODE_HOST="localhost"
+  - TEZOS_NETWORK=${tezos_network}"
+  - PROTOCOL="${protocol}"
+  - KUBERNETES_NAME_PREFIX="${kubernetes_name_prefix}"
+  - PROTOCOL_SHORT="${protocol_short}"
+  - DATA_DIR=/run/tezos
+  - PUBLIC_BAKING_KEY="${baking_nodes[nodename][custname]["public_baking_key"]}"
+  - INSECURE_PRIVATE_BAKING_KEY=""
+  - CUSTOMER_NAME="${custname}"
+%{ endfor }
 
 patchesStrategicMerge:
 - regionalpvpatch.yaml
 - prefixedpvnode.yaml
 - prefixedpvclient.yaml
+%{ for custname in keys(baking_nodes[nodename]) }
+- baker_endorser_process_patch_${custname}.yaml
+%{ endfor}

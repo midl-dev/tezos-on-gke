@@ -1,0 +1,4 @@
+FROM tezos/tezos:((tezos_sentry_version))
+COPY tezos-private-node-configurator.sh /
+ENTRYPOINT ["/tezos-private-node-configurator.sh"]
+CMD []

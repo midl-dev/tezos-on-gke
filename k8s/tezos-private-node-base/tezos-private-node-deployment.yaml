@@ -153,22 +153,6 @@ spec:
           limits:
             cpu: 0
         imagePullPolicy: Always
-      - name: tezos-endorser-with-remote-signer
-        image: tezos-endorser-with-remote-signer
-        args: [ "k8s-baker" ]
-        volumeMounts:
-        - name: tezos-private-node-storage
-          readOnly: true
-          mountPath: /var/run/tezos/node
-        - name: tezos-private-client-storage
-          mountPath: /var/run/tezos/client
-        envFrom:
-        - configMapRef:
-            name: tezos-private-node-configmap
-        resources:
-          limits:
-            cpu: 0
-        imagePullPolicy: Always
       - name: tezos-accuser
         image: tezos/tezos
         args: [ "tezos-accuser" ]
@@ -183,26 +167,6 @@ spec:
             configMapKeyRef:
               name: tezos-private-node-configmap
               key: PROTOCOL
-        volumeMounts:
-        - name: tezos-private-client-storage
-          readOnly: true
-          mountPath: /var/run/tezos/client
-        resources:
-          limits:
-            cpu: 0
-        imagePullPolicy: Always
-      - name: tezos-baker-with-remote-signer
-        image: tezos-baker-with-remote-signer
-        args: [ "k8s-baker" ]
-        volumeMounts:
-        - name: tezos-private-node-storage
-          readOnly: true
-          mountPath: /var/run/tezos/node
-        - name: tezos-private-client-storage
-          mountPath: /var/run/tezos/client
-        envFrom:
-        - configMapRef:
-            name: tezos-private-node-configmap
         resources:
           limits:
             cpu: 0
@@ -223,47 +187,17 @@ spec:
               name: tezos-private-node-configmap
               key: TEZOS_NETWORK
         imagePullPolicy: Always
-      - name: tezos-key-importer
-        image: tezos-key-importer
-        env:
-        - name: TEZOS_NETWORK
-          valueFrom:
-            configMapKeyRef:
-              name: tezos-private-node-configmap
-              key: TEZOS_NETWORK
-        - name: PROTOCOL_SHORT
-          valueFrom:
-            configMapKeyRef:
-              name: tezos-private-node-configmap
-              key: PROTOCOL_SHORT
-        - name: INSECURE_PRIVATE_BAKING_KEY
-          valueFrom:
-            configMapKeyRef:
-              name: tezos-private-node-configmap
-              key: INSECURE_PRIVATE_BAKING_KEY
-        - name: KUBERNETES_NAME_PREFIX
-          valueFrom:
-            configMapKeyRef:
-              name: tezos-private-node-configmap
-              key: KUBERNETES_NAME_PREFIX
-        - name: CUSTOMER_NAME
-          valueFrom:
-            configMapKeyRef:
-              name: tezos-private-node-configmap
-              key: CUSTOMER_NAME
-        - name: PUBLIC_BAKING_KEY
-          valueFrom:
-            configMapKeyRef:
-              name: tezos-private-node-configmap
-              key: PUBLIC_BAKING_KEY
-        volumeMounts:
-        - name: tezos-private-node-storage
-          mountPath: /var/run/tezos/node
-        - name: tezos-private-client-storage
-          mountPath: /var/run/tezos/client
+      - name: tezos-private-node-configurator
+        image: tezos-private-node-configurator
         resources:
           limits:
             cpu: 0
+        volumeMounts:
+        - name: tezos-private-node-storage
+          mountPath: /var/run/tezos/node
+        envFrom:
+        - configMapRef:
+            name: tezos-private-node-configmap
         imagePullPolicy: Always
       volumes:
       - name: tezos-private-client-storage
