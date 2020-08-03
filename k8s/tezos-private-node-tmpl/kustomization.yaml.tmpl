@@ -31,7 +31,7 @@ imageTags:
 configMapGenerator:
 - name: tezos-private-node-configmap
   literals:
-  - PUBLIC_BAKING_KEY="${baking_nodes["custnode"]["stlm"]["public_baking_key"]}"
+  - PUBLIC_BAKING_KEY="${baking_nodes["custnode"]["cust001"]["public_baking_key"]}"
   - INSECURE_PRIVATE_BAKING_KEY=""
   - NODE_HOST="localhost"
   - TEZOS_NETWORK=${tezos_network}"

@@ -11,6 +11,7 @@ locals {
        "kubernetes_namespace": var.kubernetes_namespace,
        "kubernetes_name_prefix": var.kubernetes_name_prefix}
 }
+
 resource "null_resource" "push_containers" {
 
   triggers = {
@@ -88,25 +89,25 @@ ${templatefile("${path.module}/../k8s/tezos-public-node-tmpl/loadbalancerpatch.y
    { "signer_forwarder_target_address" : length(google_compute_address.signer_forwarder_target) > 0 ? google_compute_address.signer_forwarder_target[0].address : "" })}
 EOLBP
 
-mkdir -pv tezos-private-node
-cat <<EOK > tezos-private-node/kustomization.yaml
+mkdir -pv tezos-private-node-custnode
+cat <<EOK > tezos-private-node-custnode/kustomization.yaml
 ${templatefile("${path.module}/../k8s/tezos-private-node-tmpl/kustomization.yaml.tmpl", local.kubernetes_variables)}
 EOK
-cat <<EORPP > tezos-private-node/regionalpvpatch.yaml
+cat <<EORPP > tezos-private-node-custnode/regionalpvpatch.yaml
 ${templatefile("${path.module}/../k8s/tezos-private-node-tmpl/regionalpvpatch.yaml.tmpl",
    { "regional_pd_zones" : join(", ", var.node_locations),
      "kubernetes_name_prefix": var.kubernetes_name_prefix})}
 EORPP
 # the two below are necessary because kustomize embedded in the most recent version of kubectl does not apply prefix to volume class
-cat <<EOPVN > tezos-private-node/prefixedpvnode.yaml
+cat <<EOPVN > tezos-private-node-custnode/prefixedpvnode.yaml
 ${templatefile("${path.module}/../k8s/tezos-private-node-tmpl/prefixedpvnode.yaml.tmpl", {"kubernetes_name_prefix": var.kubernetes_name_prefix})}
 EOPVN
-cat <<EOPVC > tezos-private-node/prefixedpvclient.yaml
+cat <<EOPVC > tezos-private-node-custnode/prefixedpvclient.yaml
 ${templatefile("${path.module}/../k8s/tezos-private-node-tmpl/prefixedpvclient.yaml.tmpl", {"kubernetes_name_prefix": var.kubernetes_name_prefix})}
 EOPVC
 
-mkdir -pv tezos-remote-signer-loadbalancer
-cat <<EOK > tezos-remote-signer-loadbalancer/kustomization.yaml
+mkdir -pv tezos-remote-signer-loadbalancer-cust001
+cat <<EOK > tezos-remote-signer-loadbalancer-cust001/kustomization.yaml
 ${templatefile("${path.module}/../k8s/tezos-remote-signer-loadbalancer-tmpl/kustomization.yaml.tmpl", local.kubernetes_variables)}
 EOK
 
