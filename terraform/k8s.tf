@@ -92,7 +92,7 @@ EOLBP
 %{ for nodename in keys(var.baking_nodes) }
 mkdir -pv tezos-private-node-${nodename}
 cat <<EOK > tezos-private-node-${nodename}/kustomization.yaml
-${templatefile("${path.module}/../k8s/tezos-private-node-tmpl/kustomization.yaml.tmpl", local.kubernetes_variables)}
+${templatefile("${path.module}/../k8s/tezos-private-node-tmpl/kustomization.yaml.tmpl", merge(local.kubernetes_variables, { "nodename": nodename }))}
 EOK
 cat <<EORPP > tezos-private-node-${nodename}/regionalpvpatch.yaml
 ${templatefile("${path.module}/../k8s/tezos-private-node-tmpl/regionalpvpatch.yaml.tmpl",
@@ -106,13 +106,14 @@ EOPVN
 cat <<EOPVC > tezos-private-node-${nodename}/prefixedpvclient.yaml
 ${templatefile("${path.module}/../k8s/tezos-private-node-tmpl/prefixedpvclient.yaml.tmpl", {"kubernetes_name_prefix": var.kubernetes_name_prefix})}
 EOPVC
-%{ endfor}
 
-%{ for custname in keys(merge(values(var.baking_nodes)...)) }
+%{ for custname in keys(var.baking_nodes[nodename]) }
 mkdir -pv tezos-remote-signer-loadbalancer-${custname}
 cat <<EOK > tezos-remote-signer-loadbalancer-${custname}/kustomization.yaml
-${templatefile("${path.module}/../k8s/tezos-remote-signer-loadbalancer-tmpl/kustomization.yaml.tmpl", local.kubernetes_variables)}
+${templatefile("${path.module}/../k8s/tezos-remote-signer-loadbalancer-tmpl/kustomization.yaml.tmpl", merge(local.kubernetes_variables, { "custname": custname, "nodename" : nodename} ))}
 EOK
+%{ endfor}
+
 %{ endfor}
 
 kubectl apply -k .
