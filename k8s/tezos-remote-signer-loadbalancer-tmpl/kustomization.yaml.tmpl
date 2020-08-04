@@ -12,5 +12,6 @@ configMapGenerator:
 - name: tezos-remote-signer-loadbalancer-configmap
   literals:
   - PUBLIC_BAKING_KEY="${baking_nodes[nodename][custname]["public_baking_key"]}"
+  - LEDGER_AUTHORIZED_PATH="${baking_nodes[nodename][custname]["ledger_authorized_path"]}"
   - SIGNER_A_PORT="${baking_nodes[nodename][custname]["authorized_signers"][0]["signer_port"]}"
   - SIGNER_B_PORT="${baking_nodes[nodename][custname]["authorized_signers"][1]["signer_port"]}"
