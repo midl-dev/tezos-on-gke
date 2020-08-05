@@ -120,3 +120,15 @@ variable "protocol_short" {
   description = "The short string describing the protocol, for example PsCARTHA."
   default = "PsCARTHA"
 }
+
+variable "full_snapshot_url" {
+  type = string
+  description = "url of the snapshot of type full to download"
+  default = ""
+}
+
+variable "rolling_snapshot_url" {
+  type = string
+  description = "url of the snapshot of type rolling to download"
+  default = ""
+}

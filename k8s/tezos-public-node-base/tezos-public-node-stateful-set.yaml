@@ -92,21 +92,6 @@ spec:
             cpu: 0
         imagePullPolicy: Always
       initContainers:
-      - name: tezos-rolling-snapshot-downloader
-        image: tezos-rolling-snapshot-downloader
-        volumeMounts:
-        - name: tezos-public-node-pv-claim
-          mountPath: /var/run/tezos/node
-        env:
-        - name: TEZOS_NETWORK
-          valueFrom:
-            configMapKeyRef:
-              name: tezos-configmap
-              key: TEZOS_NETWORK
-        resources:
-          limits:
-            cpu: 0
-        imagePullPolicy: Always
       - name: tezos-public-node-configurator
         image: tezos-public-node-configurator
         env:
@@ -123,6 +108,26 @@ spec:
         volumeMounts:
         - name: tezos-public-node-pv-claim
           mountPath: /var/run/tezos/node
+        resources:
+          limits:
+            cpu: 0
+        imagePullPolicy: Always
+      - name: tezos-snapshot-downloader
+        image: tezos-snapshot-downloader
+        volumeMounts:
+        - name: tezos-public-node-pv-claim
+          mountPath: /var/run/tezos/node
+        env:
+        - name: SNAPSHOT_URL
+          valueFrom:
+            configMapKeyRef:
+              name: tezos-configmap
+              key: ROLLING_SNAPSHOT_URL
+        - name: TEZOS_NETWORK
+          valueFrom:
+            configMapKeyRef:
+              name: tezos-configmap
+              key: TEZOS_NETWORK
         resources:
           limits:
             cpu: 0

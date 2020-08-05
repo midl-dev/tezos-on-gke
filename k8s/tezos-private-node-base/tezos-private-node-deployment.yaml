@@ -172,6 +172,18 @@ spec:
             cpu: 0
         imagePullPolicy: Always
       initContainers:
+      - name: tezos-private-node-configurator
+        image: tezos-private-node-configurator
+        resources:
+          limits:
+            cpu: 0
+        volumeMounts:
+        - name: tezos-private-node-storage
+          mountPath: /var/run/tezos/node
+        envFrom:
+        - configMapRef:
+            name: tezos-private-node-configmap
+        imagePullPolicy: Always
       - name: tezos-snapshot-downloader
         image: tezos-snapshot-downloader
         resources:
@@ -186,18 +198,11 @@ spec:
             configMapKeyRef:
               name: tezos-private-node-configmap
               key: TEZOS_NETWORK
-        imagePullPolicy: Always
-      - name: tezos-private-node-configurator
-        image: tezos-private-node-configurator
-        resources:
-          limits:
-            cpu: 0
-        volumeMounts:
-        - name: tezos-private-node-storage
-          mountPath: /var/run/tezos/node
-        envFrom:
-        - configMapRef:
-            name: tezos-private-node-configmap
+        - name: SNAPSHOT_URL
+          valueFrom:
+            configMapKeyRef:
+              name: tezos-private-node-configmap
+              key: FULL_SNAPSHOT_URL
         imagePullPolicy: Always
       volumes:
       - name: tezos-private-client-storage

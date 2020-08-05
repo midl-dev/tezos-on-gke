@@ -33,6 +33,7 @@ configMapGenerator:
   - KUBERNETES_NAME_PREFIX="${kubernetes_name_prefix}"
   - PROTOCOL_SHORT="${protocol_short}"
   - DATA_DIR=/run/tezos
+  - ROLLING_SNAPSHOT_URL="${rolling_snapshot_url}"
 - name: remote-signer-forwarder-configmap
   literals:
   - SIGNER_DATA=${baking_nodes_json}

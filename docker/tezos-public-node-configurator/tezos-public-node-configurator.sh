@@ -19,3 +19,4 @@ mkdir -p ${node_dir}/data
     $PRIVATE_PEER_LIST
 
 cat ${node_dir}/data/config.json
+echo ""
