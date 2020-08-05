@@ -10,6 +10,8 @@ bases:
 %{ for baking_node in keys(baking_nodes) }
 - ./tezos-private-node-${baking_node}
 %{ endfor }
-%{ for customer in keys(merge(values(baking_nodes)...)) }
+%{ for customer, customer_data in merge(values(baking_nodes)...) }
+%{ if ! contains(keys(customer_data), "insecure_private_baking_key") }
 - ./tezos-remote-signer-loadbalancer-${customer}
+%{ endif }
 %{ endfor }

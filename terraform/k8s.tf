@@ -115,10 +115,13 @@ cat <<EOBEP > tezos-private-node-${nodename}/baker_endorser_process_patch_${cust
 ${templatefile("${path.module}/../k8s/tezos-private-node-tmpl/baker_endorser_process_patch.yaml.tmpl", {"custname": custname})}
 EOBEP
 
+%{ if ! contains(keys(var.baking_nodes[nodename][custname]), "insecure_private_baking_key") }
+# instantiate a load balancer since the private key is in a cold wallet
 mkdir -pv tezos-remote-signer-loadbalancer-${custname}
 cat <<EOK > tezos-remote-signer-loadbalancer-${custname}/kustomization.yaml
 ${templatefile("${path.module}/../k8s/tezos-remote-signer-loadbalancer-tmpl/kustomization.yaml.tmpl", merge(local.kubernetes_variables, { "custname": custname, "nodename" : nodename} ))}
 EOK
+%{ endif }
 %{ endfor}
 
 %{ endfor}
