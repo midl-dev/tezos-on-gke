@@ -35,6 +35,8 @@ apiVersion: v1
 kind: Service
 metadata:
   name: tezos-private-baking-node
+  labels:
+    app: tezos-private-baking-node
 spec:
   ports:
   - port: 9732
@@ -51,11 +53,12 @@ metadata:
   labels:
     app: tezos-private-baking-node
     release: monitoring
-  name: tezos-private-noode-monitoring
+  name: tezos-private-node-monitoring
 spec:
   endpoints:
   - interval: 15s
     port: metrics
+    path: /metrics
   selector:
     matchLabels:
       app: tezos-private-baking-node

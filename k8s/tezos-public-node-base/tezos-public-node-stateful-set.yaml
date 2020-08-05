@@ -11,10 +11,14 @@ apiVersion: v1
 kind: Service
 metadata:
   name: tezos-public-node
+  labels:
+    app: tezos-public-node
 spec:
   ports:
   - port: 9732
     name: p2p
+  - port: 9489
+    name: metrics
   - port: 8732
     name: rpc
   selector:
@@ -27,11 +31,12 @@ metadata:
   labels:
     app: tezos-public-node
     release: monitoring
-  name: tezos-public-noode-monitoring
+  name: tezos-public-node-monitoring
 spec:
   endpoints:
   - interval: 15s
     port: metrics
+    path: /metrics
   selector:
     matchLabels:
       app: tezos-public-node
