@@ -60,3 +60,35 @@ spec:
           limits:
             cpu: 0
         imagePullPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tezos-remote-signer-loadbalancer
+  labels:
+    app: tezos-remote-signer-loadbalancer
+spec:
+  ports:
+  - port: 8445
+    name: signer
+  - port: 8404
+    name: metrics
+  selector:
+    app: tezos-remote-signer-loadbalancer
+  clusterIP: None
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    app: tezos-remote-signer-loadbalancer
+    release: monitoring
+  name: tezos-remote-signer-loadbalancer-monitoring
+spec:
+  endpoints:
+  - interval: 15s
+    port: metrics
+    path: /metrics
+  selector:
+    matchLabels:
+      app: tezos-public-node
