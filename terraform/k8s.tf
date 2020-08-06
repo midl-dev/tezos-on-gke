@@ -125,13 +125,13 @@ EOBEP
 
 %{ for signer in var.baking_nodes[nodename][custname]["authorized_signers"] }
 # configure the forwarder for this remote signer (network policies, service monitoring)
-cat <<EORSP > tezos-remote-signer-forwarder/remote_signer_patch_${custname}-${index(signer, var.baking_nodes[nodename][custname]["authorized_signers"])}.yaml
+cat <<EORSP > tezos-remote-signer-forwarder/remote_signer_patch_${custname}-${index(var.baking_nodes[nodename][custname]["authorized_signers"], signer)}.yaml
 ${templatefile("${path.module}/../k8s/tezos-remote-signer-forwarder-tmpl/remote_signer_patch.yaml.tmpl",
   merge(local.kubernetes_variables, { 
     "custname": custname,
     "nodename" : nodename,
     "signerport": signer["signer_port"],
-    "signername": custname + "-" + index(signer, var.baking_nodes[nodename][custname]["authorized_signers"])} ))}
+    "signername": format("%s-%s", custname, index(var.baking_nodes[nodename][custname]["authorized_signers"], signer))} ))}
 EORSP
 
 %{ endfor}
