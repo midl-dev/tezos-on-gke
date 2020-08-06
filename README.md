@@ -19,8 +19,7 @@ Features:
 * blockchain snapshot download and import for faster synchronization of the nodes
 * support for two highly available signers
 * deploy everything in just one command
-* TODO:
-  * metric-based monitoring and alerting with prometheus
+* metric-based monitoring and alerting with prometheus
 
 Brought to you by MIDL.dev
 --------------------------
