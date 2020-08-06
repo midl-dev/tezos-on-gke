@@ -8,6 +8,7 @@ locals {
        "protocol_short": var.protocol_short,
        "baking_nodes": var.baking_nodes,
        "baking_nodes_json": jsonencode(var.baking_nodes),
+       "signers": flatten([ for cust_name, cust_values in merge(values(var.baking_nodes)...): formatlist("%s-%s", cust_name, range(length(lookup(cust_values,"authorized_signers", [])) )) ]),
        "kubernetes_namespace": var.kubernetes_namespace,
        "kubernetes_name_prefix": var.kubernetes_name_prefix,
        "full_snapshot_url": var.full_snapshot_url,
@@ -86,8 +87,13 @@ mkdir -pv tezos-public-node
 cat <<EOK > tezos-public-node/kustomization.yaml
 ${templatefile("${path.module}/../k8s/tezos-public-node-tmpl/kustomization.yaml.tmpl", local.kubernetes_variables)}
 EOK
-cat <<EOLBP > tezos-public-node/loadbalancerpatch.yaml
-${templatefile("${path.module}/../k8s/tezos-public-node-tmpl/loadbalancerpatch.yaml.tmpl",
+
+mkdir -pv tezos-remote-signer-forwarder
+cat <<EOR > tezos-remote-signer-forwarder/kustomization.yaml
+${templatefile("${path.module}/../k8s/tezos-remote-signer-forwarder-tmpl/kustomization.yaml.tmpl", local.kubernetes_variables)}
+EOR
+cat <<EOLBP > tezos-remote-signer-forwarder/loadbalancerpatch.yaml
+${templatefile("${path.module}/../k8s/tezos-remote-signer-forwarder-tmpl/loadbalancerpatch.yaml.tmpl",
    { "signer_forwarder_target_address" : length(google_compute_address.signer_forwarder_target) > 0 ? google_compute_address.signer_forwarder_target[0].address : "" })}
 EOLBP
 
@@ -116,6 +122,20 @@ ${templatefile("${path.module}/../k8s/tezos-private-node-tmpl/baker_endorser_pro
 EOBEP
 
 %{ if ! contains(keys(var.baking_nodes[nodename][custname]), "insecure_private_baking_key") }
+
+%{ for signer in var.baking_nodes[nodename][custname]["authorized_signers"] }
+# configure the forwarder for this remote signer (network policies, service monitoring)
+cat <<EORSP > tezos-remote-signer-forwarder/remote_signer_patch_${custname}-${index(signer, var.baking_nodes[nodename][custname]["authorized_signers"])}.yaml
+${templatefile("${path.module}/../k8s/tezos-remote-signer-forwarder-tmpl/remote_signer_patch.yaml.tmpl",
+  merge(local.kubernetes_variables, { 
+    "custname": custname,
+    "nodename" : nodename,
+    "signerport": signer["signer_port"],
+    "signername": custname + "-" + index(signer, var.baking_nodes[nodename][custname]["authorized_signers"])} ))}
+EORSP
+
+%{ endfor}
+
 # instantiate a load balancer since the private key is in a cold wallet
 mkdir -pv tezos-remote-signer-loadbalancer-${custname}
 cat <<EOK > tezos-remote-signer-loadbalancer-${custname}/kustomization.yaml

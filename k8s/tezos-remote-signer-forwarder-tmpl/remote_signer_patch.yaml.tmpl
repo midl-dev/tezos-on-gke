@@ -1,0 +1,50 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: tezos-remote-signer-forwarder
+spec:
+  ports:
+  - port: ${signerport}
+    name: ${signername}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: tezos-remote-signer-forwarder-policy
+  ingress:
+  - ports:
+    - port: ${signername}
+      protocol: TCP
+    from:
+    - podSelector:
+        matchLabels:
+          app: tezos-remote-signer-loadbalancer-${custname}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tezos-remote-signer-forwarder
+spec:
+  template:
+    spec:
+      containers:
+      - name: tezos-remote-signer-forwarder
+        ports:
+        - containerPort: ${signerport}
+          name: ${signername}
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    app: tezos-remote-signer-forwarder
+    release: monitoring
+  name: tezos-remote-signer-monitoring-${signername}
+spec:
+  endpoints:
+  - interval: 15s
+    port: ${signername}
+    path: /statusz
+  selector:
+    matchLabels:
+      app: tezos-remote-signer-forwarder

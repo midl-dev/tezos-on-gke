@@ -16,11 +16,6 @@ kind: Service
 metadata:
   name: tezos-remote-signer-forwarder
 spec:
-  ports:
-  - port: 18443
-    name: remote-signer-a
-  - port: 18444
-    name: remote-signer-b
   selector:
     app: tezos-remote-signer-forwarder
   clusterIP: None
@@ -40,15 +35,6 @@ spec:
   - ports:
     - port: 58255
       protocol: TCP
-  - ports:
-    - port: 18443
-      protocol: TCP
-    - port: 18444
-      protocol: TCP
-    from:
-    - podSelector:
-        matchLabels:
-          app: tezos-remote-signer-loadbalancer
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -73,10 +59,6 @@ spec:
         ports:
         - containerPort: 58255
           name: ssh
-        - containerPort: 18443
-          name: signer-a
-        - containerPort: 18444
-          name: signer-b
         env:
         - name: SIGNER_DATA
           valueFrom:

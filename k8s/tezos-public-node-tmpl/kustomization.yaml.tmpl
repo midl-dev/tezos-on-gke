@@ -7,9 +7,6 @@ imageTags:
     newTag: ${kubernetes_namespace}-latest
   - name: tezos/tezos
     newTag: ${tezos_private_version}
-  - name: tezos-remote-signer-forwarder
-    newName: gcr.io/${project}/tezos-remote-signer-forwarder
-    newTag: ${kubernetes_namespace}-latest
   - name: tezos-snapshot-downloader
     newName: gcr.io/${project}/tezos-snapshot-downloader
     newTag: ${kubernetes_namespace}-latest
@@ -37,6 +34,3 @@ configMapGenerator:
 - name: remote-signer-forwarder-configmap
   literals:
   - SIGNER_DATA=${baking_nodes_json}
-
-patchesStrategicMerge:
-- loadbalancerpatch.yaml
