@@ -132,13 +132,6 @@ ${templatefile("${path.module}/../k8s/tezos-remote-signer-forwarder-global-tmpl/
     "signername": format("%s-%s", custname, signerindex) } ) }
 EORSP
 
-cat <<EORSNPP > tezos-remote-signer-forwarder-global/remote_signer_network_policy_patch_${custname}-${signerindex}.yaml
-${templatefile("${path.module}/../k8s/tezos-remote-signer-forwarder-global-tmpl/remote_signer_network_policy_patch.yaml.tmpl",
-  { "signerport": signer["signer_port"],
-    "signerindex": signerindex,
-    "signername": format("%s-%s", custname, signerindex) } ) }
-EORSNPP
-
 mkdir -pv tezos-remote-signer-forwarder-${custname}-${signerindex}
 
 cat <<EOMK > tezos-remote-signer-forwarder-${custname}-${signerindex}/kustomization.yaml

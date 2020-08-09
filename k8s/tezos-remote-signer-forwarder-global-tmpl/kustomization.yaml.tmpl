@@ -15,14 +15,3 @@ patchesStrategicMerge:
 %{ for signername in signers }
 - remote_signer_patch_${signername}.yaml
 %{ endfor }
-
-# NetworkPolicy does not support strategic merge
-patchesJson6902:
-%{ for signername in signers }
-- path: remote_signer_network_policy_patch_${signername}.yaml
-  target:
-    group: networking.k8s.io
-    version: v1
-    kind: NetworkPolicy
-    name: tezos-remote-signer-forwarder-policy
-%{ endfor }
