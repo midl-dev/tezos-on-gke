@@ -16,3 +16,6 @@ bases:
 %{ endif }
 %{ endfor }
 - ./tezos-remote-signer-forwarder
+%{ for signername in signers }
+- ./tezos-remote-signer-monitoring-${signername}
+%{ endfor}

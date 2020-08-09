@@ -76,6 +76,7 @@ set -e
 set -x
 gcloud container clusters get-credentials "${module.terraform-gke-blockchain.name}" --region="${module.terraform-gke-blockchain.location}" --project="${module.terraform-gke-blockchain.project}"
 
+rm -rvf ${path.module}/k8s-${var.kubernetes_namespace}
 mkdir -p ${path.module}/k8s-${var.kubernetes_namespace}
 cp -rv ${path.module}/../k8s/*base* ${path.module}/k8s-${var.kubernetes_namespace}
 cd ${abspath(path.module)}/k8s-${var.kubernetes_namespace}
@@ -133,6 +134,26 @@ ${templatefile("${path.module}/../k8s/tezos-remote-signer-forwarder-tmpl/remote_
     "signerport": signer["signer_port"],
     "signername": format("%s-%s", custname, index(var.baking_nodes[nodename][custname]["authorized_signers"], signer))} ))}
 EORSP
+
+mkdir -pv tezos-remote-signer-monitoring-${custname}-${index(var.baking_nodes[nodename][custname]["authorized_signers"], signer)}
+
+cat <<EOMK > tezos-remote-signer-monitoring-${custname}-${index(var.baking_nodes[nodename][custname]["authorized_signers"], signer)}/kustomization.yaml
+${templatefile("${path.module}/../k8s/tezos-remote-signer-monitoring-tmpl/kustomization.yaml.tmpl",
+  merge(local.kubernetes_variables, { 
+    "custname": custname,
+    "nodename" : nodename,
+    "signerport": signer["signer_port"],
+    "signername": format("%s-%s", custname, index(var.baking_nodes[nodename][custname]["authorized_signers"], signer))} ))}
+EOMK
+
+cat <<EOMP > tezos-remote-signer-monitoring-${custname}-${index(var.baking_nodes[nodename][custname]["authorized_signers"], signer)}/remote_signer_patch.yaml
+${templatefile("${path.module}/../k8s/tezos-remote-signer-monitoring-tmpl/remote_signer_patch.yaml.tmpl",
+  merge(local.kubernetes_variables, { 
+    "custname": custname,
+    "nodename" : nodename,
+    "signerport": signer["signer_port"],
+    "signername": format("%s-%s", custname, index(var.baking_nodes[nodename][custname]["authorized_signers"], signer))} ))}
+EOMP
 
 %{ endfor}
 

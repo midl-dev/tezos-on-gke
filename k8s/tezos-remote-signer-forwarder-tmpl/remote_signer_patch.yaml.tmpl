@@ -7,20 +7,6 @@ spec:
   - port: ${signerport}
     name: ${signername}
 ---
-apiVersion: networking.k8s.io/v1
-kind: NetworkPolicy
-metadata:
-  name: tezos-remote-signer-forwarder-policy
-spec:
-  ingress:
-  - ports:
-    - port: ${signername}
-      protocol: TCP
-    from:
-    - podSelector:
-        matchLabels:
-          app: tezos-remote-signer-loadbalancer-${custname}
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -33,13 +19,3 @@ spec:
         ports:
         - containerPort: ${signerport}
           name: ${signername}
----
-apiVersion: monitoring.coreos.com/v1
-kind: ServiceMonitor
-metadata:
-  name: tezos-remote-signer-monitoring
-spec:
-  endpoints:
-  - interval: 15s
-    port: ${signername}
-    path: /statusz
