@@ -146,8 +146,8 @@ ${templatefile("${path.module}/../k8s/tezos-remote-signer-monitoring-tmpl/kustom
     "signername": format("%s-%s", custname, index(var.baking_nodes[nodename][custname]["authorized_signers"], signer))} ))}
 EOMK
 
-cat <<EOMP > tezos-remote-signer-monitoring-${custname}-${index(var.baking_nodes[nodename][custname]["authorized_signers"], signer)}/remote_signer_patch.yaml
-${templatefile("${path.module}/../k8s/tezos-remote-signer-monitoring-tmpl/remote_signer_patch.yaml.tmpl",
+cat <<EOMP > tezos-remote-signer-monitoring-${custname}-${index(var.baking_nodes[nodename][custname]["authorized_signers"], signer)}/tezos-remote-signer-monitoring.yaml
+${templatefile("${path.module}/../k8s/tezos-remote-signer-monitoring-tmpl/tezos-remote-signer-monitoring.yaml.tmpl",
   merge(local.kubernetes_variables, { 
     "custname": custname,
     "nodename" : nodename,
