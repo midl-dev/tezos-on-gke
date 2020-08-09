@@ -113,13 +113,27 @@ NOTE: if you created a [terraform service account](docs/production-hardening.md)
 
 Set the `tezos_network` variable to the network to use (`mainnet`, `carthagenet`, etc)
 
-### Baking address
+### Baking nodes
 
-Set the `public_baking_key` variable to the baking address.
+The `baking_nodes` parameter lets you deploy one or several bakers declaratively.
 
-For testnets or test deployments only: set the `insecure_private_baking_key` to the unencrypted private key to be used.
+You may specify:
+* a map with one or several baking nodes, and
+* for every baking node, one or several baking and endorsing processes.
+
+The variables needed to spin up the baking or endorsing processes are:
+
+* `public_baking_key`: the baking address
+* for testnets or test deployments only: set the `insecure_private_baking_key` to the unencrypted private key to be used.
 
 **Attention!** Leaving a private baking key on a cloud platform is not recommended when funds are present. For production bakers, leave this variable empty. Leaving it empty will prompt terraform to create a ssh endpoint for remote signers to connect to.
+
+When used in combination with a remote siger setup, the following variabes are required:
+
+* `ledger_authorized_path`: the Ledger path associated with the key stored in Ledger device on the remote signer,
+* `authorized_signers`: a list of signer specification maps, containing:
+  * `ssh_pubkey`: the public key of the signer, used for ssh port forwarding, and
+  * `signer_port`: the port for the signer http endpoint that is being tunneled
 
 To generate a public/private keypair, you can use the tezos client:
 
@@ -148,8 +162,14 @@ Here is a full example `terraform.tfvars` configuration. Obviously do not use th
 ```
 project="beaming-essence-20718"
 tezos_network="carthagenet"
-public_baking_key="tz1YmsrYxQFJo5nGj4MEaXMPdLrcRf2a5mAU"
-insecure_private_baking_key="edsk3cftTNcJnxb7ehCxYeCaKPT7mjycdMxgFisLixrQ9bZuTG2yZK"
+baking_nodes = {
+  mynode = {
+    mybaker = {
+      public_baking_key="tz1YmsrYxQFJo5nGj4MEaXMPdLrcRf2a5mAU"
+      insecure_private_baking_key="edsk3cftTNcJnxb7ehCxYeCaKPT7mjycdMxgFisLixrQ9bZuTG2yZK"
+    }
+  }
+}
 ```
 
 ## Deploy!
