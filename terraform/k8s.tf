@@ -89,12 +89,12 @@ cat <<EOK > tezos-public-node/kustomization.yaml
 ${templatefile("${path.module}/../k8s/tezos-public-node-tmpl/kustomization.yaml.tmpl", local.kubernetes_variables)}
 EOK
 
-mkdir -pv tezos-remote-signer-forwarder
-cat <<EOR > tezos-remote-signer-forwarder/kustomization.yaml
-${templatefile("${path.module}/../k8s/tezos-remote-signer-forwarder-tmpl/kustomization.yaml.tmpl", local.kubernetes_variables)}
+mkdir -pv tezos-remote-signer-forwarder-global
+cat <<EOR > tezos-remote-signer-forwarder-global/kustomization.yaml
+${templatefile("${path.module}/../k8s/tezos-remote-signer-forwarder-global-tmpl/kustomization.yaml.tmpl", local.kubernetes_variables)}
 EOR
-cat <<EOLBP > tezos-remote-signer-forwarder/loadbalancerpatch.yaml
-${templatefile("${path.module}/../k8s/tezos-remote-signer-forwarder-tmpl/loadbalancerpatch.yaml.tmpl",
+cat <<EOLBP > tezos-remote-signer-forwarder-global/loadbalancerpatch.yaml
+${templatefile("${path.module}/../k8s/tezos-remote-signer-forwarder-global-tmpl/loadbalancerpatch.yaml.tmpl",
    { "signer_forwarder_target_address" : length(google_compute_address.signer_forwarder_target) > 0 ? google_compute_address.signer_forwarder_target[0].address : "" })}
 EOLBP
 
@@ -126,23 +126,23 @@ EOBEP
 
 %{ for signerindex, signer in var.baking_nodes[nodename][custname]["authorized_signers"] }
 # configure the forwarder for this remote signer (network policies, service monitoring)
-cat <<EORSP > tezos-remote-signer-forwarder/remote_signer_patch_${custname}-${signerindex}.yaml
-${templatefile("${path.module}/../k8s/tezos-remote-signer-forwarder-tmpl/remote_signer_patch.yaml.tmpl",
+cat <<EORSP > tezos-remote-signer-forwarder-global/remote_signer_patch_${custname}-${signerindex}.yaml
+${templatefile("${path.module}/../k8s/tezos-remote-signer-forwarder-global-tmpl/remote_signer_patch.yaml.tmpl",
   { "signerport": signer["signer_port"],
     "signername": format("%s-%s", custname, signerindex) } ) }
 EORSP
 
-cat <<EORSNPP > tezos-remote-signer-forwarder/remote_signer_network_policy_patch_${custname}-${signerindex}.yaml
-${templatefile("${path.module}/../k8s/tezos-remote-signer-forwarder-tmpl/remote_signer_network_policy_patch.yaml.tmpl",
+cat <<EORSNPP > tezos-remote-signer-forwarder-global/remote_signer_network_policy_patch_${custname}-${signerindex}.yaml
+${templatefile("${path.module}/../k8s/tezos-remote-signer-forwarder-global-tmpl/remote_signer_network_policy_patch.yaml.tmpl",
   { "signerport": signer["signer_port"],
     "signerindex": signerindex,
     "signername": format("%s-%s", custname, signerindex) } ) }
 EORSNPP
 
-mkdir -pv tezos-remote-signer-monitoring-${custname}-${signerindex}
+mkdir -pv tezos-remote-signer-forwarder-${custname}-${signerindex}
 
-cat <<EOMK > tezos-remote-signer-monitoring-${custname}-${signerindex}/kustomization.yaml
-${templatefile("${path.module}/../k8s/tezos-remote-signer-monitoring-tmpl/kustomization.yaml.tmpl",
+cat <<EOMK > tezos-remote-signer-forwarder-${custname}-${signerindex}/kustomization.yaml
+${templatefile("${path.module}/../k8s/tezos-remote-signer-forwarder-tmpl/kustomization.yaml.tmpl",
   merge(local.kubernetes_variables, { 
     "custname": custname,
     "nodename" : nodename,
@@ -150,8 +150,8 @@ ${templatefile("${path.module}/../k8s/tezos-remote-signer-monitoring-tmpl/kustom
     "signername": format("%s-%s", custname, signerindex) } )) }
 EOMK
 
-cat <<EOMP > tezos-remote-signer-monitoring-${custname}-${signerindex}/tezos-remote-signer-monitoring.yaml
-${templatefile("${path.module}/../k8s/tezos-remote-signer-monitoring-tmpl/tezos-remote-signer-monitoring.yaml.tmpl",
+cat <<EOMP > tezos-remote-signer-forwarder-${custname}-${signerindex}/tezos-remote-signer-forwarder.yaml
+${templatefile("${path.module}/../k8s/tezos-remote-signer-forwarder-tmpl/tezos-remote-signer-forwarder.yaml.tmpl",
   merge(local.kubernetes_variables, { 
     "custname": custname,
     "nodename" : nodename,

@@ -1,21 +1,9 @@
-apiVersion: v1
-kind: Service
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
 metadata:
-  name: tezos-remote-signer-forwarder
+  name: tezos-remote-signer-monitoring
 spec:
-  ports:
-  - port: ${signerport}
-    name: ${signername}
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: tezos-remote-signer-forwarder
-spec:
-  template:
-    spec:
-      containers:
-      - name: tezos-remote-signer-forwarder
-        ports:
-        - containerPort: ${signerport}
-          name: ${signername}
+  endpoints:
+  - interval: 15s
+    port: ${signername}
+    path: /statusz
