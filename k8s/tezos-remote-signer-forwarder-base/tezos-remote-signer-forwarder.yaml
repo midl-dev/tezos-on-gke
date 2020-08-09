@@ -24,7 +24,6 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: tezos-remote-signer-forwarder-policy
-  namespace: default
 spec:
   podSelector:
     matchLabels:

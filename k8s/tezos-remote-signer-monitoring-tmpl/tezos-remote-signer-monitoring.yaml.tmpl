@@ -1,0 +1,22 @@
+# NOTE: we do not typically build k8s spec fies directly from terraform
+# We use kustomization as an intermediate step (to prevent crazy things)
+# But in this case it was too challenging to construct a patch.
+# I think we were hitting issues with an older version of kustomization
+# embedded in kubectl 1.18
+# nochem 20200809
+
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    app: tezos-remote-signer-forwarder
+    release: monitoring
+  name: tezos-remote-signer-monitoring
+spec:
+  selector:
+    matchLabels:
+      app: tezos-remote-signer-forwarder
+  endpoints:
+  - interval: 15s
+    port: ${signername}
+    path: /statusz
