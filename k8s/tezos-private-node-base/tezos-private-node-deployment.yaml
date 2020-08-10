@@ -1,12 +1,3 @@
-kind: StorageClass
-apiVersion: storage.k8s.io/v1
-metadata:
-  name: regional
-provisioner: kubernetes.io/gce-pd
-parameters:
-  type: pd-ssd
-  replication-type: regional-pd
----
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:

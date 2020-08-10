@@ -31,3 +31,7 @@ configMapGenerator:
   - PROTOCOL_SHORT="${protocol_short}"
   - DATA_DIR=/run/tezos
   - ROLLING_SNAPSHOT_URL="${rolling_snapshot_url}"
+
+patchesStrategicMerge:
+- regionalpvpatch.yaml
+- prefixedpvnode.yaml

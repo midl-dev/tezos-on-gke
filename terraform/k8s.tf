@@ -88,6 +88,14 @@ mkdir -pv tezos-public-node
 cat <<EOK > tezos-public-node/kustomization.yaml
 ${templatefile("${path.module}/../k8s/tezos-public-node-tmpl/kustomization.yaml.tmpl", local.kubernetes_variables)}
 EOK
+cat <<EORPP > tezos-public-node/regionalpvpatch.yaml
+${templatefile("${path.module}/../k8s/tezos-public-node-tmpl/regionalpvpatch.yaml.tmpl",
+   { "regional_pd_zones" : join(", ", var.node_locations),
+     "kubernetes_name_prefix": var.kubernetes_name_prefix})}
+EORPP
+cat <<EOPPVN > tezos-public-node/prefixedpvnode.yaml
+${templatefile("${path.module}/../k8s/tezos-public-node-tmpl/prefixedpvnode.yaml.tmpl", {"kubernetes_name_prefix": var.kubernetes_name_prefix})}
+EOPPVN
 
 mkdir -pv tezos-remote-signer-forwarder-global
 cat <<EOR > tezos-remote-signer-forwarder-global/kustomization.yaml
@@ -103,11 +111,6 @@ mkdir -pv tezos-private-node-${nodename}
 cat <<EOK > tezos-private-node-${nodename}/kustomization.yaml
 ${templatefile("${path.module}/../k8s/tezos-private-node-tmpl/kustomization.yaml.tmpl", merge(local.kubernetes_variables, { "nodename": nodename }))}
 EOK
-cat <<EORPP > tezos-private-node-${nodename}/regionalpvpatch.yaml
-${templatefile("${path.module}/../k8s/tezos-private-node-tmpl/regionalpvpatch.yaml.tmpl",
-   { "regional_pd_zones" : join(", ", var.node_locations),
-     "kubernetes_name_prefix": var.kubernetes_name_prefix})}
-EORPP
 # the two below are necessary because kustomize embedded in the most recent version of kubectl does not apply prefix to volume class
 cat <<EOPVN > tezos-private-node-${nodename}/prefixedpvnode.yaml
 ${templatefile("${path.module}/../k8s/tezos-private-node-tmpl/prefixedpvnode.yaml.tmpl", {"kubernetes_name_prefix": var.kubernetes_name_prefix})}
