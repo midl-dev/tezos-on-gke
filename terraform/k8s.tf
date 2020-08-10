@@ -1,6 +1,4 @@
 locals {
-  # TODO : check whether there is any forwarder pubkey
-  remote_signer_in_use = true
   kubernetes_variables = { "project" : module.terraform-gke-blockchain.project,
        "tezos_private_version": var.tezos_private_version,
        "tezos_network": var.tezos_network,
@@ -53,7 +51,7 @@ EOF
 
 # Provision IP
 resource "google_compute_address" "signer_forwarder_target" {
-  count = local.remote_signer_in_use ? 1 : 0
+  count = length(local.kubernetes_variables["signers"]) > 0 ? 1 : 0
   name    = "tezos-baker-lb"
   region  = module.terraform-gke-blockchain.location
   project = module.terraform-gke-blockchain.project
