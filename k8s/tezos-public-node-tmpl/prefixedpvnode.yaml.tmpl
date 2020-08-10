@@ -8,3 +8,7 @@ spec:
       name: tezos-public-node-pv-claim
     spec:
       storageClassName: ${kubernetes_name_prefix}-local-ssd
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 30Gi
