@@ -7,7 +7,6 @@ namePrefix: ${kubernetes_name_prefix}-
 
 bases:
 - ./tezos-public-node
-- ./tezos-remote-signer-forwarder-global
 %{ for baking_node in keys(baking_nodes) }
 - ./tezos-private-node-${baking_node}
 %{ endfor }
@@ -16,6 +15,10 @@ bases:
 - ./tezos-remote-signer-loadbalancer-${customer}
 %{ endif }
 %{ endfor }
+
+%{ if length(signers) > 0 }
+- ./tezos-remote-signer-forwarder-global
+%{ endif }
 %{ for signername in signers }
 - ./tezos-remote-signer-forwarder-${signername}
 %{ endfor}
