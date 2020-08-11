@@ -17,6 +17,9 @@ spec:
     - podSelector:
         matchLabels:
           app: tezos-private-baking-node
+  - ports:
+    - port: 8404
+      protocol: TCP
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -70,7 +73,7 @@ kind: ServiceMonitor
 metadata:
   labels:
     app: tezos-remote-signer-loadbalancer
-    release: monitoring
+    release: monitoring-mon
   name: tezos-remote-signer-loadbalancer-monitoring
 spec:
   endpoints:
@@ -79,4 +82,26 @@ spec:
     path: /metrics
   selector:
     matchLabels:
-      app: tezos-public-node
+      app: tezos-remote-signer-loadbalancer
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  labels:
+    release: monitoring-mon
+    app: prometheus-operator
+    prometheus: service-prometheus
+    role: alert-rules
+  name: tezos-remote-signer-loadbalancer-rules
+spec:
+  groups:
+  - name: tezos-remote-signer.rules
+    rules:
+    - alert: NoRemoteSigner
+      annotations:
+        description: 'Remote signer is down'
+        summary: Remote signer is down
+      expr: haproxy_backend_active_servers == 0
+      for: 1m
+      labels:
+        severity: critical
