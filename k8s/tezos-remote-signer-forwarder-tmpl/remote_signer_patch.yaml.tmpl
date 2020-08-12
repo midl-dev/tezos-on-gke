@@ -1,9 +1,0 @@
-apiVersion: monitoring.coreos.com/v1
-kind: ServiceMonitor
-metadata:
-  name: tezos-remote-signer-monitoring
-spec:
-  endpoints:
-  - interval: 15s
-    port: ${signername}
-    path: /statusz

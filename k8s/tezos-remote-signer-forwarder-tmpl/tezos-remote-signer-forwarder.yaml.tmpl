@@ -19,7 +19,7 @@ spec:
   endpoints:
   - interval: 15s
     port: ${signername}
-    path: /statusz
+    path: /healthz
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
