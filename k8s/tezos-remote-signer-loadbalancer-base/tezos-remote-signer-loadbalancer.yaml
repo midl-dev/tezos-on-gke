@@ -20,6 +20,12 @@ spec:
   - ports:
     - port: 8404
       protocol: TCP
+    from:
+    - podSelector:
+        matchLabels:
+          app: prometheus
+      namespaceSelector:
+        matchLabels: {}
 ---
 apiVersion: apps/v1
 kind: Deployment

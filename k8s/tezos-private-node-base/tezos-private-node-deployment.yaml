@@ -97,6 +97,15 @@ spec:
     - port: 53
       protocol: UDP
   - ports:
+    - port: 9489
+      protocol: TCP
+    from:
+    - namespaceSelector:
+        matchLabels: {}
+      podSelector:
+        matchLabels:
+          app: prometheus
+  - ports:
     - port: 9732
       protocol: TCP
     from:
