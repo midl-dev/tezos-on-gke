@@ -70,3 +70,41 @@ spec:
           limits:
             cpu: 0
         imagePullPolicy: Always
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  labels:
+    release: monitoring-mon
+    app: prometheus-operator
+    prometheus: service-prometheus
+    role: alert-rules
+  name: tezos-remote-signer-rules
+spec:
+  groups:
+  - name: tezos-remote-signer.rules
+    rules:
+    - alert: SignerPowerLoss
+      annotations:
+        description: 'Remote signer has lost power'
+        summary: Tezos remote signer has lost power
+      expr: power != 0
+      for: 1m
+      labels:
+        severity: critical
+    - alert: SignerWiredNetworkLoss
+      annotations:
+        description: 'Remote signer has lost wired internet connection'
+        summary: Tezos remote signer has lost wired internet connection
+      expr: wired_network != 0
+      for: 1m
+      labels:
+        severity: critical
+    - alert: SignerWirelessNetworkLoss
+      annotations:
+        description: 'Remote signer has lost wireless internet connection'
+        summary: Tezos remote signer has lost wireless internet connection
+      expr: wireless_network != 0
+      for: 1m
+      labels:
+        severity: critical
