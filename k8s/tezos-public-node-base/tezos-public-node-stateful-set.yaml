@@ -39,7 +39,7 @@ kind: ServiceMonitor
 metadata:
   labels:
     app: tezos-public-node
-    release: monitoring-mon
+    release: monitoring-prom
   name: tezos-public-node-monitoring
 spec:
   endpoints:

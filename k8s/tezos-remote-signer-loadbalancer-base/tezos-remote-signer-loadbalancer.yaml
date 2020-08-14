@@ -79,7 +79,7 @@ kind: ServiceMonitor
 metadata:
   labels:
     app: tezos-remote-signer-loadbalancer
-    release: monitoring-mon
+    release: monitoring-prom
   name: tezos-remote-signer-loadbalancer-monitoring
 spec:
   endpoints:
@@ -94,7 +94,7 @@ apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:
   labels:
-    release: monitoring-mon
+    release: monitoring-prom
     app: prometheus-operator
     prometheus: service-prometheus
     role: alert-rules

@@ -132,3 +132,9 @@ variable "rolling_snapshot_url" {
   description = "url of the snapshot of type rolling to download"
   default = ""
 }
+
+variable "monitoring_slack_url" {
+  type = string
+  default = ""
+  description = "slack api url to send prometheus alerts to"
+}

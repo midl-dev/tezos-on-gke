@@ -75,7 +75,7 @@ apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:
   labels:
-    release: monitoring-mon
+    release: monitoring-prom
     app: prometheus-operator
     prometheus: service-prometheus
     role: alert-rules

@@ -7,6 +7,7 @@ module "terraform-gke-blockchain" {
   project_prefix = "tezos"
   region = var.region
   node_locations = var.node_locations
+  monitoring_slack_url = var.monitoring_slack_url
 }
 
 # Query the client configuration for our current service account, which should

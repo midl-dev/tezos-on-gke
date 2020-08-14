@@ -43,7 +43,7 @@ kind: ServiceMonitor
 metadata:
   labels:
     app: tezos-private-baking-node
-    release: monitoring-mon
+    release: monitoring-prom
   name: tezos-private-node-monitoring
 spec:
   endpoints:
