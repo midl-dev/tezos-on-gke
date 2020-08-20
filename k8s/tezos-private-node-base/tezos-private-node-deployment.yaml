@@ -214,3 +214,25 @@ spec:
       - name: tezos-private-node-storage
         persistentVolumeClaim:
           claimName: tezos-private-node-claim
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  labels:
+    release: monitoring-prom
+    app: prometheus-operator
+    prometheus: service-prometheus
+    role: alert-rules
+  name: tezos-private-node-rules
+spec:
+  groups:
+  - name: tezos-private-node
+    rules:
+    - alert: PrivateNodeLostConnections
+      annotations:
+        description: 'Private node lost connections'
+        summary: Private node has less than the expected number of connectione
+      expr: tezos_node_connections{direction="incoming",private="false"} < 2
+      for: 1m
+      labels:
+        severity: critical
