@@ -12,6 +12,7 @@ configMapGenerator:
   - SIGNER_DATA=${baking_nodes_json}
 
 patchesStrategicMerge:
+- nodepool.yaml
 %{ for signername in signers }
 - remote_signer_patch_${signername}.yaml
 %{ endfor }

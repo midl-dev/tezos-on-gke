@@ -94,6 +94,9 @@ EORPP
 cat <<EOPPVN > tezos-public-node/prefixedpvnode.yaml
 ${templatefile("${path.module}/../k8s/tezos-public-node-tmpl/prefixedpvnode.yaml.tmpl", {"kubernetes_name_prefix": var.kubernetes_name_prefix})}
 EOPPVN
+cat <<EONPN > tezos-public-node/nodepool.yaml
+${templatefile("${path.module}/../k8s/tezos-public-node-tmpl/nodepool.yaml.tmpl", {"kubernetes_pool_name": var.kubernetes_pool_name})}
+EONPN
 
 mkdir -pv tezos-remote-signer-forwarder-global
 cat <<EOR > tezos-remote-signer-forwarder-global/kustomization.yaml
@@ -103,6 +106,9 @@ cat <<EOLBP > tezos-remote-signer-forwarder-global/loadbalancerpatch.yaml
 ${templatefile("${path.module}/../k8s/tezos-remote-signer-forwarder-global-tmpl/loadbalancerpatch.yaml.tmpl",
    { "signer_forwarder_target_address" : length(google_compute_address.signer_forwarder_target) > 0 ? google_compute_address.signer_forwarder_target[0].address : "" })}
 EOLBP
+cat <<EONPN > tezos-remote-signer-forwarder-global/nodepool.yaml
+${templatefile("${path.module}/../k8s/tezos-remote-signer-forwarder-global-tmpl/nodepool.yaml.tmpl", {"kubernetes_pool_name": var.kubernetes_pool_name})}
+EONPN
 
 %{ for nodename in keys(var.baking_nodes) }
 mkdir -pv tezos-private-node-${nodename}
@@ -116,6 +122,9 @@ EOPVN
 cat <<EOPVC > tezos-private-node-${nodename}/prefixedpvclient.yaml
 ${templatefile("${path.module}/../k8s/tezos-private-node-tmpl/prefixedpvclient.yaml.tmpl", {"kubernetes_name_prefix": var.kubernetes_name_prefix})}
 EOPVC
+cat <<EONPN > tezos-private-node-${nodename}/nodepool.yaml
+${templatefile("${path.module}/../k8s/tezos-private-node-tmpl/nodepool.yaml.tmpl", {"kubernetes_pool_name": var.kubernetes_pool_name})}
+EONPN
 
 %{ for custname in keys(var.baking_nodes[nodename]) }
 
@@ -160,6 +169,9 @@ mkdir -pv tezos-remote-signer-loadbalancer-${custname}
 cat <<EOK > tezos-remote-signer-loadbalancer-${custname}/kustomization.yaml
 ${templatefile("${path.module}/../k8s/tezos-remote-signer-loadbalancer-tmpl/kustomization.yaml.tmpl", merge(local.kubernetes_variables, { "custname": custname, "nodename" : nodename} ))}
 EOK
+cat <<EONPN > tezos-remote-signer-loadbalancer-${custname}/nodepool.yaml
+${templatefile("${path.module}/../k8s/tezos-remote-signer-loadbalancer-tmpl/nodepool.yaml.tmpl", {"kubernetes_pool_name": var.kubernetes_pool_name})}
+EONPN
 %{ endif }
 %{ endfor}
 

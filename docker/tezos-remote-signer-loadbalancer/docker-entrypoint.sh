@@ -23,10 +23,10 @@ urlencode() {
 }
 
 if [ ! -z $SIGNER_A_PORT ]; then
-    export SIGNER_A_LINE="server tezos-signer-1 xta-tezos-remote-signer-forwarder:${SIGNER_A_PORT} check inter 15000"
+    export SIGNER_A_LINE="server tezos-signer-1 ${KUBERNETES_NAME_PREFIX}-tezos-remote-signer-forwarder:${SIGNER_A_PORT} check inter 15000"
 fi
 if [ ! -z $SIGNER_B_PORT ]; then
-    export SIGNER_B_LINE="server tezos-signer-2 xta-tezos-remote-signer-forwarder:${SIGNER_B_PORT} check inter 15000"
+    export SIGNER_B_LINE="server tezos-signer-2 ${KUBERNETES_NAME_PREFIX}-tezos-remote-signer-forwarder:${SIGNER_B_PORT} check inter 15000"
 fi
 
 export LEDGER_AUTHORIZED_PATH_ENCODED=$(urlencode $LEDGER_AUTHORIZED_PATH)

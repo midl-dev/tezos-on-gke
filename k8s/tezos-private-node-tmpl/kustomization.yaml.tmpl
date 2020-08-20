@@ -59,6 +59,7 @@ configMapGenerator:
 patchesStrategicMerge:
 - prefixedpvnode.yaml
 - prefixedpvclient.yaml
+- nodepool.yaml
 %{ for custname in keys(baking_nodes[nodename]) }
 - baker_endorser_process_patch_${custname}.yaml
 %{ endfor}

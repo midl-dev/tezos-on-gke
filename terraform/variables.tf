@@ -75,6 +75,12 @@ variable "terraform_service_account_credentials" {
   default = "~/.config/gcloud/application_default_credentials.json"
 }
 
+variable "kubernetes_pool_name" {
+  type = string
+  description = "when kubernetes cluster has several node pools, specify which ones to deploy the baking setup into. only effective when deploying on an external cluster with terraform_no_cluster_create"
+  default = "blockchain-pool"
+}
+
 #
 # Tezos node and baker options
 # ------------------------------
