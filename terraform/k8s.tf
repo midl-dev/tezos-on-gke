@@ -10,7 +10,8 @@ locals {
        "kubernetes_namespace": var.kubernetes_namespace,
        "kubernetes_name_prefix": var.kubernetes_name_prefix,
        "full_snapshot_url": var.full_snapshot_url,
-       "rolling_snapshot_url": var.rolling_snapshot_url}
+       "rolling_snapshot_url": var.rolling_snapshot_url,
+       "signer_target_host_key": var.signer_target_host_key}
 }
 
 resource "null_resource" "push_containers" {

@@ -115,6 +115,12 @@ variable "signer_target_random_hostname" {
   default = "signer"
 }
 
+variable "signer_target_host_key" {
+  type = string
+  description = "ssh host key for the ssh endpoint the remote signer connects to. if you leave it empty, sshd will generate it but it may change, cutting your access to the remote signers."
+  default = ""
+}
+
 variable "protocol" {
   type = string
   description = "The Tezos protocol currently in use, for example 006-PsCARTHA."
