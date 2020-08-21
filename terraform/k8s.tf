@@ -5,13 +5,12 @@ locals {
        "protocol": var.protocol,
        "protocol_short": var.protocol_short,
        "baking_nodes": var.baking_nodes,
-       "baking_nodes_json": jsonencode(var.baking_nodes),
+       "baking_nodes_json": jsonencode({"baking_nodes":var.baking_nodes, "signer_target_host_key": var.signer_target_host_key}),
        "signers": flatten([ for cust_name, cust_values in merge(values(var.baking_nodes)...): formatlist("%s-%s", cust_name, range(length(lookup(cust_values,"authorized_signers", [])) )) ]),
        "kubernetes_namespace": var.kubernetes_namespace,
        "kubernetes_name_prefix": var.kubernetes_name_prefix,
        "full_snapshot_url": var.full_snapshot_url,
-       "rolling_snapshot_url": var.rolling_snapshot_url,
-       "signer_target_host_key": var.signer_target_host_key}
+       "rolling_snapshot_url": var.rolling_snapshot_url}
 }
 
 resource "null_resource" "push_containers" {

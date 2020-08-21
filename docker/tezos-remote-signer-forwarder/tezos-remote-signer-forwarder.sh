@@ -1,12 +1,7 @@
 #!/bin/sh
 
-python3 configGenerator.py > /home/signer/.ssh/authorized_keys
-
-if [ ! -z $SIGNER_TARGET_HOST_KEY ]; then
-    # ssh host key is provided externally
-    echo "$SIGNER_TARGET_HOST_KEY" > /etc/ssh/ssh_host_rsa_key
-    chmod 440 /etc/ssh/ssh_host_rsa_key
-fi
+python3 configGenerator.py
+chmod 400 /etc/ssh/ssh_host_rsa_key
 
 # -D: do not daemonize
 # -e : write logs to standard error

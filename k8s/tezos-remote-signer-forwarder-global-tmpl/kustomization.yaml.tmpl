@@ -10,8 +10,6 @@ configMapGenerator:
 - name: remote-signer-forwarder-configmap
   literals:
   - SIGNER_DATA=${baking_nodes_json}
-  - >
-      SIGNER_TARGET_HOST_KEY="${indent(6,signer_target_host_key)}"
 
 patchesStrategicMerge:
 - nodepool.yaml

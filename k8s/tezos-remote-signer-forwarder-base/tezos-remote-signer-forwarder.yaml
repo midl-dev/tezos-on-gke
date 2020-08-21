@@ -60,12 +60,9 @@ spec:
         ports:
         - containerPort: 58255
           name: ssh
-        env:
-        - name: SIGNER_DATA
-          valueFrom:
-            configMapKeyRef:
+        envFrom:
+        - configMapRef:
               name: remote-signer-forwarder-configmap
-              key: SIGNER_DATA
         resources:
           limits:
             cpu: 0

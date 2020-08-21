@@ -109,12 +109,6 @@ variable "tezos_private_version" {
   default = "latest-release"
 }
 
-variable "signer_target_random_hostname" {
-  type = string
-  description = "Random string such as 128fecf31d for the fqdn of the ssh endpoint the remote signer connects to (for example 128fec31d.mybaker.com)."
-  default = "signer"
-}
-
 variable "signer_target_host_key" {
   type = string
   description = "ssh host key for the ssh endpoint the remote signer connects to. if you leave it empty, sshd will generate it but it may change, cutting your access to the remote signers."
