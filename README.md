@@ -188,6 +188,13 @@ This will take time as it will:
 * build the necessary containers locally
 * spin up the public nodes and private baker nodes
 
+In case of error, run the `plan` and `apply` steps again:
+
+```
+terraform plan -out plan.out
+terraform apply plan.out
+```
+
 ### Connect to the cluster
 
 Once the command returns, you can verify that the pods are up by running:
