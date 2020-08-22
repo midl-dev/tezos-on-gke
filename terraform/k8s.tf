@@ -185,20 +185,3 @@ EOF
   }
   depends_on = [ null_resource.push_containers, kubernetes_namespace.tezos_namespace ]
 }
-
-#resource "kubernetes_secret" "configure_monitoring" {
-#  metadata {
-#    name = "alertmanager-monitoring-mon-prometheus-alertmanager"
-#    namespace = "monitoring"
-#    labels = {
-#      "app": "prometheus-operator-alertmanager",
-#      "release": "monitoring-mon"
-#    }
-#  }
-#  data = {
-#    "alertmanager.yaml" : templatefile("${path.module}/../alerting/alertmanager.yaml.tmpl",
-#   { "slack_url" : var.baking_nodes["custnode"]["cust001"]["alerting_slack_url"] } )
-#  }
-#
-#  depends_on = [ null_resource.apply ]
-#}
