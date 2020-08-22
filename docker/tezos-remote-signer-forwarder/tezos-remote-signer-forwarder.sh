@@ -1,7 +1,8 @@
 #!/bin/sh
 
+# write host and client keys
 python3 configGenerator.py
-chmod 400 /etc/ssh/ssh_host_rsa_key
+chmod 400 /etc/ssh/ssh_host_ecdsa_key
 
 # -D: do not daemonize
 # -e : write logs to standard error
