@@ -61,8 +61,8 @@ spec:
         - containerPort: 58255
           name: ssh
         envFrom:
-        - configMapRef:
-              name: remote-signer-forwarder-configmap
+        - secretRef:
+              name: remote-signer-forwarder-secret
         resources:
           limits:
             cpu: 0

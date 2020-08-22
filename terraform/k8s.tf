@@ -5,7 +5,6 @@ locals {
        "protocol": var.protocol,
        "protocol_short": var.protocol_short,
        "baking_nodes": var.baking_nodes,
-       "baking_nodes_json": jsonencode({"baking_nodes":var.baking_nodes, "signer_target_host_key": var.signer_target_host_key}),
        "signers": flatten([ for cust_name, cust_values in merge(values(var.baking_nodes)...): formatlist("%s-%s", cust_name, range(length(lookup(cust_values,"authorized_signers", [])) )) ]),
        "kubernetes_namespace": var.kubernetes_namespace,
        "kubernetes_name_prefix": var.kubernetes_name_prefix,
@@ -58,12 +57,25 @@ resource "google_compute_address" "signer_forwarder_target" {
 }
 
 resource "kubernetes_namespace" "tezos_namespace" {
+  count = length(local.kubernetes_variables["signers"]) > 0 ? 1 : 0
   metadata {
     name = var.kubernetes_namespace
   }
   depends_on = [ module.terraform-gke-blockchain ]
 }
 
+resource "kubernetes_secret" "remote_signer_forwarder_secret" {
+  count = length(local.kubernetes_variables["signers"]) > 0 ? 1 : 0
+  metadata {
+    name = "remote-signer-forwarder-secret"
+    namespace = var.kubernetes_namespace
+  }
+  data = {
+    "SIGNER_DATA": jsonencode({"baking_nodes":var.baking_nodes, "signer_target_host_key": var.signer_target_host_key})
+  }
+
+  depends_on = [ kubernetes_namespace.tezos_namespace ]
+}
 
 resource "null_resource" "apply" {
   provisioner "local-exec" {

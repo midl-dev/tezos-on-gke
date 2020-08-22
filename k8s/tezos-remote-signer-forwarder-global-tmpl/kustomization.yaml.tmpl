@@ -6,11 +6,6 @@ imageTags:
     newName: gcr.io/${project}/tezos-remote-signer-forwarder
     newTag: ${kubernetes_namespace}-latest
 
-configMapGenerator:
-- name: remote-signer-forwarder-configmap
-  literals:
-  - SIGNER_DATA=${baking_nodes_json}
-
 patchesStrategicMerge:
 - nodepool.yaml
 %{ for signername in signers }
