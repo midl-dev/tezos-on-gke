@@ -1,5 +1,5 @@
 module "terraform-gke-blockchain" {
-  source = "github.com/midl-dev/terraform-gke-blockchain?ref=prometheus"
+  source = "github.com/midl-dev/terraform-gke-blockchain?ref=v1.0"
   org_id = var.org_id
   billing_account = var.billing_account
   terraform_service_account_credentials = var.terraform_service_account_credentials
