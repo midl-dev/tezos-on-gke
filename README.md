@@ -156,6 +156,11 @@ docker commit my-tezos-client my-tezos-client
 docker run my-tezos-client tezos-client show address insecure-baker -S
 ```
 
+### Monitoring
+
+This setup comes with Prometheus and Alertmanager pre-installed. By default, it will push all alerts to slack.
+
+Pass the Slack URL as a parameter: `monitoring_slack_url`.
 
 ### Full example
 
