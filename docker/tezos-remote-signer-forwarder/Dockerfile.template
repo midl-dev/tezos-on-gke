@@ -1,7 +1,7 @@
 FROM alpine:edge
 
 # add openssh and clean
-RUN apk add --no-cache openssh shadow
+RUN apk add --no-cache openssh shadow python3
 
 RUN /usr/bin/ssh-keygen -A
 
@@ -27,5 +27,6 @@ RUN mkdir /home/signer/.ssh && chown -R signer /home/signer
 EXPOSE 8433 58255
 
 COPY tezos-remote-signer-forwarder.sh /
+COPY configGenerator.py /
 ENTRYPOINT ["/tezos-remote-signer-forwarder.sh"]
 CMD []

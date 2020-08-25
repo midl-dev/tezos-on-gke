@@ -2,20 +2,36 @@
 set -e
 set -x
 
+urlencode() {
+    # urlencode <string>
+    old_lc_collate=$LC_COLLATE
+    LC_COLLATE=C
+    local i=1
+    local length="${#1}"
+    while [ $i -le $length ]
+    do
+        local c=$(echo "$(expr substr $1 $i 1)")
+        case $c in
+            [a-zA-Z0-9.~_-]) printf "$c" ;;
+            ' ') printf "%%20" ;;
+            *) printf '%%%02X' "'$c" ;;
+        esac
+        i=`expr $i + 1`
+    done
+
+    LC_COLLATE=$old_lc_collate
+}
+
+if [ ! -z $SIGNER_A_PORT ]; then
+    export SIGNER_A_LINE="server tezos-signer-1 ${KUBERNETES_NAME_PREFIX}-tezos-remote-signer-forwarder:${SIGNER_A_PORT} check inter 15000"
+fi
+if [ ! -z $SIGNER_B_PORT ]; then
+    export SIGNER_B_LINE="server tezos-signer-2 ${KUBERNETES_NAME_PREFIX}-tezos-remote-signer-forwarder:${SIGNER_B_PORT} check inter 15000"
+fi
+
+export LEDGER_AUTHORIZED_PATH_ENCODED=$(urlencode $LEDGER_AUTHORIZED_PATH)
 envsubst < /usr/local/etc/haproxy/haproxy.cfg.template > /usr/local/etc/haproxy/haproxy.cfg
 echo "haproxy tezos signer load balancer is starting"
 
-# first arg is `-f` or `--some-option`
-if [ "${1#-}" != "$1" ]; then
-	set -- haproxy "$@"
-fi
-
-if [ "$1" = 'haproxy' ]; then
-	shift # "haproxy"
-	# if the user wants "haproxy", let's add a couple useful flags
-	#   -W  -- "master-worker mode" (similar to the old "haproxy-systemd-wrapper"; allows for reload via "SIGUSR2")
-	#   -db -- disables background mode
-	set -- haproxy -W -db "$@"
-fi
-
+set -- haproxy -W -db -f /usr/local/etc/haproxy/haproxy.cfg "$@"
 exec "$@"

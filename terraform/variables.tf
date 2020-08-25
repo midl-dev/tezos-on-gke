@@ -26,9 +26,46 @@ variable "region" {
   description = "Region in which to create the cluster, or region where the cluster exists."
 }
 
-variable "kubernetes_config_context" {
+variable "node_locations" {
+  type        = list
+  default     = [ "us-central1-b", "us-central1-f" ]
+  description = "Zones in which to create the nodes"
+}
+
+
+variable "kubernetes_namespace" {
   type = string
-  description = "name of the kubernetes context where to create the deployment. Only set when you already have an existing cluster"
+  description = "kubernetes namespace to deploy the resource into"
+  default = "tezos"
+}
+
+variable "kubernetes_name_prefix" {
+  type = string
+  description = "kubernetes name prefix to prepend to all resources (should be short, like DOT)"
+  default = "dot"
+}
+
+variable "kubernetes_endpoint" {
+  type = string
+  description = "name of the kubernetes endpoint"
+  default = ""
+}
+
+variable "cluster_ca_certificate" {
+  type = string
+  description = "kubernetes cluster certificate"
+  default = ""
+}
+
+variable "cluster_name" {
+  type = string
+  description = "name of the kubernetes cluster"
+  default = ""
+}
+
+variable "kubernetes_access_token" {
+  type = string
+  description = "name of the kubernetes endpoint"
   default = ""
 }
 
@@ -38,30 +75,20 @@ variable "terraform_service_account_credentials" {
   default = "~/.config/gcloud/application_default_credentials.json"
 }
 
+variable "kubernetes_pool_name" {
+  type = string
+  description = "when kubernetes cluster has several node pools, specify which ones to deploy the baking setup into. only effective when deploying on an external cluster with terraform_no_cluster_create"
+  default = "blockchain-pool"
+}
+
 #
 # Tezos node and baker options
 # ------------------------------
 
-variable "public_baking_key" {
-  type  = string
-  description = "The public baker tz1 address that delegators delegate to."
-}
-
-variable "insecure_private_baking_key" {
-  type  = string
-  description = "The private key associated with the public_baking_key. Setting this variable will override the hardware security module configuration. ATTENTION! Do not do that on mainnet. Keep your private key in a HSM instead."
-}
-
-variable "authorized_signer_key_a" {
-  type = string
-  description = "Public key of the first remote signer."
-  default = ""
-}
-
-variable "authorized_signer_key_b" {
-  type = string
-  description = "Public key of the first remote signer."
-  default = ""
+variable "baking_nodes" {
+  type = map
+  description = "Structured data related to baking, including public key and signer configuration"
+  default = {}
 }
 
 variable "tezos_network" {
@@ -82,10 +109,10 @@ variable "tezos_private_version" {
   default = "latest-release"
 }
 
-variable "signer_target_random_hostname" {
+variable "signer_target_host_key" {
   type = string
-  description = "Random string such as 128fecf31d for the fqdn of the ssh endpoint the remote signer connects to (for example 128fec31d.mybaker.com)."
-  default = "signer"
+  description = "ssh host key for the ssh endpoint the remote signer connects to. if you leave it empty, sshd will generate it but it may change, cutting your access to the remote signers."
+  default = ""
 }
 
 variable "protocol" {
@@ -98,4 +125,22 @@ variable "protocol_short" {
   type = string
   description = "The short string describing the protocol, for example PsCARTHA."
   default = "PsCARTHA"
+}
+
+variable "full_snapshot_url" {
+  type = string
+  description = "url of the snapshot of type full to download"
+  default = ""
+}
+
+variable "rolling_snapshot_url" {
+  type = string
+  description = "url of the snapshot of type rolling to download"
+  default = ""
+}
+
+variable "monitoring_slack_url" {
+  type = string
+  default = ""
+  description = "slack api url to send prometheus alerts to"
 }

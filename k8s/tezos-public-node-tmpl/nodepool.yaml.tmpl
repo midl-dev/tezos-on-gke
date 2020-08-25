@@ -1,0 +1,9 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: tezos-public-node
+spec:
+  template:
+    spec:
+      nodeSelector:
+        cloud.google.com/gke-nodepool: ${kubernetes_pool_name}

@@ -1,6 +1,7 @@
 #!/bin/sh
 
 set -e
+set -x
 
 bin_dir="/usr/local/bin"
 
@@ -12,20 +13,17 @@ node="$bin_dir/tezos-node"
 if [ -d ${node_dir}/data/context ]; then
     echo "Blockchain has already been imported, exiting"
     exit 0
-elif [ "$TEZOS_NETWORK" != "mainnet" ]; then
-    echo "Not downloading snapshot when network is not mainnet, exiting"
+elif [ -z "$SNAPSHOT_URL" ]; then
+    echo "No snapshot was passed as parameter, exiting"
     exit 0
 else
     echo "Did not find pre-existing data, importing blockchain"
-    rm -rvf ${node_dir}/*
-    mkdir ${node_dir}/data
+    mkdir -p ${node_dir}/data
     echo '{ "version": "0.0.4" }' > ${node_dir}/version.json
     cp -v /usr/local/share/tezos/alphanet_version ${node_dir}
-    snapshot=$(echo -n "$@")
     snapshot_file=${node_dir}/chain.snapshot
-    curl -s https://api.github.com/repos/Phlogi/tezos-snapshots/releases/latest | jq -r ".assets[] | select(.name) | .browser_download_url" | grep full | xargs wget -q
-    cat mainnet.full.* | xz -d -v -T0 > $snapshot_file
-    exec "${node}" snapshot import ${snapshot_file} --data-dir ${node_data_dir}
+    curl -o $snapshot_file $SNAPSHOT_URL
+    exec "${node}" snapshot import ${snapshot_file} --data-dir ${node_data_dir} --network $TEZOS_NETWORK --config-file ${node_data_dir}/config.json
     find ${node_dir}
     rm -rvf ${snapshot_file}
 fi

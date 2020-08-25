@@ -1,0 +1,113 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: tezos-remote-signer-loadbalancer-policy
+  namespace: default
+spec:
+  podSelector:
+    matchLabels:
+      app: tezos-remote-signer-loadbalancer
+  policyTypes:
+  - Ingress
+  ingress:
+  - ports:
+    - port: 8445
+      protocol: TCP
+    from:
+    - podSelector:
+        matchLabels:
+          app: tezos-private-baking-node
+  - ports:
+    - port: 8404
+      protocol: TCP
+    from:
+    - podSelector:
+        matchLabels:
+          app: prometheus
+      namespaceSelector:
+        matchLabels: {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tezos-remote-signer-loadbalancer
+spec:
+  selector:
+    matchLabels:
+      app: tezos-remote-signer-loadbalancer
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: tezos-remote-signer-loadbalancer
+    spec:
+      securityContext:
+        fsGroup: 100
+      containers:
+      - name: tezos-remote-signer-loadbalancer
+        image: tezos-remote-signer-loadbalancer
+        ports:
+        - containerPort: 8445
+          name: signer
+        envFrom:
+        - configMapRef:
+            name: tezos-remote-signer-loadbalancer-configmap
+        resources:
+          limits:
+            cpu: 0
+        imagePullPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tezos-remote-signer-loadbalancer
+  labels:
+    app: tezos-remote-signer-loadbalancer
+spec:
+  ports:
+  - port: 8445
+    name: signer
+  - port: 8404
+    name: metrics
+  selector:
+    app: tezos-remote-signer-loadbalancer
+  clusterIP: None
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    app: tezos-remote-signer-loadbalancer
+    release: monitoring-prom
+  name: tezos-remote-signer-loadbalancer-monitoring
+spec:
+  endpoints:
+  - interval: 15s
+    port: metrics
+    path: /metrics
+  selector:
+    matchLabels:
+      app: tezos-remote-signer-loadbalancer
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  labels:
+    release: monitoring-prom
+    app: prometheus-operator
+    prometheus: service-prometheus
+    role: alert-rules
+  name: tezos-remote-signer-loadbalancer-rules
+spec:
+  groups:
+  - name: tezos-remote-signer.rules
+    rules:
+    - alert: NoRemoteSigner
+      annotations:
+        description: 'Remote signer is down'
+        summary: Remote signer is down
+      expr: haproxy_backend_active_servers == 0
+      for: 1m
+      labels:
+        severity: critical

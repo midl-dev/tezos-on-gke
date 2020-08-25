@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: tezos-remote-signer-forwarder
+  labels:
+    app: tezos-remote-signer-forwarder
+spec:
+  ports:
+  - port: ${signerport}
+    name: ${signername}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tezos-remote-signer-forwarder
+spec:
+  template:
+    spec:
+      containers:
+      - name: tezos-remote-signer-forwarder
+        ports:
+        - containerPort: ${signerport}
+          name: ${signername}

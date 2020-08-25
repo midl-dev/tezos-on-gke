@@ -17,7 +17,15 @@ backend tezos-signer-backends
     balance first
     mode http
     option forwardfor
-    server tezos-signer-1 localhost:8443 check inter 15000
-    server tezos-signer-2 localhost:8444 check inter 15000
-    option httpchk GET /keys/${PUBLIC_BAKING_KEY}
+    ${SIGNER_A_LINE}
+    ${SIGNER_B_LINE}
+    option httpchk GET /statusz/${PUBLIC_BAKING_KEY}?ledger_url=${LEDGER_AUTHORIZED_PATH_ENCODED}
     http-check expect status 200
+
+frontend stats
+    bind *:8404
+    mode http
+    http-request use-service prometheus-exporter if { path /metrics }
+    stats enable
+    stats uri /stats
+    stats refresh 10s

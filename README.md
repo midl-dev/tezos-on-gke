@@ -19,17 +19,16 @@ Features:
 * blockchain snapshot download and import for faster synchronization of the nodes
 * support for two highly available signers
 * deploy everything in just one command
-* TODO:
-  * metric-based monitoring and alerting with prometheus
+* metric-based monitoring and alerting with prometheus
 
 Brought to you by MIDL.dev
 --------------------------
 
 <img src="midl-dev-logo.png" alt="MIDL.dev" height="100"/>
 
-We maintain a reference architecture for Tezos baking, free for anyone to use.
+We maintain [Tezos Suite](https://tezos-docs.midl.dev/), a complete baking suite, free for anyone to use.
 
-We help you deploy and manage a complete Tezos baking operation. [Hire us](https://midl.dev).
+We help you deploy and manage a complete Tezos baking operation. [Hire us](https://midl.dev/tezos).
 
 Architecture
 ------------
@@ -45,6 +44,8 @@ The baker node uses a [Regional Persistent Disk](https://cloud.google.com/comput
 The setup is production hardened:
 * usage of kubernetes secrets to store sensitive values such as node keys. They are created securely from terraform variables,
 * network policies to restrict communication between pods. For example, only sentries can peer with the validator node.
+
+[See full documentation](https://tezos-docs.midl.dev/)
 
 Cost
 ----
@@ -114,13 +115,27 @@ NOTE: if you created a [terraform service account](docs/production-hardening.md)
 
 Set the `tezos_network` variable to the network to use (`mainnet`, `carthagenet`, etc)
 
-### Baking address
+### Baking nodes
 
-Set the `public_baking_key` variable to the baking address.
+The `baking_nodes` parameter lets you deploy one or several bakers declaratively.
 
-For testnets or test deployments only: set the `insecure_private_baking_key` to the unencrypted private key to be used.
+You may specify:
+* a map with one or several baking nodes, and
+* for every baking node, one or several baking and endorsing processes.
 
-**Attention!** Leaving a private baking key on a cloud platform is not recommended when funds are present. For production bakers, leave this variable empty. Leaving it empty will prompt terraform to create a ssh endpoint for remote signers to connect to.
+The variables needed to spin up the baking or endorsing processes are:
+
+* `public_baking_key`: the baking address
+* for testnets or test deployments only: set the `insecure_private_baking_key` to the unencrypted private key to be used.
+
+**Attention!** Leaving a private baking key on a cloud platform is not recommended when funds are present. For production bakers, leave this variable empty and use a remote signer. [See documentation](https://tezos-docs.midl.dev/).
+
+When used in combination with a remote siger setup, you must pass a `baking_nodes` map with the following parameters:
+
+* `ledger_authorized_path`: the Ledger path associated with the key stored in Ledger device on the remote signer,
+* `authorized_signers`: a list of signer specification maps, containing:
+  * `ssh_pubkey`: the public key of the signer, used for ssh port forwarding, and
+  * `signer_port`: the port for the signer http endpoint that is being tunneled
 
 To generate a public/private keypair, you can use the tezos client:
 
@@ -141,16 +156,27 @@ docker commit my-tezos-client my-tezos-client
 docker run my-tezos-client tezos-client show address insecure-baker -S
 ```
 
+### Monitoring
+
+This setup comes with Prometheus and Alertmanager pre-installed. By default, it will push all alerts to slack.
+
+Pass the Slack URL as a parameter: `monitoring_slack_url`.
 
 ### Full example
 
-Here is a full example `terraform.tfvars` configuration. Obviously do not use this one as the private key is now widely known:
+Here is a full example `terraform.tfvars` configuration. This private key is provided only as an example, generate your own instead.
 
 ```
-project="beaming-essence-20718"
+project="<your Google project name>"
 tezos_network="carthagenet"
-public_baking_key="tz1YmsrYxQFJo5nGj4MEaXMPdLrcRf2a5mAU"
-insecure_private_baking_key="edsk3cftTNcJnxb7ehCxYeCaKPT7mjycdMxgFisLixrQ9bZuTG2yZK"
+baking_nodes = {
+  mynode = {
+    mybaker = {
+      public_baking_key="tz1YmsrYxQFJo5nGj4MEaXMPdLrcRf2a5mAU"
+      insecure_private_baking_key="edsk3cftTNcJnxb7ehCxYeCaKPT7mjycdMxgFisLixrQ9bZuTG2yZK"
+    }
+  }
+}
 ```
 
 ## Deploy!
@@ -168,6 +194,13 @@ This will take time as it will:
 * create a Kubernetes cluster
 * build the necessary containers locally
 * spin up the public nodes and private baker nodes
+
+In case of error, run the `plan` and `apply` steps again:
+
+```
+terraform plan -out plan.out
+terraform apply plan.out
+```
 
 ### Connect to the cluster
 
@@ -187,30 +220,7 @@ kubectl logs -f tezos-public-node-0 --tail=10
 
 ## Day 2 operations
 
-### Apply an update
-
-If you have pulled the most recent version of `tezos-on-gke` and wish to apply updates, you may do so with a `terraform taint`:
-
-```
-terraform taint null_resource.push_containers && terraform taint null_resource.apply && terraform plan -out plan.out
-terraform apply plan.out
-```
-
-This will rebuild the containers locally, then do a `kubectl apply` to push the most recent changes to your cluster.
-
-The daemons will restart after some time. However, you may kill the pods to restart them immediately.
-
-### Tezos Protocol update
-
-When the Tezos protocol changes, be sure to edit the terraform variables `protocol` and `protocol_short` to match the new version.
-
-Then, apply the changes. Your baker will restart with the right baking and endorsing daemons.
-
-### Remotely ssh into the remote signers
-
-For remote connectivity and debugging purposes, ssh port 22 for the on-prem remote signers is being forwarded on ports 9443 and 9444.
-
-To connect to the signers, forward port 9443/9444 from the `tezos-remote-signer-forwarder` locally, then ssh to localhost using your private key associated with the public key injected into the baker during initial setup.
+[See documentation](https://tezos-docs.midl.dev/day-2-operations)
 
 ## Wrapping up
 

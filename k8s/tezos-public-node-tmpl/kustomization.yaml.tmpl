@@ -1,0 +1,38 @@
+bases:
+- ./../tezos-public-node-base
+
+imageTags:
+  - name: tezos-public-node-with-probes
+    newName: gcr.io/${project}/tezos-public-node-with-probes
+    newTag: ${kubernetes_namespace}-latest
+  - name: tezos/tezos
+    newTag: ${tezos_private_version}
+  - name: tezos-snapshot-downloader
+    newName: gcr.io/${project}/tezos-snapshot-downloader
+    newTag: ${kubernetes_namespace}-latest
+  - name: tezos-public-node-configurator
+    newName: gcr.io/${project}/tezos-public-node-configurator
+    newTag: ${kubernetes_namespace}-latest
+  - name: tezos-rolling-snapshot-downloader
+    newName: gcr.io/${project}/tezos-rolling-snapshot-downloader
+    newTag: ${kubernetes_namespace}-latest
+  - name: tezos-archive-downloader
+    newName: gcr.io/${project}/tezos-archive-downloader
+    newTag: ${kubernetes_namespace}-latest
+
+configMapGenerator:
+- name: tezos-configmap
+  literals:
+  - NODE_HOST="localhost"
+  - TEZOS_NETWORK=${tezos_network}"
+  - PRIVATE_PEER_LIST="%{ for nodename in keys(baking_nodes) ~}--peer ${kubernetes_name_prefix}-tezos-private-baking-node-${nodename} %{endfor}"
+  - PROTOCOL="${protocol}"
+  - KUBERNETES_NAME_PREFIX="${kubernetes_name_prefix}"
+  - PROTOCOL_SHORT="${protocol_short}"
+  - DATA_DIR=/run/tezos
+  - ROLLING_SNAPSHOT_URL="${rolling_snapshot_url}"
+
+patchesStrategicMerge:
+- regionalpvpatch.yaml
+- prefixedpvnode.yaml
+- nodepool.yaml

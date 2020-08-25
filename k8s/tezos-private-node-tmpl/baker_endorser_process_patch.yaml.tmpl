@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tezos-private-baking-node
+spec:
+  template:
+    spec:
+      containers:
+      - name: tezos-endorser-with-remote-signer-${custname}
+        image: tezos-endorser-with-remote-signer
+        args: [ "k8s-baker-${custname}" ]
+        volumeMounts:
+        - name: tezos-private-node-storage
+          readOnly: true
+          mountPath: /var/run/tezos/node
+        - name: tezos-private-client-storage
+          mountPath: /var/run/tezos/client
+        envFrom:
+        - configMapRef:
+            name: tezos-private-baker-configmap-${custname}
+        resources:
+          limits:
+            cpu: 0
+        imagePullPolicy: Always
+      - name: tezos-baker-with-remote-signer-${custname}
+        image: tezos-baker-with-remote-signer
+        args: [ "k8s-baker-${custname}" ]
+        volumeMounts:
+        - name: tezos-private-node-storage
+          readOnly: true
+          mountPath: /var/run/tezos/node
+        - name: tezos-private-client-storage
+          mountPath: /var/run/tezos/client
+        envFrom:
+        - configMapRef:
+            name: tezos-private-baker-configmap-${custname}
+        resources:
+          limits:
+            cpu: 0
+        imagePullPolicy: Always
+      initContainers:
+      - name: tezos-key-importer-${custname}
+        image: tezos-key-importer
+        envFrom:
+        - configMapRef:
+            name: tezos-private-baker-configmap-${custname}
+        volumeMounts:
+        - name: tezos-private-node-storage
+          mountPath: /var/run/tezos/node
+        - name: tezos-private-client-storage
+          mountPath: /var/run/tezos/client
+        resources:
+          limits:
+            cpu: 0
+        imagePullPolicy: Always

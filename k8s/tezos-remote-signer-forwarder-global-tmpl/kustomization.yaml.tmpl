@@ -1,0 +1,13 @@
+bases:
+- ./../tezos-remote-signer-forwarder-base
+
+imageTags:
+  - name: tezos-remote-signer-forwarder
+    newName: gcr.io/${project}/tezos-remote-signer-forwarder
+    newTag: ${kubernetes_namespace}-latest
+
+patchesStrategicMerge:
+- nodepool.yaml
+%{ for signername in signers }
+- remote_signer_patch_${signername}.yaml
+%{ endfor }

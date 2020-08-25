@@ -1,0 +1,107 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: tezos-remote-signer-forwarding-ingress
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 58255
+    targetPort: 58255
+    name: ssh-forwarding-ingress
+  selector:
+    app: tezos-remote-signer-forwarder
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tezos-remote-signer-forwarder
+  labels:
+    app: tezos-remote-signer-forwarder
+spec:
+  selector:
+    app: tezos-remote-signer-forwarder
+  clusterIP: None
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: tezos-remote-signer-forwarder-policy
+spec:
+  podSelector:
+    matchLabels:
+      app: tezos-remote-signer-forwarder
+  policyTypes:
+  - Ingress
+  ingress:
+  - ports:
+    - port: 58255
+      protocol: TCP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tezos-remote-signer-forwarder
+spec:
+  selector:
+    matchLabels:
+      app: tezos-remote-signer-forwarder
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: tezos-remote-signer-forwarder
+    spec:
+      securityContext:
+        fsGroup: 100
+      containers:
+      - name: tezos-remote-signer-forwarder
+        image: tezos-remote-signer-forwarder
+        ports:
+        - containerPort: 58255
+          name: ssh
+        envFrom:
+        - secretRef:
+              name: remote-signer-forwarder-secret
+        resources:
+          limits:
+            cpu: 0
+        imagePullPolicy: Always
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  labels:
+    release: monitoring-prom
+    app: prometheus-operator
+    prometheus: service-prometheus
+    role: alert-rules
+  name: tezos-remote-signer-rules
+spec:
+  groups:
+  - name: tezos-remote-signer.rules
+    rules:
+    - alert: SignerPowerLoss
+      annotations:
+        description: 'Remote signer has lost power'
+        summary: Tezos remote signer has lost power
+      expr: power != 0
+      for: 1m
+      labels:
+        severity: critical
+    - alert: SignerWiredNetworkLoss
+      annotations:
+        description: 'Remote signer has lost wired internet connection'
+        summary: Tezos remote signer has lost wired internet connection
+      expr: wired_network != 0
+      for: 1m
+      labels:
+        severity: critical
+    - alert: SignerWirelessNetworkLoss
+      annotations:
+        description: 'Remote signer has lost wireless internet connection'
+        summary: Tezos remote signer has lost wireless internet connection
+      expr: wireless_network != 0
+      for: 1m
+      labels:
+        severity: critical

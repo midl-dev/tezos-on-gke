@@ -1,31 +1,21 @@
-kind: StorageClass
-apiVersion: storage.k8s.io/v1
-metadata:
-  name: repd-central1-b-f
-provisioner: kubernetes.io/gce-pd
-parameters:
-  type: pd-ssd
-  replication-type: regional-pd
-  zones: us-central1-b, us-central1-f
----
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: tezos-private-node-claim
 spec:
-  storageClassName: repd-central1-b-f
+  storageClassName: regional
   accessModes:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 90Gi
+      storage: 40Gi
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: tezos-private-client-claim
 spec:
-  storageClassName: repd-central1-b-f
+  storageClassName: regional
   accessModes:
     - ReadWriteOnce
   resources:
@@ -36,12 +26,33 @@ apiVersion: v1
 kind: Service
 metadata:
   name: tezos-private-baking-node
+  labels:
+    app: tezos-private-baking-node
 spec:
   ports:
   - port: 9732
+    name: p2p
+  - port: 9489
+    name: metrics
   selector:
     app: tezos-private-baking-node
   clusterIP: None
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    app: tezos-private-baking-node
+    release: monitoring-prom
+  name: tezos-private-node-monitoring
+spec:
+  endpoints:
+  - interval: 15s
+    port: metrics
+    path: /metrics
+  selector:
+    matchLabels:
+      app: tezos-private-baking-node
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
@@ -71,7 +82,7 @@ spec:
     to:
     - podSelector:
         matchLabels:
-          app: tezos-remote-signer-forwarder
+          app: tezos-remote-signer-loadbalancer
   - ports:
     - port: 9732
       protocol: TCP
@@ -85,6 +96,15 @@ spec:
       protocol: TCP
     - port: 53
       protocol: UDP
+  - ports:
+    - port: 9489
+      protocol: TCP
+    from:
+    - namespaceSelector:
+        matchLabels: {}
+      podSelector:
+        matchLabels:
+          app: prometheus
   - ports:
     - port: 9732
       protocol: TCP
@@ -125,30 +145,17 @@ spec:
         resources:
           limits:
             cpu: 0
+        imagePullPolicy: Always
       - name: tezos-prometheus-exporter
         image: ecadlabs/tezos_exporter
         args: [ "-tezos-node-url", "http://localhost:8732/" ]
         ports:
         - containerPort: 9489
-          name: prom-exporter
+          name: metrics
         resources:
           limits:
             cpu: 0
-      - name: tezos-endorser-with-remote-signer
-        image: tezos-endorser-with-remote-signer
-        args: [ "k8s-baker" ]
-        volumeMounts:
-        - name: tezos-private-node-storage
-          readOnly: true
-          mountPath: /var/run/tezos/node
-        - name: tezos-private-client-storage
-          mountPath: /var/run/tezos/client
-        envFrom:
-        - configMapRef:
-            name: tezos-configmap
-        resources:
-          limits:
-            cpu: 0
+        imagePullPolicy: Always
       - name: tezos-accuser
         image: tezos/tezos
         args: [ "tezos-accuser" ]
@@ -156,36 +163,30 @@ spec:
         - name: NODE_HOST
           valueFrom:
             configMapKeyRef:
-              name: tezos-configmap
+              name: tezos-private-node-configmap
               key: NODE_HOST
         - name: PROTOCOL
           valueFrom:
             configMapKeyRef:
-              name: tezos-configmap
+              name: tezos-private-node-configmap
               key: PROTOCOL
-        volumeMounts:
-        - name: tezos-private-client-storage
-          readOnly: true
-          mountPath: /var/run/tezos/client
         resources:
           limits:
             cpu: 0
-      - name: tezos-baker-with-remote-signer
-        image: tezos-baker-with-remote-signer
-        args: [ "k8s-baker" ]
+        imagePullPolicy: Always
+      initContainers:
+      - name: tezos-private-node-configurator
+        image: tezos-private-node-configurator
+        resources:
+          limits:
+            cpu: 0
         volumeMounts:
         - name: tezos-private-node-storage
-          readOnly: true
           mountPath: /var/run/tezos/node
-        - name: tezos-private-client-storage
-          mountPath: /var/run/tezos/client
         envFrom:
         - configMapRef:
-            name: tezos-configmap
-        resources:
-          limits:
-            cpu: 0
-      initContainers:
+            name: tezos-private-node-configmap
+        imagePullPolicy: Always
       - name: tezos-snapshot-downloader
         image: tezos-snapshot-downloader
         resources:
@@ -198,39 +199,14 @@ spec:
         - name: TEZOS_NETWORK
           valueFrom:
             configMapKeyRef:
-              name: tezos-configmap
+              name: tezos-private-node-configmap
               key: TEZOS_NETWORK
-      - name: tezos-key-importer
-        image: tezos-key-importer
-        env:
-        - name: TEZOS_NETWORK
+        - name: SNAPSHOT_URL
           valueFrom:
             configMapKeyRef:
-              name: tezos-configmap
-              key: TEZOS_NETWORK
-        - name: PROTOCOL_SHORT
-          valueFrom:
-            configMapKeyRef:
-              name: tezos-configmap
-              key: PROTOCOL_SHORT
-        - name: INSECURE_PRIVATE_BAKING_KEY
-          valueFrom:
-            configMapKeyRef:
-              name: tezos-configmap
-              key: INSECURE_PRIVATE_BAKING_KEY
-        - name: PUBLIC_BAKING_KEY
-          valueFrom:
-            configMapKeyRef:
-              name: tezos-configmap
-              key: PUBLIC_BAKING_KEY
-        volumeMounts:
-        - name: tezos-private-node-storage
-          mountPath: /var/run/tezos/node
-        - name: tezos-private-client-storage
-          mountPath: /var/run/tezos/client
-        resources:
-          limits:
-            cpu: 0
+              name: tezos-private-node-configmap
+              key: FULL_SNAPSHOT_URL
+        imagePullPolicy: Always
       volumes:
       - name: tezos-private-client-storage
         persistentVolumeClaim:
@@ -238,3 +214,25 @@ spec:
       - name: tezos-private-node-storage
         persistentVolumeClaim:
           claimName: tezos-private-node-claim
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  labels:
+    release: monitoring-prom
+    app: prometheus-operator
+    prometheus: service-prometheus
+    role: alert-rules
+  name: tezos-private-node-rules
+spec:
+  groups:
+  - name: tezos-private-node
+    rules:
+    - alert: PrivateNodeLostConnections
+      annotations:
+        description: 'Private node lost connections'
+        summary: Private node has less than the expected number of connectione
+      expr: tezos_node_connections{direction="incoming",private="false"} < 2
+      for: 1m
+      labels:
+        severity: critical

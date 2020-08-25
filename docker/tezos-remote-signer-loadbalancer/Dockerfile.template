@@ -4,4 +4,3 @@ RUN apk add --no-cache gettext
 COPY haproxy.cfg.template /usr/local/etc/haproxy/haproxy.cfg.template
 COPY docker-entrypoint.sh /
 ENTRYPOINT [ "/docker-entrypoint.sh" ]
-CMD ["haproxy", "-f", "/usr/local/etc/haproxy/haproxy.cfg"]

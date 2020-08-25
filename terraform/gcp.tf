@@ -1,10 +1,13 @@
 module "terraform-gke-blockchain" {
-  source = "github.com/midl-dev/terraform-gke-blockchain"
+  source = "github.com/midl-dev/terraform-gke-blockchain?ref=v1.1"
   org_id = var.org_id
   billing_account = var.billing_account
   terraform_service_account_credentials = var.terraform_service_account_credentials
   project = var.project
   project_prefix = "tezos"
+  region = var.region
+  node_locations = var.node_locations
+  monitoring_slack_url = var.monitoring_slack_url
 }
 
 # Query the client configuration for our current service account, which should

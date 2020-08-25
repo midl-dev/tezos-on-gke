@@ -1,0 +1,65 @@
+bases:
+  - ./../tezos-private-node-base
+
+nameSuffix: -${nodename}
+
+imageTags:
+  - name: tezos/tezos
+    newTag: ${tezos_private_version}
+  - name: tezos-baker-with-remote-signer
+    newName: gcr.io/${project}/tezos-baker-with-remote-signer
+    newTag: ${kubernetes_namespace}-latest
+  - name: tezos-endorser-with-remote-signer
+    newName: gcr.io/${project}/tezos-endorser-with-remote-signer
+    newTag: ${kubernetes_namespace}-latest
+  - name: tezos-snapshot-downloader
+    newName: gcr.io/${project}/tezos-snapshot-downloader
+    newTag: ${kubernetes_namespace}-latest
+  - name: tezos-rolling-snapshot-downloader
+    newName: gcr.io/${project}/tezos-rolling-snapshot-downloader
+    newTag: ${kubernetes_namespace}-latest
+  - name: tezos-archive-downloader
+    newName: gcr.io/${project}/tezos-archive-downloader
+    newTag: ${kubernetes_namespace}-latest
+  - name: tezos-key-importer
+    newName: gcr.io/${project}/tezos-key-importer
+    newTag: ${kubernetes_namespace}-latest
+  - name: tezos-private-node-configurator
+    newName: gcr.io/${project}/tezos-private-node-configurator
+    newTag: ${kubernetes_namespace}-latest
+  - name: tezos-private-node-connectivity-checker
+    newName: gcr.io/${project}/tezos-private-node-connectivity-checker
+    newTag: ${kubernetes_namespace}-latest
+
+configMapGenerator:
+- name: tezos-private-node-configmap
+  literals:
+  - NODE_HOST="localhost"
+  - TEZOS_NETWORK=${tezos_network}"
+  - PROTOCOL="${protocol}"
+  - KUBERNETES_NAME_PREFIX="${kubernetes_name_prefix}"
+  - PROTOCOL_SHORT="${protocol_short}"
+  - DATA_DIR=/run/tezos
+  - FULL_SNAPSHOT_URL="${full_snapshot_url}"
+
+%{ for custname in keys(baking_nodes[nodename]) }
+- name: tezos-private-baker-configmap-${custname}
+  literals:
+  - NODE_HOST="localhost"
+  - TEZOS_NETWORK=${tezos_network}"
+  - PROTOCOL="${protocol}"
+  - KUBERNETES_NAME_PREFIX="${kubernetes_name_prefix}"
+  - PROTOCOL_SHORT="${protocol_short}"
+  - DATA_DIR=/run/tezos
+  - PUBLIC_BAKING_KEY="${baking_nodes[nodename][custname]["public_baking_key"]}"
+  - INSECURE_PRIVATE_BAKING_KEY="${lookup(baking_nodes[nodename][custname], "insecure_private_baking_key", "")}"
+  - CUSTOMER_NAME="${custname}"
+%{ endfor }
+
+patchesStrategicMerge:
+- prefixedpvnode.yaml
+- prefixedpvclient.yaml
+- nodepool.yaml
+%{ for custname in keys(baking_nodes[nodename]) }
+- baker_endorser_process_patch_${custname}.yaml
+%{ endfor}

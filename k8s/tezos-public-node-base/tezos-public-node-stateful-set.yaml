@@ -1,6 +1,15 @@
 kind: StorageClass
 apiVersion: storage.k8s.io/v1
 metadata:
+  name: regional
+provisioner: kubernetes.io/gce-pd
+parameters:
+  type: pd-ssd
+  replication-type: regional-pd
+---
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
   name: local-ssd
 provisioner: kubernetes.io/gce-pd
 parameters:
@@ -11,23 +20,35 @@ apiVersion: v1
 kind: Service
 metadata:
   name: tezos-public-node
+  labels:
+    app: tezos-public-node
 spec:
   ports:
   - port: 9732
+    name: p2p
+  - port: 9489
+    name: metrics
+  - port: 8732
+    name: rpc
   selector:
     app: tezos-public-node
   clusterIP: None
 ---
-apiVersion: v1
-kind: Service
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
 metadata:
-  name: tezos-public-node-rpc
-spec:
-  ports:
-  - port: 8732
-  selector:
+  labels:
     app: tezos-public-node
-  clusterIP: None
+    release: monitoring-prom
+  name: tezos-public-node-monitoring
+spec:
+  endpoints:
+  - interval: 15s
+    port: metrics
+    path: /metrics
+  selector:
+    matchLabels:
+      app: tezos-public-node
 ---
 apiVersion: apps/v1
 kind: StatefulSet
@@ -50,7 +71,7 @@ spec:
       containers:
       - name: tezos-public-node
         image: tezos-public-node-with-probes
-        args: [ "tezos-node", "--history-mode", "experimental-rolling", "--peer", "tezos-private-baking-node", "--network", "$(TEZOS_NETWORK)" ]
+        args: [ "tezos-node" ]
         ports:
         - containerPort: 9732
           name: tezos-port
@@ -73,24 +94,55 @@ spec:
             configMapKeyRef:
               name: tezos-configmap
               key: TEZOS_NETWORK
+        imagePullPolicy: Always
+      - name: tezos-prometheus-exporter
+        image: ecadlabs/tezos_exporter
+        args: [ "-tezos-node-url", "http://localhost:8732/" ]
+        ports:
+        - containerPort: 9489
+          name: metrics
+        resources:
+          limits:
+            cpu: 0
+        imagePullPolicy: Always
       initContainers:
-      - name: tezos-rolling-snapshot-downloader
-        image: tezos-rolling-snapshot-downloader
-        volumeMounts:
-        - name: tezos-public-node-pv-claim
-          mountPath: /var/run/tezos/node
+      - name: tezos-public-node-configurator
+        image: tezos-public-node-configurator
         env:
+        - name: PRIVATE_PEER_LIST
+          valueFrom:
+            configMapKeyRef:
+              name: tezos-configmap
+              key: PRIVATE_PEER_LIST
         - name: TEZOS_NETWORK
           valueFrom:
             configMapKeyRef:
               name: tezos-configmap
               key: TEZOS_NETWORK
-  volumeClaimTemplates:
-  - metadata:
-      name: tezos-public-node-pv-claim
-    spec:
-      accessModes: [ "ReadWriteOnce" ]
-      storageClassName: local-ssd
-      resources:
-        requests:
-          storage: 30Gi
+        volumeMounts:
+        - name: tezos-public-node-pv-claim
+          mountPath: /var/run/tezos/node
+        resources:
+          limits:
+            cpu: 0
+        imagePullPolicy: Always
+      - name: tezos-snapshot-downloader
+        image: tezos-snapshot-downloader
+        volumeMounts:
+        - name: tezos-public-node-pv-claim
+          mountPath: /var/run/tezos/node
+        env:
+        - name: SNAPSHOT_URL
+          valueFrom:
+            configMapKeyRef:
+              name: tezos-configmap
+              key: ROLLING_SNAPSHOT_URL
+        - name: TEZOS_NETWORK
+          valueFrom:
+            configMapKeyRef:
+              name: tezos-configmap
+              key: TEZOS_NETWORK
+        resources:
+          limits:
+            cpu: 0
+        imagePullPolicy: Always
