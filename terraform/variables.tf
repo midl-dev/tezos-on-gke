@@ -41,8 +41,8 @@ variable "kubernetes_namespace" {
 
 variable "kubernetes_name_prefix" {
   type = string
-  description = "kubernetes name prefix to prepend to all resources (should be short, like DOT)"
-  default = "dot"
+  description = "kubernetes name prefix to prepend to all resources (should be short, like xtz)"
+  default = "xtz"
 }
 
 variable "kubernetes_endpoint" {
