@@ -57,7 +57,6 @@ resource "google_compute_address" "signer_forwarder_target" {
 }
 
 resource "kubernetes_namespace" "tezos_namespace" {
-  count = length(local.kubernetes_variables["signers"]) > 0 ? 1 : 0
   metadata {
     name = var.kubernetes_namespace
   }
