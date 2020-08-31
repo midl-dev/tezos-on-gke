@@ -19,7 +19,7 @@ backend tezos-signer-backends
     option forwardfor
     ${SIGNER_A_LINE}
     ${SIGNER_B_LINE}
-    option httpchk GET /statusz/${PUBLIC_BAKING_KEY}?ledger_url=${LEDGER_AUTHORIZED_PATH_ENCODED}
+    option httpchk GET /statusz/${PUBLIC_BAKING_KEY_HASH}?ledger_url=${LEDGER_AUTHORIZED_PATH_ENCODED}
     http-check expect status 200
 
 frontend stats

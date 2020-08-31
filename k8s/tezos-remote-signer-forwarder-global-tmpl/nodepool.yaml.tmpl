@@ -1,9 +1,0 @@
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: tezos-remote-signer-forwarder
-spec:
-  template:
-    spec:
-      nodeSelector:
-        cloud.google.com/gke-nodepool: ${kubernetes_pool_name}

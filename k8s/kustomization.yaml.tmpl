@@ -7,18 +7,14 @@ namePrefix: ${kubernetes_name_prefix}-
 
 bases:
 - ./tezos-public-node
-%{ for baking_node in keys(baking_nodes) }
-- ./tezos-private-node-${baking_node}
-%{ endfor }
-%{ for customer, customer_data in merge(values(baking_nodes)...) }
+%{ for nodename in keys(baking_nodes) }
+- ./tezos-private-node-${nodename}
+%{ for custname, customer_data in baking_nodes[nodename] }
 %{ if ! contains(keys(customer_data), "insecure_private_baking_key") }
-- ./tezos-remote-signer-loadbalancer-${customer}
+- ./tezos-remote-signer-loadbalancer-${custname}
+%{ for signerindex, signer_data in customer_data["authorized_signers"] }
+- ./tezos-remote-signer-loadbalancer-${custname}-${signerindex}
+%{ endfor }
 %{ endif }
 %{ endfor }
-
-%{ if length(signers) > 0 }
-- ./tezos-remote-signer-forwarder-global
-%{ endif }
-%{ for signername in signers }
-- ./tezos-remote-signer-forwarder-${signername}
-%{ endfor}
+%{ endfor }

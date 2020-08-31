@@ -82,7 +82,7 @@ spec:
     to:
     - podSelector:
         matchLabels:
-          app: tezos-remote-signer-loadbalancer
+          xtzapp: tezos-remote-signer-loadbalancer
   - ports:
     - port: 9732
       protocol: TCP
@@ -112,6 +112,34 @@ spec:
     - podSelector:
         matchLabels:
           app: tezos-public-node
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: tezos-remote-signer-loadbalancer-policy
+spec:
+  podSelector:
+    matchLabels:
+      xtzapp: tezos-remote-signer-loadbalancer
+  policyTypes:
+  - Ingress
+  ingress:
+  - ports:
+    - port: 8445
+      protocol: TCP
+    from:
+    - podSelector:
+        matchLabels:
+          app: tezos-private-baking-node
+  - ports:
+    - port: 8404
+      protocol: TCP
+    from:
+    - podSelector:
+        matchLabels:
+          app: prometheus
+      namespaceSelector:
+        matchLabels: {}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -206,6 +234,28 @@ spec:
             configMapKeyRef:
               name: tezos-private-node-configmap
               key: FULL_SNAPSHOT_URL
+        imagePullPolicy: Always
+      - name: tezos-key-importer
+        image: tezos-key-importer
+        env:
+        - name: KUBERNETES_NAME_PREFIX
+          valueFrom:
+            configMapKeyRef:
+              name: tezos-private-node-configmap
+              key: KUBERNETES_NAME_PREFIX
+        - name: SIGNER_DATA
+          valueFrom:
+            secretKeyRef:
+              name: signer-secret
+              key: SIGNER_DATA
+        volumeMounts:
+        - name: tezos-private-node-storage
+          mountPath: /var/run/tezos/node
+        - name: tezos-private-client-storage
+          mountPath: /var/run/tezos/client
+        resources:
+          limits:
+            cpu: 0
         imagePullPolicy: Always
       volumes:
       - name: tezos-private-client-storage

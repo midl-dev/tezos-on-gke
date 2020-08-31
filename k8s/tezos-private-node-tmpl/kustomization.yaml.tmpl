@@ -48,8 +48,6 @@ configMapGenerator:
   - KUBERNETES_NAME_PREFIX="${kubernetes_name_prefix}"
   - PROTOCOL_SHORT="${protocol_short}"
   - DATA_DIR=/run/tezos
-  - PUBLIC_BAKING_KEY="${baking_nodes[nodename][custname]["public_baking_key"]}"
-  - INSECURE_PRIVATE_BAKING_KEY="${lookup(baking_nodes[nodename][custname], "insecure_private_baking_key", "")}"
   - CUSTOMER_NAME="${custname}"
 %{ endfor }
 

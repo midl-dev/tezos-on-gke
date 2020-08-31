@@ -125,7 +125,7 @@ You may specify:
 
 The variables needed to spin up the baking or endorsing processes are:
 
-* `public_baking_key`: the baking address
+* `public_baking_key`: the public baking key starting with `edpk`
 * for testnets or test deployments only: set the `insecure_private_baking_key` to the unencrypted private key to be used.
 
 **Attention!** Leaving a private baking key on a cloud platform is not recommended when funds are present. For production bakers, leave this variable empty and use a remote signer. [See documentation](https://tezos-docs.midl.dev/).
@@ -136,6 +136,7 @@ When used in combination with a remote siger setup, you must pass a `baking_node
 * `authorized_signers`: a list of signer specification maps, containing:
   * `ssh_pubkey`: the public key of the signer, used for ssh port forwarding, and
   * `signer_port`: the port for the signer http endpoint that is being tunneled
+  * `tunnel_endpoint_port`: the port where the ssh daemon connects to on the load balancer for tunneling traffic
 
 To generate a public/private keypair, you can use the tezos client:
 
@@ -145,7 +146,7 @@ tezos-client gen keys insecure-baker
 tezos-client show address insecure-baker -S
 ```
 
-Set `public_baking_key` to the value displayed after `Hash:` and `insecure_private_baking_key` to the value displayed after `Secret key: unencrypted:`.
+Set `public_baking_key_hash` to the value displayed after `Hash:`, `public_baking_key` to the value displayed after `Public key:`  and `insecure_private_baking_key` to the value displayed after `Secret key: unencrypted:`.
 
 If you do not have the tezos client installed locally, you can use the docker Tezos container:
 
@@ -172,7 +173,8 @@ tezos_network="carthagenet"
 baking_nodes = {
   mynode = {
     mybaker = {
-      public_baking_key="tz1YmsrYxQFJo5nGj4MEaXMPdLrcRf2a5mAU"
+      public_baking_key="edpkup8PaxJYrUcXUEBEufekgqMaodyKLKwHqbtkQVAudiJ7nmrS2o"
+      public_baking_key_hash="tz1YmsrYxQFJo5nGj4MEaXMPdLrcRf2a5mAU"
       insecure_private_baking_key="edsk3cftTNcJnxb7ehCxYeCaKPT7mjycdMxgFisLixrQ9bZuTG2yZK"
     }
   }

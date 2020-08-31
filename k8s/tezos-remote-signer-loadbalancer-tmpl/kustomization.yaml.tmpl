@@ -3,7 +3,13 @@ bases:
 
 nameSuffix: -${custname}
 
+commonLabels:
+  app: tezos-remote-signer-forwarder-${custname}
+
 imageTags:
+  - name: tezos-remote-signer-forwarder
+    newName: gcr.io/${project}/tezos-remote-signer-forwarder
+    newTag: ${kubernetes_namespace}-latest
   - name: tezos-remote-signer-loadbalancer
     newName: gcr.io/${project}/tezos-remote-signer-loadbalancer
     newTag: ${kubernetes_namespace}-latest
@@ -12,7 +18,7 @@ configMapGenerator:
 - name: tezos-remote-signer-loadbalancer-configmap
   literals:
   - KUBERNETES_NAME_PREFIX="${kubernetes_name_prefix}"
-  - PUBLIC_BAKING_KEY="${baking_nodes[nodename][custname]["public_baking_key"]}"
+  - PUBLIC_BAKING_KEY_HASH="${baking_nodes[nodename][custname]["public_baking_key_hash"]}"
   - LEDGER_AUTHORIZED_PATH="${baking_nodes[nodename][custname]["ledger_authorized_path"]}"
   - SIGNER_A_PORT="${baking_nodes[nodename][custname]["authorized_signers"][0]["signer_port"]}"
 %{ if length(baking_nodes[nodename][custname]["authorized_signers"]) > 1 }
@@ -21,3 +27,6 @@ configMapGenerator:
 
 patchesStrategicMerge:
 - nodepool.yaml
+%{ for signerindex, signer in baking_nodes[nodename][custname]["authorized_signers"] }
+- remote_signer_patch_${signerindex}.yaml
+%{ endfor }
