@@ -139,6 +139,21 @@ cat <<EOK > tezos-remote-signer-loadbalancer-${custname}/kustomization.yaml
 ${templatefile("${path.module}/../k8s/tezos-remote-signer-loadbalancer-tmpl/kustomization.yaml.tmpl", merge(local.kubernetes_variables, { "custname": custname, "nodename" : nodename, authorized_signers = var.baking_nodes[nodename][custname]["authorized_signers"]} ))}
 EOK
 
+mkdir -pv tezos-remote-signer-alertmanager-${custname}
+cat <<'EOMP' > tezos-remote-signer-alertmanager-${custname}/remote_signer_alerting.yaml
+${templatefile("${path.module}/../k8s/tezos-remote-signer-alertmanager-tmpl/remote_signer_alerting.yaml.tmpl",
+  merge(local.kubernetes_variables, { 
+    "custname": custname,
+    "monitoring_slack_url": var.baking_nodes[nodename][custname]["monitoring_slack_url"],
+    "nodename" : nodename} ))}
+EOMP
+
+cat <<EOK > tezos-remote-signer-alertmanager-${custname}/kustomization.yaml
+namespace: monitoring
+resources:
+- remote_signer_alerting.yaml
+EOK
+
 %{ for signerindex, signer in var.baking_nodes[nodename][custname]["authorized_signers"] }
 # configure the forwarder for this remote signer (network policies, service monitoring)
 cat <<EORSP > tezos-remote-signer-loadbalancer-${custname}/remote_signer_patch_${signerindex}.yaml

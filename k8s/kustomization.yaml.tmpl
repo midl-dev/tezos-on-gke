@@ -12,6 +12,7 @@ bases:
 %{ for custname, customer_data in baking_nodes[nodename] }
 %{ if ! contains(keys(customer_data), "insecure_private_baking_key") }
 - ./tezos-remote-signer-loadbalancer-${custname}
+- ./tezos-remote-signer-alertmanager-${custname}
 %{ for signerindex, signer_data in customer_data["authorized_signers"] }
 - ./tezos-remote-signer-loadbalancer-${custname}-${signerindex}
 %{ endfor }
