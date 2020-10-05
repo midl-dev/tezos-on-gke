@@ -121,6 +121,7 @@ variable "protocol" {
   default = "006-PsCARTHA"
 }
 
+# FIXME remove this now useless var
 variable "protocol_short" {
   type = string
   description = "The short string describing the protocol, for example PsCARTHA."
