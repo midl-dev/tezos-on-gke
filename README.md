@@ -194,7 +194,7 @@ terraform apply plan.out
 This will take time as it will:
 * create a Google Cloud project
 * create a Kubernetes cluster
-* build the necessary containers locally
+* build the necessary containers
 * spin up the public nodes and private baker nodes
 
 In case of error, run the `plan` and `apply` steps again:

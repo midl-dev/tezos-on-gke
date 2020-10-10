@@ -1,6 +1,10 @@
 bases:
 - ./../tezos-public-node-base
 
+namespace: ${kubernetes_namespace}
+
+namePrefix: ${kubernetes_name_prefix}-
+
 imageTags:
   - name: tezos-public-node-with-probes
     newName: gcr.io/${project}/tezos-public-node-with-probes

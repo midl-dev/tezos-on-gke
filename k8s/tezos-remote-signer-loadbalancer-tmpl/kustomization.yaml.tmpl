@@ -1,6 +1,10 @@
 bases:
   - ./../tezos-remote-signer-loadbalancer-base
 
+namespace: ${kubernetes_namespace}
+
+namePrefix: ${kubernetes_name_prefix}-
+
 nameSuffix: -${custname}
 
 commonLabels:

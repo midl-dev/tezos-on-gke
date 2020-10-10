@@ -177,6 +177,8 @@ ${templatefile("${path.module}/../k8s/tezos-remote-signer-loadbalancer-tmpl/remo
 EOMP
 
 cat <<EOK > tezos-remote-signer-loadbalancer-${custname}-${signerindex}/kustomization.yaml
+namespace: ${var.kubernetes_namespace}
+namePrefix: ${var.kubernetes_name_prefix}-
 resources:
 - remote_signer_monitor_and_networkpolicy.yaml
 commonLabels:

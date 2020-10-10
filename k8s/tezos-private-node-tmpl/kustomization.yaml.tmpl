@@ -1,6 +1,10 @@
 bases:
   - ./../tezos-private-node-base
 
+namespace: ${kubernetes_namespace}
+
+namePrefix: ${kubernetes_name_prefix}-
+
 nameSuffix: -${nodename}
 
 imageTags:
