@@ -143,19 +143,19 @@ stringData:
 %{     for baker in keys(baking_node) }
       - match:
           alertname: NoRemoteSigner
-          baker: ${ baker} 
+          service: ${kubernetes_name_prefix}-tezos-remote-signer-loadbalancer-${baker}
         receiver: 'slack_${baker}'
       - match:
           alertname: SignerPowerLoss
-          baker: ${ baker} 
+          service: ${kubernetes_name_prefix}-tezos-remote-signer-loadbalancer-${baker}
         receiver: 'slack_${baker}'
       - match:
           alertname: SignerWiredNetworkLoss
-          baker: ${ baker} 
+          service: ${kubernetes_name_prefix}-tezos-remote-signer-loadbalancer-${baker}
         receiver: 'slack_${baker}'
       - match:
           alertname: SignerWirelessNetworkLoss
-          baker: ${ baker} 
+          service: ${kubernetes_name_prefix}-tezos-remote-signer-loadbalancer-${baker}
         receiver: 'slack_${baker}'
 %{   endfor }
 %{ endfor }
@@ -198,3 +198,80 @@ stringData:
         send_resolved: true
 %{ endfor }
 %{ endfor }
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    app: prometheus-xtz
+    release: mon-xtz
+  name: tezos-remote-signer-loadbalancer-monitoring
+  namespace: tezos
+spec:
+  endpoints:
+  - interval: 15s
+    port: metrics
+    path: /metrics
+  selector:
+    matchLabels:
+      app.type: tezos-remote-signer-loadbalancer
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  labels:
+    app: prometheus-xtz
+    release: mon-xtz
+    prometheus: prometheus-xtz
+    role: alert-rules
+  name: tezos-remote-signer-loadbalancer-rules
+spec:
+  groups:
+  - name: tezos-remote-signer.rules
+    rules:
+    - alert: NoRemoteSigner
+      annotations:
+        description: 'Remote signer is down'
+        summary: Remote signer is down
+      expr: haproxy_backend_active_servers == 0
+      for: 1m
+      labels:
+        severity: critical
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  labels:
+    app: prometheus-xtz
+    release: mon-xtz
+    prometheus: prometheus-xtz
+    role: alert-rules
+  name: tezos-remote-signer-rules
+spec:
+  groups:
+  - name: tezos-remote-signer.rules
+    rules:
+    - alert: SignerPowerLoss
+      annotations:
+        description: 'Remote signer has lost power'
+        summary: Tezos remote signer has lost power
+      expr: power != 0
+      for: 1m
+      labels:
+        severity: critical
+    - alert: SignerWiredNetworkLoss
+      annotations:
+        description: 'Remote signer has lost wired internet connection'
+        summary: Tezos remote signer has lost wired internet connection
+      expr: wired_network != 0
+      for: 1m
+      labels:
+        severity: critical
+    - alert: SignerWirelessNetworkLoss
+      annotations:
+        description: 'Remote signer has lost wireless internet connection'
+        summary: Tezos remote signer has lost wireless internet connection
+      expr: wireless_network != 0
+      for: 1m
+      labels:
+        severity: critical
