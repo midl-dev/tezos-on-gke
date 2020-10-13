@@ -1,9 +1,9 @@
 bases:
   - ./../tezos-private-node-base
 
-namespace: ${kubernetes_namespace}
-
 namePrefix: ${kubernetes_name_prefix}-
+
+namespace: ${kubernetes_namespace}
 
 nameSuffix: -${nodename}
 
@@ -41,7 +41,7 @@ configMapGenerator:
   - KUBERNETES_NAME_PREFIX="${kubernetes_name_prefix}"
   - PROTOCOL_SHORT="${protocol_short}"
   - DATA_DIR=/run/tezos
-  - FULL_SNAPSHOT_URL="${full_snapshot_url}"
+  - ROLLING_SNAPSHOT_URL="${rolling_snapshot_url}"
 
 %{ for custname in keys(baking_nodes[nodename]) }
 - name: tezos-private-baker-configmap-${custname}

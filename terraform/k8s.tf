@@ -8,7 +8,7 @@ locals {
        "signers": flatten([ for cust_name, cust_values in merge(values(var.baking_nodes)...): formatlist("%s-%s", cust_name, range(length(lookup(cust_values,"authorized_signers", [])) )) ]),
        "kubernetes_namespace": var.kubernetes_namespace,
        "kubernetes_name_prefix": var.kubernetes_name_prefix,
-       "full_snapshot_url": var.full_snapshot_url,
+       "monitoring_slack_url": var.monitoring_slack_url,
        "rolling_snapshot_url": var.rolling_snapshot_url}
 }
 
@@ -88,6 +88,8 @@ gcloud container clusters get-credentials "${module.terraform-gke-blockchain.nam
 rm -rvf ${path.module}/k8s-${var.kubernetes_namespace}
 mkdir -p ${path.module}/k8s-${var.kubernetes_namespace}
 cp -rv ${path.module}/../k8s/*base* ${path.module}/k8s-${var.kubernetes_namespace}
+mkdir -pv ${path.module}/k8s-${var.kubernetes_namespace}/tezos-alertmanager
+cp -v ${path.module}/../k8s/tezos-alertmanager-tmpl/kustomization.yaml.tmpl ${path.module}/k8s-${var.kubernetes_namespace}/tezos-alertmanager/kustomization.yaml
 cd ${abspath(path.module)}/k8s-${var.kubernetes_namespace}
 cat <<EOK > kustomization.yaml
 ${templatefile("${path.module}/../k8s/kustomization.yaml.tmpl", local.kubernetes_variables)}
@@ -108,6 +110,12 @@ EOPPVN
 cat <<EONPN > tezos-public-node/nodepool.yaml
 ${templatefile("${path.module}/../k8s/tezos-public-node-tmpl/nodepool.yaml.tmpl", {"kubernetes_pool_name": var.kubernetes_pool_name})}
 EONPN
+
+cat <<'EOMP' > tezos-alertmanager/tezos_alertmanager.yaml
+${templatefile("${path.module}/../k8s/tezos-alertmanager-tmpl/tezos_alertmanager.yaml.tmpl",
+  local.kubernetes_variables)}
+EOMP
+
 
 %{ for nodename in keys(var.baking_nodes) }
 mkdir -pv tezos-private-node-${nodename}
@@ -139,21 +147,6 @@ cat <<EOK > tezos-remote-signer-loadbalancer-${custname}/kustomization.yaml
 ${templatefile("${path.module}/../k8s/tezos-remote-signer-loadbalancer-tmpl/kustomization.yaml.tmpl", merge(local.kubernetes_variables, { "custname": custname, "nodename" : nodename, authorized_signers = var.baking_nodes[nodename][custname]["authorized_signers"]} ))}
 EOK
 
-mkdir -pv tezos-remote-signer-alertmanager-${custname}
-cat <<'EOMP' > tezos-remote-signer-alertmanager-${custname}/remote_signer_alerting.yaml
-${templatefile("${path.module}/../k8s/tezos-remote-signer-alertmanager-tmpl/remote_signer_alerting.yaml.tmpl",
-  merge(local.kubernetes_variables, { 
-    "custname": custname,
-    "monitoring_slack_url": var.baking_nodes[nodename][custname]["monitoring_slack_url"],
-    "nodename" : nodename} ))}
-EOMP
-
-cat <<EOK > tezos-remote-signer-alertmanager-${custname}/kustomization.yaml
-namespace: monitoring
-resources:
-- remote_signer_alerting.yaml
-EOK
-
 %{ for signerindex, signer in var.baking_nodes[nodename][custname]["authorized_signers"] }
 # configure the forwarder for this remote signer (network policies, service monitoring)
 cat <<EORSP > tezos-remote-signer-loadbalancer-${custname}/remote_signer_patch_${signerindex}.yaml
@@ -177,8 +170,8 @@ ${templatefile("${path.module}/../k8s/tezos-remote-signer-loadbalancer-tmpl/remo
 EOMP
 
 cat <<EOK > tezos-remote-signer-loadbalancer-${custname}-${signerindex}/kustomization.yaml
-namespace: ${var.kubernetes_namespace}
 namePrefix: ${var.kubernetes_name_prefix}-
+namespace: ${var.kubernetes_namespace}
 resources:
 - remote_signer_monitor_and_networkpolicy.yaml
 commonLabels:

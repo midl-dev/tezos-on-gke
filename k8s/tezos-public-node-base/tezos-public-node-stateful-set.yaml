@@ -38,8 +38,8 @@ apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
   labels:
-    app: tezos-public-node
-    release: monitoring-prom
+    app: prometheus-xtz
+    release: mon-xtz
   name: tezos-public-node-monitoring
 spec:
   endpoints:

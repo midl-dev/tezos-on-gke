@@ -8,7 +8,7 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 40Gi
+      storage: 15Gi
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -37,22 +37,6 @@ spec:
   selector:
     app: tezos-private-baking-node
   clusterIP: None
----
-apiVersion: monitoring.coreos.com/v1
-kind: ServiceMonitor
-metadata:
-  labels:
-    app: tezos-private-baking-node
-    release: monitoring-prom
-  name: tezos-private-node-monitoring
-spec:
-  endpoints:
-  - interval: 15s
-    port: metrics
-    path: /metrics
-  selector:
-    matchLabels:
-      app: tezos-private-baking-node
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
@@ -233,7 +217,7 @@ spec:
           valueFrom:
             configMapKeyRef:
               name: tezos-private-node-configmap
-              key: FULL_SNAPSHOT_URL
+              key: ROLLING_SNAPSHOT_URL
         imagePullPolicy: Always
       - name: tezos-key-importer
         image: tezos-key-importer
@@ -266,23 +250,49 @@ spec:
           claimName: tezos-private-node-claim
 ---
 apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    app: prometheus-xtz
+    release: mon-xtz
+  name: tezos-private-node-monitoring
+spec:
+  endpoints:
+  - interval: 15s
+    port: metrics
+    path: /metrics
+  selector:
+    matchLabels:
+      app: tezos-private-baking-node
+---
+apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:
   labels:
-    release: monitoring-prom
-    app: prometheus-operator
-    prometheus: service-prometheus
+    app: prometheus-xtz
+    release: mon-xtz
+    prometheus: prometheus-xtz
     role: alert-rules
   name: tezos-private-node-rules
 spec:
   groups:
   - name: tezos-private-node
     rules:
-    - alert: PrivateNodeLostConnections
+    - alert: PrivateNodeLost1Connection
       annotations:
-        description: 'Private node lost connections'
-        summary: Private node has less than the expected number of connectione
-      expr: tezos_node_connections{direction="incoming",private="false"} < 2
+        description: 'Private node lost one connection to pubic node'
+        summary: Private node has less than the expected number of connections
+      expr: tezos_node_connections{direction="outgoing",private="false",pod=~".*-tezos-private-baking-node-.*"} < 2
       for: 1m
       labels:
+        alerting_target: blockchain_cluster_alerter
+        severity: critical
+    - alert: PrivateNodeDisconnected
+      annotations:
+        description: 'Private node lost all connections to public nodes'
+        summary: Private node has no connnection to public nodes
+      expr: tezos_node_connections{direction="outgoing",private="false",pod=~".*-tezos-private-baking-node-.*"} == 0
+      for: 1m
+      labels:
+        alerting_target: blockchain_cluster_alerter
         severity: critical

@@ -128,16 +128,10 @@ variable "protocol_short" {
   default = "PsCARTHA"
 }
 
-variable "full_snapshot_url" {
-  type = string
-  description = "url of the snapshot of type full to download"
-  default = ""
-}
-
 variable "rolling_snapshot_url" {
   type = string
   description = "url of the snapshot of type rolling to download"
-  default = ""
+  default = "https://mainnet.xtz-shots.io/rolling"
 }
 
 variable "monitoring_slack_url" {

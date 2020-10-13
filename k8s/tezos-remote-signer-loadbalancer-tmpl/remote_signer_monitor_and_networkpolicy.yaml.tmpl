@@ -9,8 +9,8 @@ apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
   labels:
-    app: tezos-remote-signer-forwarder
-    release: monitoring-prom
+    app: prometheus-xtz
+    release: mon-xtz
   name: tezos-remote-signer-monitoring-${signername}
 spec:
   selector:
