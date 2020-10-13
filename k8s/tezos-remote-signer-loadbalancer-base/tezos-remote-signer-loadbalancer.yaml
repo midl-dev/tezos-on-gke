@@ -56,6 +56,7 @@ metadata:
   name: tezos-remote-signer-loadbalancer
   labels:
     app: tezos-remote-signer-loadbalancer
+    app.type: tezos-remote-signer-loadbalancer
 spec:
   ports:
   - port: 8445
@@ -80,7 +81,7 @@ spec:
     path: /metrics
   selector:
     matchLabels:
-      app: tezos-remote-signer-loadbalancer
+      app.type: tezos-remote-signer-loadbalancer
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
