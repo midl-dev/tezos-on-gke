@@ -89,7 +89,6 @@ rm -rvf ${path.module}/k8s-${var.kubernetes_namespace}
 mkdir -p ${path.module}/k8s-${var.kubernetes_namespace}
 cp -rv ${path.module}/../k8s/*base* ${path.module}/k8s-${var.kubernetes_namespace}
 mkdir -pv ${path.module}/k8s-${var.kubernetes_namespace}/tezos-alertmanager
-cp -v ${path.module}/../k8s/tezos-alertmanager-tmpl/kustomization.yaml.tmpl ${path.module}/k8s-${var.kubernetes_namespace}/tezos-alertmanager/kustomization.yaml
 cd ${abspath(path.module)}/k8s-${var.kubernetes_namespace}
 cat <<EOK > kustomization.yaml
 ${templatefile("${path.module}/../k8s/kustomization.yaml.tmpl", local.kubernetes_variables)}
@@ -111,6 +110,9 @@ cat <<EONPN > tezos-public-node/nodepool.yaml
 ${templatefile("${path.module}/../k8s/tezos-public-node-tmpl/nodepool.yaml.tmpl", {"kubernetes_pool_name": var.kubernetes_pool_name})}
 EONPN
 
+cat <<EOK > tezos-alertmanager/kustomization.yaml
+${templatefile("${path.module}/../k8s/tezos-alertmanager-tmpl/kustomization.yaml.tmpl", local.kubernetes_variables)}
+EOK
 cat <<'EOMP' > tezos-alertmanager/tezos_alertmanager.yaml
 ${templatefile("${path.module}/../k8s/tezos-alertmanager-tmpl/tezos_alertmanager.yaml.tmpl",
   local.kubernetes_variables)}
