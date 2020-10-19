@@ -16,4 +16,3 @@ provider "kubernetes" {
   cluster_ca_certificate = module.terraform-gke-blockchain.cluster_ca_certificate
   token = module.terraform-gke-blockchain.kubernetes_access_token
 }
-
