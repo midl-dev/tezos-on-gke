@@ -4,3 +4,6 @@ metadata:
   name: tezos-private-node-claim
 spec:
   storageClassName: ${kubernetes_name_prefix}-regional
+  resources:
+    requests:
+      storage: ${node_storage_size}Gi

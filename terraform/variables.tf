@@ -128,10 +128,22 @@ variable "protocol_short" {
   default = "PsCARTHA"
 }
 
-variable "rolling_snapshot_url" {
+variable "snapshot_url" {
   type = string
   description = "url of the snapshot of type rolling to download"
   default = "https://mainnet.xtz-shots.io/rolling"
+}
+
+variable "history_mode" {
+  type = string
+  description = "history mode of the tezos nodes"
+  default = "rolling"
+}
+
+variable "node_storage_size" {
+  type = string
+  description = "storage size for the nodes, in gi"
+  default = "15"
 }
 
 variable "monitoring_slack_url" {

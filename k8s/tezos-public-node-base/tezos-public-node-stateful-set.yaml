@@ -60,7 +60,6 @@ spec:
       app: tezos-public-node # Label selector that determines which Pods belong to the StatefulSet
                  # Must match spec: template: metadata: labels
   serviceName: "tezos-public-node"
-  replicas: 2
   template:
     metadata:
       labels:
@@ -114,6 +113,11 @@ spec:
             configMapKeyRef:
               name: tezos-configmap
               key: PRIVATE_PEER_LIST
+        - name: HISTORY_MODE
+          valueFrom:
+            configMapKeyRef:
+              name: tezos-configmap
+              key: HISTORY_MODE
         - name: TEZOS_NETWORK
           valueFrom:
             configMapKeyRef:
@@ -136,7 +140,7 @@ spec:
           valueFrom:
             configMapKeyRef:
               name: tezos-configmap
-              key: ROLLING_SNAPSHOT_URL
+              key: SNAPSHOT_URL
         - name: TEZOS_NETWORK
           valueFrom:
             configMapKeyRef:

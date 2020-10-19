@@ -9,7 +9,9 @@ locals {
        "kubernetes_namespace": var.kubernetes_namespace,
        "kubernetes_name_prefix": var.kubernetes_name_prefix,
        "monitoring_slack_url": var.monitoring_slack_url,
-       "rolling_snapshot_url": var.rolling_snapshot_url}
+       "history_mode": var.history_mode,
+       "node_storage_size": var.node_storage_size,
+       "snapshot_url": var.snapshot_url}
 }
 
 resource "null_resource" "push_containers" {
@@ -104,10 +106,13 @@ ${templatefile("${path.module}/../k8s/tezos-public-node-tmpl/regionalpvpatch.yam
      "kubernetes_name_prefix": var.kubernetes_name_prefix})}
 EORPP
 cat <<EOPPVN > tezos-public-node/prefixedpvnode.yaml
-${templatefile("${path.module}/../k8s/tezos-public-node-tmpl/prefixedpvnode.yaml.tmpl", {"kubernetes_name_prefix": var.kubernetes_name_prefix})}
+${templatefile("${path.module}/../k8s/tezos-public-node-tmpl/prefixedpvnode.yaml.tmpl", local.kubernetes_variables)}
 EOPPVN
 cat <<EONPN > tezos-public-node/nodepool.yaml
 ${templatefile("${path.module}/../k8s/tezos-public-node-tmpl/nodepool.yaml.tmpl", {"kubernetes_pool_name": var.kubernetes_pool_name})}
+EONPN
+cat <<EONPN > tezos-public-node/nodecount.yaml
+${templatefile("${path.module}/../k8s/tezos-public-node-tmpl/nodecount.yaml.tmpl", {"public_node_count": length(var.node_locations)})}
 EONPN
 
 cat <<EOK > tezos-alertmanager/kustomization.yaml

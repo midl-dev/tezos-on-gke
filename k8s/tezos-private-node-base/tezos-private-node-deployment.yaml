@@ -217,7 +217,7 @@ spec:
           valueFrom:
             configMapKeyRef:
               name: tezos-private-node-configmap
-              key: ROLLING_SNAPSHOT_URL
+              key: SNAPSHOT_URL
         imagePullPolicy: Always
       - name: tezos-key-importer
         image: tezos-key-importer
