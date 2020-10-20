@@ -147,7 +147,7 @@ variable "node_storage_size" {
 }
 
 variable "rpc_public_hostname" {
-  type = "string"
+  type = string
   description = "if set, expose the rpc of the public node through a load balancer and create a certificate for the given hostname"
   default = ""
 }

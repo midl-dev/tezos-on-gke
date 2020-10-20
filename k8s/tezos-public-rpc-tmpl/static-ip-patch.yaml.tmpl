@@ -5,3 +5,20 @@ metadata:
   annotations:
     kubernetes.io/ingress.global-static-ip-name: ${kubernetes_name_prefix}-tezos-rpc-ip
     networking.gke.io/managed-certificates: ${kubernetes_name_prefix}-node-rpc-certificate
+    kubernetes.io/ingress.allow-http: "false"
+---
+apiVersion: cloud.google.com/v1
+kind: BackendConfig
+metadata:
+  name: node-rpc-backendconfig
+spec:
+  securityPolicy:
+    name: "${kubernetes_name_prefix}-tezos-rpc-filter"
+---
+apiVersion: networking.gke.io/v1beta2
+kind: ManagedCertificate
+metadata:
+  name: node-rpc-certificate
+spec:
+  domains:
+  - ${rpc_public_hostname}

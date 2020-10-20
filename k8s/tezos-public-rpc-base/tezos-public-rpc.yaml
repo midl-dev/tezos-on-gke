@@ -11,6 +11,8 @@ apiVersion: networking.gke.io/v1beta2
 kind: ManagedCertificate
 metadata:
   name: node-rpc-certificate
-spec:
-  domains:
-  - ${rpc_public_hostname}
+---
+apiVersion: cloud.google.com/v1
+kind: BackendConfig
+metadata:
+  name: node-rpc-backendconfig

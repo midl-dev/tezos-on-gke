@@ -59,13 +59,6 @@ resource "google_compute_address" "signer_forwarder_target" {
   project = module.terraform-gke-blockchain.project
 }
 
-# Provision IP for public rpc endpoint
-resource "google_compute_global_address" "public_rpc_ip" {
-  count = var.rpc_public_hostname == "" ? 0 : 1
-  name    = "${var.kubernetes_name_prefix}-tezos-rpc-ip"
-  project = module.terraform-gke-blockchain.project
-}
-
 resource "kubernetes_namespace" "tezos_namespace" {
   metadata {
     name = var.kubernetes_namespace
@@ -121,6 +114,9 @@ ${templatefile("${path.module}/../k8s/tezos-public-node-tmpl/nodepool.yaml.tmpl"
 EONPN
 cat <<EONPN > tezos-public-node/nodecount.yaml
 ${templatefile("${path.module}/../k8s/tezos-public-node-tmpl/nodecount.yaml.tmpl", {"public_node_count": length(var.node_locations)})}
+EONPN
+cat <<EONPN > tezos-public-node/cloudarmor-patch.yaml
+${templatefile("${path.module}/../k8s/tezos-public-node-tmpl/cloudarmor-patch.yaml.tmpl", local.kubernetes_variables)}
 EONPN
 
 mkdir -pv tezos-public-rpc
@@ -217,4 +213,45 @@ EOF
 
   }
   depends_on = [ null_resource.push_containers, kubernetes_namespace.tezos_namespace ]
+}
+
+#############################
+# Public RPC endpoint
+#############################
+
+# Provision IP for public rpc endpoint
+resource "google_compute_global_address" "public_rpc_ip" {
+  count = var.rpc_public_hostname == "" ? 0 : 1
+  name    = "${var.kubernetes_name_prefix}-tezos-rpc-ip"
+  project = module.terraform-gke-blockchain.project
+}
+
+resource "google_compute_security_policy" "public_rpc_filter" {
+  name = "${var.kubernetes_name_prefix}-tezos-rpc-filter"
+  project = module.terraform-gke-blockchain.project
+
+  rule {
+    action   = "allow"
+    priority = "1000"
+    match {
+      versioned_expr = "SRC_IPS_V1"
+      config {
+        src_ip_ranges = ["67.180.48.0/24", "35.191.0.0/16", "130.211.0.0/22" ]
+      }
+    }
+    description = "Allow access to whitelisted ips and google monitoring ranges"
+  }
+
+  rule {
+    action   = "deny(403)"
+    priority = "2147483647"
+    match {
+      versioned_expr = "SRC_IPS_V1"
+      config {
+        src_ip_ranges = ["*"]
+      }
+    }
+    description = "default rule, deny"
+  }
+
 }
