@@ -30,9 +30,10 @@ spec:
     name: metrics
   - port: 8732
     name: rpc
+    targetPort: 8732
   selector:
     app: tezos-public-node
-  clusterIP: None
+  type: NodePort
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
@@ -72,6 +73,8 @@ spec:
         image: tezos-public-node-with-probes
         args: [ "tezos-node" ]
         ports:
+        - containerPort: 8732
+          name: rpc
         - containerPort: 9732
           name: tezos-port
         volumeMounts:
@@ -87,6 +90,10 @@ spec:
             - /usr/local/bin/does-tezos-node-have-connections.sh
           periodSeconds: 10
           failureThreshold: 50
+        readinessProbe:
+          httpGet:
+            path: /chains/main/blocks/head
+            port: 8732
         env:
         - name: TEZOS_NETWORK
           valueFrom:

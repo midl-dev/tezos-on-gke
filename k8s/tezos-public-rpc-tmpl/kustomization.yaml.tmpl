@@ -1,0 +1,9 @@
+bases:
+- ./../tezos-public-rpc-base
+
+namePrefix: ${kubernetes_name_prefix}-
+
+namespace: ${kubernetes_namespace}
+
+patchesStrategicMerge:
+- static-ip-patch.yaml

@@ -15,3 +15,6 @@ bases:
 %{ endif }
 %{ endfor }
 %{ endfor }
+%{ if rpc_public_port != 0 }
+- ./tezos-public-rpc
+%{ endif}

@@ -11,6 +11,7 @@ locals {
        "monitoring_slack_url": var.monitoring_slack_url,
        "history_mode": var.history_mode,
        "node_storage_size": var.node_storage_size,
+       "rpc_public_port": var.rpc_public_port,
        "snapshot_url": var.snapshot_url}
 }
 
@@ -50,11 +51,18 @@ EOF
   }
 }
 
-# Provision IP
+# Provision IP for signer forwarder endpoint if needed
 resource "google_compute_address" "signer_forwarder_target" {
   count = length(local.kubernetes_variables["signers"]) > 0 ? 1 : 0
   name    = "tezos-baker-lb"
   region  = module.terraform-gke-blockchain.location
+  project = module.terraform-gke-blockchain.project
+}
+
+# Provision IP for public rpc endpoint
+resource "google_compute_global_address" "public_rpc_ip" {
+  count = var.rpc_public_port > 0 ? 1 : 0
+  name    = "${var.kubernetes_name_prefix}-tezos-rpc-ip"
   project = module.terraform-gke-blockchain.project
 }
 
@@ -114,6 +122,14 @@ EONPN
 cat <<EONPN > tezos-public-node/nodecount.yaml
 ${templatefile("${path.module}/../k8s/tezos-public-node-tmpl/nodecount.yaml.tmpl", {"public_node_count": length(var.node_locations)})}
 EONPN
+
+mkdir -pv tezos-public-rpc
+cat <<EOK > tezos-public-rpc/kustomization.yaml
+${templatefile("${path.module}/../k8s/tezos-public-rpc-tmpl/kustomization.yaml.tmpl", local.kubernetes_variables)}
+EOK
+cat <<EOP > tezos-public-rpc/static-ip-patch.yaml
+${templatefile("${path.module}/../k8s/tezos-public-rpc-tmpl/static-ip-patch.yaml.tmpl", local.kubernetes_variables)}
+EOP
 
 cat <<EOK > tezos-alertmanager/kustomization.yaml
 ${templatefile("${path.module}/../k8s/tezos-alertmanager-tmpl/kustomization.yaml.tmpl", local.kubernetes_variables)}
