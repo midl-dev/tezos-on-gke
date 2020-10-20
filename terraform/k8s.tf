@@ -11,7 +11,7 @@ locals {
        "monitoring_slack_url": var.monitoring_slack_url,
        "history_mode": var.history_mode,
        "node_storage_size": var.node_storage_size,
-       "rpc_public_port": var.rpc_public_port,
+       "rpc_public_hostname": var.rpc_public_hostname,
        "snapshot_url": var.snapshot_url}
 }
 
@@ -61,7 +61,7 @@ resource "google_compute_address" "signer_forwarder_target" {
 
 # Provision IP for public rpc endpoint
 resource "google_compute_global_address" "public_rpc_ip" {
-  count = var.rpc_public_port > 0 ? 1 : 0
+  count = var.rpc_public_hostname == "" ? 0 : 1
   name    = "${var.kubernetes_name_prefix}-tezos-rpc-ip"
   project = module.terraform-gke-blockchain.project
 }

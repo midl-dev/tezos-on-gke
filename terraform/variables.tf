@@ -146,10 +146,10 @@ variable "node_storage_size" {
   default = "15"
 }
 
-variable "rpc_public_port" {
-  type = number
-  description = "if set, expose the rpc of the public node through a load balancer on the provided port"
-  default = 0
+variable "rpc_public_hostname" {
+  type = "string"
+  description = "if set, expose the rpc of the public node through a load balancer and create a certificate for the given hostname"
+  default = ""
 }
 
 variable "monitoring_slack_url" {
