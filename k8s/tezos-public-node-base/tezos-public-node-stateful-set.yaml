@@ -171,6 +171,15 @@ spec:
   groups:
   - name: tezos-public-node
     rules:
+    - alert: NodeSyncing
+      annotations:
+        description: 'Node is not synced'
+        summary: Node reports not being bootstrapped
+      expr: tezos_node_bootstrapped != 1
+      for: 1m
+      labels:
+        alerting_target: blockchain_cluster_alerter
+        severity: critical
     - alert: PublicNodeFewConnections
       annotations:
         description: 'Public node has less than 5 connections.'
