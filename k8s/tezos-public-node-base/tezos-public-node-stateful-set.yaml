@@ -157,3 +157,35 @@ spec:
           limits:
             cpu: 0
         imagePullPolicy: Always
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  labels:
+    app: prometheus-xtz
+    release: mon-xtz
+    prometheus: prometheus-xtz
+    role: alert-rules
+  name: tezos-public-node-rules
+spec:
+  groups:
+  - name: tezos-public-node
+    rules:
+    - alert: PublicNodeFewConnections
+      annotations:
+        description: 'Public node has less than 5 connections.'
+        summary: Private node has less than the expected number of connections
+      expr: sum(tezos_node_connections{private="false",pod=~".*-tezos-public-node-.*"}) < 5
+      for: 1m
+      labels:
+        alerting_target: blockchain_cluster_alerter
+        severity: critical
+    - alert: PublicNodeDisconnected
+      annotations:
+        description: 'Public node is disconnected'
+        summary: Public node has no connections to the tezos network
+      expr: sum(tezos_node_connections{private="false",pod=~".*-tezos-public-node-.*"}) == 0
+      for: 1m
+      labels:
+        alerting_target: blockchain_cluster_alerter
+        severity: critical
