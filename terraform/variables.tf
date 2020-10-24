@@ -152,6 +152,12 @@ variable "rpc_public_hostname" {
   default = ""
 }
 
+variable "rpc_subnet_whitelist" {
+  type = list
+  description = "ip address whitelisting for the public rpc. defaults to open to everyone"
+  default = [ "0.0.0.0/0" ]
+}
+
 variable "monitoring_slack_url" {
   type = string
   default = ""

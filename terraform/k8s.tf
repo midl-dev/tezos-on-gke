@@ -230,16 +230,22 @@ resource "google_compute_security_policy" "public_rpc_filter" {
   name = "${var.kubernetes_name_prefix}-tezos-rpc-filter"
   project = module.terraform-gke-blockchain.project
 
-  rule {
-    action   = "allow"
-    priority = "1000"
-    match {
-      versioned_expr = "SRC_IPS_V1"
-      config {
-        src_ip_ranges = ["67.180.48.0/24", "35.191.0.0/16", "130.211.0.0/22" ]
+  dynamic "rule" {
+    for_each = [ for index, subnet in concat(var.rpc_subnet_whitelist,
+      #Google ranges - for their inernal load balancer monitoring
+      ["35.191.0.0/16", "130.211.0.0/22"]) : { "index": index, "subnet": subnet } ]
+
+    content {
+      action   = "allow"
+      priority = 1000+rule.value.index
+      match {
+        versioned_expr = "SRC_IPS_V1"
+        config {
+          src_ip_ranges = [rule.value.subnet]
+        }
       }
+      description = "Allow access to whitelisted ips and google monitoring ranges"
     }
-    description = "Allow access to whitelisted ips and google monitoring ranges"
   }
 
   rule {
