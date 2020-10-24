@@ -227,6 +227,7 @@ resource "google_compute_global_address" "public_rpc_ip" {
 }
 
 resource "google_compute_security_policy" "public_rpc_filter" {
+  count = var.rpc_public_hostname == "" ? 0 : 1
   name = "${var.kubernetes_name_prefix}-tezos-rpc-filter"
   project = module.terraform-gke-blockchain.project
 
