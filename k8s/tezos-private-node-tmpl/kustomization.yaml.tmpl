@@ -37,27 +37,18 @@ configMapGenerator:
   literals:
   - NODE_HOST="localhost"
   - TEZOS_NETWORK=${tezos_network}"
-  - PROTOCOL="${protocol}"
   - KUBERNETES_NAME_PREFIX="${kubernetes_name_prefix}"
   - DATA_DIR=/run/tezos
   - SNAPSHOT_URL="${snapshot_url}"
+  - PROTOCOL="${protocols[0]}"
   - HISTORY_MODE="${history_mode}"
-
-%{ for custname in keys(baking_nodes[nodename]) }
-- name: tezos-private-baker-configmap-${custname}
-  literals:
-  - NODE_HOST="localhost"
-  - TEZOS_NETWORK=${tezos_network}"
-  - PROTOCOL="${protocol}"
-  - KUBERNETES_NAME_PREFIX="${kubernetes_name_prefix}"
-  - DATA_DIR=/run/tezos
-  - CUSTOMER_NAME="${custname}"
-%{ endfor }
 
 patchesStrategicMerge:
 - prefixedpvnode.yaml
 - prefixedpvclient.yaml
 - nodepool.yaml
+%{ for protocol in protocols }
 %{ for custname in keys(baking_nodes[nodename]) }
-- baker_endorser_process_patch_${custname}.yaml
+- baker_endorser_process_patch_${custname}_${protocol}.yaml
+%{ endfor}
 %{ endfor}

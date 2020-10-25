@@ -27,11 +27,10 @@ configMapGenerator:
   - NODE_HOST="localhost"
   - TEZOS_NETWORK=${tezos_network}"
   - PRIVATE_PEER_LIST="%{ for nodename in keys(baking_nodes) ~}--peer ${kubernetes_name_prefix}-tezos-private-baking-node-${nodename} %{endfor}"
-  - PROTOCOL="${protocol}"
   - KUBERNETES_NAME_PREFIX="${kubernetes_name_prefix}"
   - DATA_DIR=/run/tezos
   - SNAPSHOT_URL="${snapshot_url}"
-  - HISTORY_MODE="${history_mode}"
+  - HISTORY_MODE="${history_mode == "rolling" ? "experimental-rolling" : history_mode}"
 
 patchesStrategicMerge:
 - regionalpvpatch.yaml

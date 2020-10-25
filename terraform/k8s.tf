@@ -2,7 +2,6 @@ locals {
   kubernetes_variables = { "project" : module.terraform-gke-blockchain.project,
        "tezos_private_version": var.tezos_private_version,
        "tezos_network": var.tezos_network,
-       "protocol": var.protocol,
        "baking_nodes": var.baking_nodes,
        "signers": flatten([ for cust_name, cust_values in merge(values(var.baking_nodes)...): formatlist("%s-%s", cust_name, range(length(lookup(cust_values,"authorized_signers", [])) )) ]),
        "kubernetes_namespace": var.kubernetes_namespace,
@@ -11,6 +10,7 @@ locals {
        "history_mode": var.history_mode,
        "node_storage_size": var.node_storage_size,
        "rpc_public_hostname": var.rpc_public_hostname,
+       "protocols": var.protocols,
        "snapshot_url": var.snapshot_url}
 }
 
@@ -138,7 +138,7 @@ EOMP
 %{ for nodename in keys(var.baking_nodes) }
 mkdir -pv tezos-private-node-${nodename}
 cat <<EOK > tezos-private-node-${nodename}/kustomization.yaml
-${templatefile("${path.module}/../k8s/tezos-private-node-tmpl/kustomization.yaml.tmpl", merge(local.kubernetes_variables, { "nodename": nodename }))}
+${templatefile("${path.module}/../k8s/tezos-private-node-tmpl/kustomization.yaml.tmpl", merge(local.kubernetes_variables, { "nodename": nodename, "protocols": var.protocols }))}
 EOK
 # the two below are necessary because kustomize embedded in the most recent version of kubectl does not apply prefix to volume class
 cat <<EOPVN > tezos-private-node-${nodename}/prefixedpvnode.yaml
@@ -153,9 +153,11 @@ EONPN
 
 %{ for custname in keys(var.baking_nodes[nodename]) }
 
-cat <<EOBEP > tezos-private-node-${nodename}/baker_endorser_process_patch_${custname}.yaml
-${templatefile("${path.module}/../k8s/tezos-private-node-tmpl/baker_endorser_process_patch.yaml.tmpl", {"custname": custname})}
+%{ for protocol in var.protocols }
+cat <<EOBEP > tezos-private-node-${nodename}/baker_endorser_process_patch_${custname}_${protocol}.yaml
+${templatefile("${path.module}/../k8s/tezos-private-node-tmpl/baker_endorser_process_patch.yaml.tmpl", {"custname": custname, "protocol": protocol})}
 EOBEP
+%{ endfor }
 
 %{ if ! contains(keys(var.baking_nodes[nodename][custname]), "insecure_private_baking_key") }
 

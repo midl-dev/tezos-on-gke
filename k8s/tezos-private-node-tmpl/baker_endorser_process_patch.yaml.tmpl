@@ -6,7 +6,7 @@ spec:
   template:
     spec:
       containers:
-      - name: tezos-endorser-with-remote-signer-${custname}
+      - name: tezos-endorser-with-remote-signer-${custname}-${lower(protocol)}
         image: tezos-endorser-with-remote-signer
         args: [ "k8s-baker-${custname}" ]
         volumeMounts:
@@ -17,12 +17,15 @@ spec:
           mountPath: /var/run/tezos/client
         envFrom:
         - configMapRef:
-            name: tezos-private-baker-configmap-${custname}
+            name: tezos-private-node-configmap
+        env:
+        - name: PROTOCOL
+          value: ${protocol}
         resources:
           limits:
             cpu: 0
         imagePullPolicy: Always
-      - name: tezos-baker-with-remote-signer-${custname}
+      - name: tezos-baker-with-remote-signer-${custname}-${lower(protocol)}
         image: tezos-baker-with-remote-signer
         args: [ "k8s-baker-${custname}" ]
         volumeMounts:
@@ -33,7 +36,10 @@ spec:
           mountPath: /var/run/tezos/client
         envFrom:
         - configMapRef:
-            name: tezos-private-baker-configmap-${custname}
+            name: tezos-private-node-configmap
+        env:
+        - name: PROTOCOL
+          value: ${protocol}
         resources:
           limits:
             cpu: 0

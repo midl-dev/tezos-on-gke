@@ -115,10 +115,10 @@ variable "signer_target_host_key" {
   default = ""
 }
 
-variable "protocol" {
-  type = string
-  description = "The Tezos protocol currently in use, for example 006-PsCARTHA."
-  default = "006-PsCARTHA"
+variable "protocols" {
+  type = list
+  description = "The list of Tezos protocols currently in use, following the naming convention used in the baker/endorser binary names, for example 006-PsCARTHA."
+  default = [ "006-PsCARTHA", "007-PsDELPH1" ]
 }
 
 variable "snapshot_url" {
