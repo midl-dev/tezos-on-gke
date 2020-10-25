@@ -30,10 +30,9 @@ spec:
     name: metrics
   - port: 8732
     name: rpc
-    targetPort: 8732
   selector:
     app: tezos-public-node
-  type: NodePort
+  clusterIP: None
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor

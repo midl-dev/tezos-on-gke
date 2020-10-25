@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: tezos-public-node
+%{ if rpc_public_hostname != "" }
+  annotations:
+    cloud.google.com/backend-config: '{"default": "${kubernetes_name_prefix}-node-rpc-backendconfig"}'
+%{ endif }
+spec:
+%{ if rpc_public_hostname != "" }
+  type: NodePort
+%{ endif }

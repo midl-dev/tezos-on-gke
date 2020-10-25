@@ -114,8 +114,8 @@ EONPN
 cat <<EONPN > tezos-public-node/nodecount.yaml
 ${templatefile("${path.module}/../k8s/tezos-public-node-tmpl/nodecount.yaml.tmpl", {"public_node_count": length(var.node_locations)})}
 EONPN
-cat <<EONPN > tezos-public-node/cloudarmor-patch.yaml
-${templatefile("${path.module}/../k8s/tezos-public-node-tmpl/cloudarmor-patch.yaml.tmpl", local.kubernetes_variables)}
+cat <<EONPN > tezos-public-node/service-patch.yaml
+${templatefile("${path.module}/../k8s/tezos-public-node-tmpl/service-patch.yaml.tmpl", local.kubernetes_variables)}
 EONPN
 
 mkdir -pv tezos-public-rpc
