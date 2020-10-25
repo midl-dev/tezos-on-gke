@@ -117,8 +117,12 @@ variable "signer_target_host_key" {
 
 variable "protocols" {
   type = list
-  description = "The list of Tezos protocols currently in use, following the naming convention used in the baker/endorser binary names, for example 006-PsCARTHA."
+  description = "The list of Tezos protocols currently in use, following the naming convention used in the baker/endorser binary names, for example 006-PsCARTHA. Baking and endorsing daemons will be spun up for every protocol provided in the list, which helps for seamless protocol updates"
   default = [ "006-PsCARTHA", "007-PsDELPH1" ]
+  validation {
+    condition     = length(sort(var.protocols)) == length(distinct(sort(var.protocols)))
+    error_message = "You must pass different protocols, passing the same protocol twice is not allowed as it introduces double-baking risk."
+  }
 }
 
 variable "snapshot_url" {
