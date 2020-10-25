@@ -282,7 +282,7 @@ spec:
       annotations:
         description: 'Private node lost one connection to pubic node'
         summary: Private node has less than the expected number of connections
-      expr: sum(tezos_node_connections{private="false",pod=~".*-tezos-private-baking-node-.*"} < 2
+      expr: sum(tezos_node_connections{private="false",pod=~".*-tezos-private-baking-node-.*"}) < 2
       for: 1m
       labels:
         alerting_target: blockchain_cluster_alerter
@@ -291,7 +291,7 @@ spec:
       annotations:
         description: 'Private node lost all connections to public nodes'
         summary: Private node has no connnection to public nodes
-      expr: sum(tezos_node_connections{private="false",pod=~".*-tezos-private-baking-node-.*"} == 0
+      expr: sum(tezos_node_connections{private="false",pod=~".*-tezos-private-baking-node-.*"}) == 0
       for: 1m
       labels:
         alerting_target: blockchain_cluster_alerter

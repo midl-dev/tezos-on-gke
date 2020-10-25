@@ -143,7 +143,7 @@ ${templatefile("${path.module}/../k8s/tezos-private-node-tmpl/kustomization.yaml
 EOK
 # the two below are necessary because kustomize embedded in the most recent version of kubectl does not apply prefix to volume class
 cat <<EOPVN > tezos-private-node-${nodename}/prefixedpvnode.yaml
-${templatefile("${path.module}/../k8s/tezos-private-node-tmpl/prefixedpvnode.yaml.tmpl", {"kubernetes_name_prefix": var.kubernetes_name_prefix})}
+${templatefile("${path.module}/../k8s/tezos-private-node-tmpl/prefixedpvnode.yaml.tmpl", local.kubernetes_variables)}
 EOPVN
 cat <<EOPVC > tezos-private-node-${nodename}/prefixedpvclient.yaml
 ${templatefile("${path.module}/../k8s/tezos-private-node-tmpl/prefixedpvclient.yaml.tmpl", {"kubernetes_name_prefix": var.kubernetes_name_prefix})}
