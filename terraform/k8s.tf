@@ -3,7 +3,6 @@ locals {
        "tezos_private_version": var.tezos_private_version,
        "tezos_network": var.tezos_network,
        "protocol": var.protocol,
-       "protocol_short": var.protocol_short,
        "baking_nodes": var.baking_nodes,
        "signers": flatten([ for cust_name, cust_values in merge(values(var.baking_nodes)...): formatlist("%s-%s", cust_name, range(length(lookup(cust_values,"authorized_signers", [])) )) ]),
        "kubernetes_namespace": var.kubernetes_namespace,

@@ -39,7 +39,6 @@ configMapGenerator:
   - TEZOS_NETWORK=${tezos_network}"
   - PROTOCOL="${protocol}"
   - KUBERNETES_NAME_PREFIX="${kubernetes_name_prefix}"
-  - PROTOCOL_SHORT="${protocol_short}"
   - DATA_DIR=/run/tezos
   - SNAPSHOT_URL="${snapshot_url}"
   - HISTORY_MODE="${history_mode}"
@@ -51,7 +50,6 @@ configMapGenerator:
   - TEZOS_NETWORK=${tezos_network}"
   - PROTOCOL="${protocol}"
   - KUBERNETES_NAME_PREFIX="${kubernetes_name_prefix}"
-  - PROTOCOL_SHORT="${protocol_short}"
   - DATA_DIR=/run/tezos
   - CUSTOMER_NAME="${custname}"
 %{ endfor }

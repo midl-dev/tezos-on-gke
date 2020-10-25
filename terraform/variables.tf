@@ -121,13 +121,6 @@ variable "protocol" {
   default = "006-PsCARTHA"
 }
 
-# FIXME remove this now useless var
-variable "protocol_short" {
-  type = string
-  description = "The short string describing the protocol, for example PsCARTHA."
-  default = "PsCARTHA"
-}
-
 variable "snapshot_url" {
   type = string
   description = "url of the snapshot of type rolling to download"
