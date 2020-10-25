@@ -3,7 +3,6 @@ locals {
        "tezos_private_version": var.tezos_private_version,
        "tezos_network": var.tezos_network,
        "baking_nodes": var.baking_nodes,
-       "signers": flatten([ for baker_name, baker_data in merge(values(var.baking_nodes)...): formatlist("%s-%s", baker_name, range(length(lookup(baker_data,"authorized_signers", [])) )) ]),
        "kubernetes_namespace": var.kubernetes_namespace,
        "kubernetes_name_prefix": var.kubernetes_name_prefix,
        "monitoring_slack_url": var.monitoring_slack_url,
@@ -50,9 +49,9 @@ EOF
   }
 }
 
-# Provision IP for signer forwarder endpoint if needed
+# Provision IP for signer forwarder endpoint if there is at least one occurence of "authorized_signers" data in the bakers map
 resource "google_compute_address" "signer_forwarder_target" {
-  count = length(local.kubernetes_variables["signers"]) > 0 ? 1 : 0
+  count = length(lookup((merge(merge(values(merge(merge(values(var.baking_nodes)...),{}))...),{})), "authorized_signers", []))
   name    = "tezos-baker-lb"
   region  = module.terraform-gke-blockchain.location
   project = module.terraform-gke-blockchain.project

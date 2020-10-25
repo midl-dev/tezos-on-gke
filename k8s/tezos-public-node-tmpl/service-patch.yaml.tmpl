@@ -9,4 +9,6 @@ metadata:
 spec:
 %{ if rpc_public_hostname != "" }
   type: NodePort
+%{ else }
+  clusterIP: None
 %{ endif }

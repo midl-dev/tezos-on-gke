@@ -32,7 +32,6 @@ spec:
     name: rpc
   selector:
     app: tezos-public-node
-  clusterIP: None
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
