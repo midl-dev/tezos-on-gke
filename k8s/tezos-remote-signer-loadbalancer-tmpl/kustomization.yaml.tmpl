@@ -5,10 +5,10 @@ namespace: ${kubernetes_namespace}
 
 namePrefix: ${kubernetes_name_prefix}-
 
-nameSuffix: -${custname}
+nameSuffix: -${baker_name}
 
 commonLabels:
-  app: tezos-remote-signer-forwarder-${custname}
+  app: tezos-remote-signer-forwarder-${baker_name}
 
 imageTags:
   - name: tezos-remote-signer-forwarder
@@ -22,15 +22,15 @@ configMapGenerator:
 - name: tezos-remote-signer-loadbalancer-configmap
   literals:
   - KUBERNETES_NAME_PREFIX="${kubernetes_name_prefix}"
-  - PUBLIC_BAKING_KEY_HASH="${baking_nodes[nodename][custname]["public_baking_key_hash"]}"
-  - LEDGER_AUTHORIZED_PATH="${baking_nodes[nodename][custname]["ledger_authorized_path"]}"
-  - SIGNER_A_PORT="${baking_nodes[nodename][custname]["authorized_signers"][0]["signer_port"]}"
-%{ if length(baking_nodes[nodename][custname]["authorized_signers"]) > 1 }
-  - SIGNER_B_PORT="${element(baking_nodes[nodename][custname]["authorized_signers"],1)["signer_port"]}"
+  - PUBLIC_BAKING_KEY_HASH="${baking_nodes[nodename][baker_name]["public_baking_key_hash"]}"
+  - LEDGER_AUTHORIZED_PATH="${baking_nodes[nodename][baker_name]["ledger_authorized_path"]}"
+  - SIGNER_A_PORT="${baking_nodes[nodename][baker_name]["authorized_signers"][0]["signer_port"]}"
+%{ if length(baking_nodes[nodename][baker_name]["authorized_signers"]) > 1 }
+  - SIGNER_B_PORT="${element(baking_nodes[nodename][baker_name]["authorized_signers"],1)["signer_port"]}"
 %{endif}
 
 patchesStrategicMerge:
 - nodepool.yaml
-%{ for signerindex, signer in baking_nodes[nodename][custname]["authorized_signers"] }
+%{ for signerindex, signer in baking_nodes[nodename][baker_name]["authorized_signers"] }
 - remote_signer_patch_${signerindex}.yaml
 %{ endfor }

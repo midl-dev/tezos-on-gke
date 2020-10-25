@@ -15,7 +15,7 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: tezos-remote-signer-forwarder-${custname}
+      app: tezos-remote-signer-forwarder-${baker_name}
   endpoints:
   - interval: 15s
     port: ${signername}

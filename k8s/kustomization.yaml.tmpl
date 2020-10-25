@@ -6,11 +6,11 @@ bases:
 - ./tezos-alertmanager
 %{ for nodename in keys(baking_nodes) }
 - ./tezos-private-node-${nodename}
-%{ for custname, customer_data in baking_nodes[nodename] }
-%{ if ! contains(keys(customer_data), "insecure_private_baking_key") }
-- ./tezos-remote-signer-loadbalancer-${custname}
-%{ for signerindex, signer_data in customer_data["authorized_signers"] }
-- ./tezos-remote-signer-loadbalancer-${custname}-${signerindex}
+%{ for baker_name, baker_data in baking_nodes[nodename] }
+%{ if ! contains(keys(baker_data), "insecure_private_baking_key") }
+- ./tezos-remote-signer-loadbalancer-${baker_name}
+%{ for signerindex, signer_data in baker_data["authorized_signers"] }
+- ./tezos-remote-signer-loadbalancer-${baker_name}-${signerindex}
 %{ endfor }
 %{ endif }
 %{ endfor }

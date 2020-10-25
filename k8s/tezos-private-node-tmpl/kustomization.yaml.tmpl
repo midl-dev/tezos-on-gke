@@ -48,7 +48,7 @@ patchesStrategicMerge:
 - prefixedpvclient.yaml
 - nodepool.yaml
 %{ for protocol in protocols }
-%{ for custname in keys(baking_nodes[nodename]) }
-- baker_endorser_process_patch_${custname}_${protocol}.yaml
+%{ for baker_name in keys(baking_nodes[nodename]) }
+- baker_endorser_process_patch_${baker_name}_${protocol}.yaml
 %{ endfor}
 %{ endfor}

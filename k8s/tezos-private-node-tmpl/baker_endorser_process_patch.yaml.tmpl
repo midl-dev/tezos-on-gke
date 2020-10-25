@@ -6,9 +6,9 @@ spec:
   template:
     spec:
       containers:
-      - name: tezos-endorser-with-remote-signer-${custname}-${lower(protocol)}
+      - name: tezos-endorser-with-remote-signer-${baker_name}-${lower(protocol)}
         image: tezos-endorser-with-remote-signer
-        args: [ "k8s-baker-${custname}" ]
+        args: [ "k8s-baker-${baker_name}" ]
         volumeMounts:
         - name: tezos-private-node-storage
           readOnly: true
@@ -25,9 +25,9 @@ spec:
           limits:
             cpu: 0
         imagePullPolicy: Always
-      - name: tezos-baker-with-remote-signer-${custname}-${lower(protocol)}
+      - name: tezos-baker-with-remote-signer-${baker_name}-${lower(protocol)}
         image: tezos-baker-with-remote-signer
-        args: [ "k8s-baker-${custname}" ]
+        args: [ "k8s-baker-${baker_name}" ]
         volumeMounts:
         - name: tezos-private-node-storage
           readOnly: true
