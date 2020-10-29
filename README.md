@@ -3,7 +3,10 @@ Tezos-on-GKE
 
 [Tezos](http://tezos.gitlab.io/mainnet/) is a [delegated proof of stake](https://bitshares.org/technology/delegated-proof-of-stake-consensus/) blockchain protocol.
 
-This deploys a fully featured, [best practices](https://medium.com/tezos/its-a-baker-s-life-for-me-c214971201e1) Tezos baking service on Google Kubernetes Engine.
+This deploys:
+
+* a fully featured, [best practices](https://medium.com/tezos/its-a-baker-s-life-for-me-c214971201e1) Tezos baking service on Google Kubernetes Engine, or
+* a set of public nodes with a public RPC endpoint ([see documentation](https://tezos-docs.midl.dev/deploy-public-node.html)).
 
 The private baking key can be managed two ways:
 
@@ -15,7 +18,7 @@ Features:
 * high availaibility baking, endorsing and accusing
 * baking node is protected behind two sentry nodes
 * ssh endpoint for remote signing
-* compatible with Tezos mainnet and testnets such as Carthagenet
+* compatible with Tezos mainnet and testnets such as Delphinet
 * blockchain snapshot download and import for faster synchronization of the nodes
 * support for two highly available signers
 * deploy everything in just one command
@@ -126,6 +129,7 @@ You may specify:
 The variables needed to spin up the baking or endorsing processes are:
 
 * `public_baking_key`: the public baking key starting with `edpk`
+* `public_baking_key_hash`: the public baking key hash starting with `tz`
 * for testnets or test deployments only: set the `insecure_private_baking_key` to the unencrypted private key to be used.
 
 **Attention!** Leaving a private baking key on a cloud platform is not recommended when funds are present. For production bakers, leave this variable empty and use a remote signer. [See documentation](https://tezos-docs.midl.dev/).
@@ -133,6 +137,7 @@ The variables needed to spin up the baking or endorsing processes are:
 When used in combination with a remote siger setup, you must pass a `baking_nodes` map with the following parameters:
 
 * `ledger_authorized_path`: the Ledger path associated with the key stored in Ledger device on the remote signer,
+* `monitoring_slack_url` and `monitoring_slack_channel`: optional, the Slack channel where to send the signer-specific alerts
 * `authorized_signers`: a list of signer specification maps, containing:
   * `ssh_pubkey`: the public key of the signer, used for ssh port forwarding, and
   * `signer_port`: the port for the signer http endpoint that is being tunneled
@@ -169,7 +174,8 @@ Here is a full example `terraform.tfvars` configuration. This private key is pro
 
 ```
 project="<your Google project name>"
-tezos_network="carthagenet"
+tezos_network="delphinet"
+snapshot_url="https://delphinet.xtz-shots.io/rolling"
 baking_nodes = {
   mynode = {
     mybaker = {
