@@ -169,6 +169,7 @@ stringData:
           {{ end }}
 %{ for baking_node in baking_nodes }
 %{     for baker in keys(baking_node)}
+%{ if contains(keys(baking_node[baker]), "monitoring_slack_url") }
     - name: 'slack_${baker}'
       slack_configs:
       - api_url: '${ baking_node[baker]["monitoring_slack_url"] }'
@@ -187,6 +188,7 @@ stringData:
             {{ range .Labels.SortedPairs }} • *{{ .Name }}:* `{{ .Value }}`
             {{ end }}
           {{ end }}
+%{ endif }
 %{ endfor }
 %{ endfor }
 ---
