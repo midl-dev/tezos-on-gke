@@ -160,3 +160,9 @@ variable "monitoring_slack_url" {
   default = ""
   description = "slack api url to send prometheus alerts to"
 }
+
+variable "lb_name" {
+  type = string
+  default = "tezos-baker-lb"
+  description = "The name for the load balancer. It should really not be parametrizable but unique across deployments FIXME"
+}

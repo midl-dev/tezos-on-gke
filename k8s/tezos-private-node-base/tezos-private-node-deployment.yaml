@@ -130,6 +130,7 @@ kind: Deployment
 metadata:
   name: tezos-private-baking-node
 spec:
+  #replicas: 2
   selector:
     matchLabels:
       app: tezos-private-baking-node
@@ -142,6 +143,7 @@ spec:
     spec:
       securityContext:
         fsGroup: 100
+      serviceAccountName: tzt-leader-elector
       containers:
       - name: tezos-private-node
         image: tezos/tezos
@@ -186,6 +188,12 @@ spec:
           limits:
             cpu: 0
         imagePullPolicy: Always
+      - name: leader-elector
+        image: k8s.gcr.io/leader-elector:0.5
+        args: [ "--election=baker" ]
+        resources:
+          limits:
+            cpu: 0
       initContainers:
       - name: tezos-private-node-configurator
         image: tezos-private-node-configurator

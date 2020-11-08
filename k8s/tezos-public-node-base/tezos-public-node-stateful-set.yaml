@@ -196,3 +196,40 @@ spec:
       labels:
         alerting_target: blockchain_cluster_alerter
         severity: critical
+---
+# for private node leader election, access to endpoint resource is needed
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: leader-elector
+  namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRole
+metadata:
+  name: leader-elector
+rules:
+- apiGroups:
+  - ""
+  - "extensions"
+  resources:
+  - endpoints
+  verbs:
+  - create
+  - delete
+  - get
+  - patch
+  - update
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: leader-elector
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: leader-elector
+subjects:
+- kind: ServiceAccount
+  name: leader-elector
+  namespace: default
