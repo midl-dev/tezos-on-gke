@@ -29,4 +29,4 @@ wait_for_the_node_to_be_bootstraped
 exec "$endorser" --chain main \
      --base-dir "$client_dir" \
      --addr "$NODE_HOST" --port "$NODE_RPC_PORT" \
-     run "$@"
+     run $BAKER_ALIAS

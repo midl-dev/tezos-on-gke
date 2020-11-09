@@ -190,7 +190,7 @@ spec:
         imagePullPolicy: Always
       - name: leader-elector
         image: k8s.gcr.io/leader-elector:0.5
-        args: [ "--election=baker" ]
+        args: [ "--election=baker", "--http=0.0.0.0:4040" ]
         resources:
           limits:
             cpu: 0
