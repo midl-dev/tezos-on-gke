@@ -3,6 +3,7 @@
 import glob
 import json
 import os
+from pathlib import Path
 
 signer_data = json.loads(os.environ["SIGNER_DATA"])
 KUBERNETES_NAME_PREFIX = os.environ["KUBERNETES_NAME_PREFIX"]
@@ -40,7 +41,8 @@ for node_key, node_val in signer_data["baking_nodes"].items():
 
 
 if __name__ == "__main__":
-    print("Importing Tezos keys by writing into $CLIENT_DIR")
+    Path(CLIENT_DIR).mkdir(exist_ok=True)
+    print(f"Importing Tezos keys by writing into {CLIENT_DIR}")
     print("************public_keys***************")
     print(json.dumps(public_keys, indent = 2))
     print("************public_key_hashs**********")

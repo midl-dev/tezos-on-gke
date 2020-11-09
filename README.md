@@ -42,8 +42,6 @@ The sentry (public) nodes are a StatefulSet of two pods, one in each zone. They 
 
 A private node performs bakings and endorsements. It connects exclusively to the two public nodes belonging to the cluster.
 
-The baker node uses a [Regional Persistent Disk](https://cloud.google.com/compute/docs/disks/#repds) so it can be respun quickly in the other node from the pool if the first node goes offline for any reason, for example base OS upgrade.
-
 The setup is production hardened:
 * usage of kubernetes secrets to store sensitive values such as node keys. They are created securely from terraform variables,
 * network policies to restrict communication between pods. For example, only sentries can peer with the validator node.
@@ -56,7 +54,6 @@ Cost
 Deploying will incur Google Compute Engine charges, specifically:
 
 * virtual machines
-* regional persistent SSD storage
 * network ingress
 * NAT forwarding
 

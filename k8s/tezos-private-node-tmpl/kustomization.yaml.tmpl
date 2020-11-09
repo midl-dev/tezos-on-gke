@@ -45,7 +45,6 @@ configMapGenerator:
 
 patchesStrategicMerge:
 - prefixedpvnode.yaml
-- prefixedpvclient.yaml
 - nodepool.yaml
 %{ for protocol in protocols }
 %{ for baker_name in keys(baking_nodes[nodename]) }
