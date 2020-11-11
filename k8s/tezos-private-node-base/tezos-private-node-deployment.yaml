@@ -169,6 +169,15 @@ spec:
         resources:
           limits:
             cpu: 0
+      - name: tezos-nonce-exposer
+        image: tezos-nonce-exposer
+        resources:
+          limits:
+            cpu: 0
+        volumeMounts:
+        - name: tezos-private-node-pv-claim
+          mountPath: /var/run/tezos
+        imagePullPolicy: Always
       initContainers:
       - name: tezos-private-node-configurator
         image: tezos-private-node-configurator
