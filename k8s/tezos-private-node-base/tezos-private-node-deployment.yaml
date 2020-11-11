@@ -10,6 +10,8 @@ spec:
     name: p2p
   - port: 9489
     name: metrics
+  - port: 4247
+    name: nonce-exposer
   selector:
     app: tezos-private-baking-node
   clusterIP: None
@@ -36,6 +38,13 @@ spec:
       protocol: TCP
     - port: 53
       protocol: UDP
+  - ports:
+    - port: 4247
+      protocol: TCP
+    to:
+    - podSelector:
+        matchLabels:
+          app: tezos-private-baking-node
   - ports:
     - port: 8445
       protocol: TCP
@@ -72,6 +81,13 @@ spec:
     - podSelector:
         matchLabels:
           app: tezos-public-node
+  - ports:
+    - port: 4247
+      protocol: TCP
+    from:
+    - podSelector:
+        matchLabels:
+          app: tezos-private-baking-node
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
@@ -171,6 +187,18 @@ spec:
             cpu: 0
       - name: tezos-nonce-exposer
         image: tezos-nonce-exposer
+        resources:
+          limits:
+            cpu: 0
+        volumeMounts:
+        - name: tezos-private-node-pv-claim
+          mountPath: /var/run/tezos
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 4247
+          name: nonce-exposer
+      - name: tezos-nonce-importer
+        image: tezos-nonce-importer
         resources:
           limits:
             cpu: 0

@@ -34,6 +34,9 @@ imageTags:
   - name: tezos-nonce-exposer
     newName: gcr.io/${project}/tezos-nonce-exposer
     newTag: ${kubernetes_namespace}-latest
+  - name: tezos-nonce-importer
+    newName: gcr.io/${project}/tezos-nonce-importer
+    newTag: ${kubernetes_namespace}-latest
 
 configMapGenerator:
 - name: tezos-private-node-configmap
