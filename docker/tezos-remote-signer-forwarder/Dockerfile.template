@@ -22,10 +22,6 @@ RUN cat /etc/ssh/sshd_config
 
 RUN mkdir /home/signer/.ssh && chown -R signer /home/signer
 
-#8433 is remote signer port
-#58255 is ssh port
-EXPOSE 8433 58255
-
 COPY tezos-remote-signer-forwarder.sh /
 COPY configGenerator.py /
 ENTRYPOINT ["/tezos-remote-signer-forwarder.sh"]
