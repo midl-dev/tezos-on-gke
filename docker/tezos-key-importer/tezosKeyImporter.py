@@ -37,8 +37,8 @@ for node_key, node_val in signer_data["baking_nodes"].items():
             public_keys.append(
                 { "name" : "k8s-baker-%s" % baker_key, 
                   "value" : {
-                    "locator": baker_val["insecure_private_baking_key"],
-                    "key": "unencrypted:%s" % baker_val["insecure_private_baking_key"]}})
+                    "locator": "unencrypted:%s" % baker_val["public_baking_key"],
+                    "key": baker_val["public_baking_key"]}})
 
 
 if __name__ == "__main__":
