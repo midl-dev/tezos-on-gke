@@ -51,7 +51,7 @@ EOF
 
 # Provision IP for signer forwarder endpoint if there is at least one occurence of "authorized_signers" data in the bakers map
 resource "google_compute_address" "signer_forwarder_target" {
-  count = length(lookup((merge(merge(values(merge(merge(values(var.baking_nodes)...),{}))...),{})), "authorized_signers", []))
+  count = length(lookup((merge(merge(values(merge(merge(values(var.baking_nodes)...),{}))...),{})), "authorized_signers", [])) > 0 ? 1 : 0
   name    = "tezos-baker-lb"
   region  = module.terraform-gke-blockchain.location
   project = module.terraform-gke-blockchain.project
