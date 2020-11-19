@@ -136,7 +136,7 @@ The variables needed to spin up the baking or endorsing processes are:
 
 **Attention!** Leaving a private baking key on a cloud platform is not recommended when funds are present. For production bakers, leave this variable empty and use a remote signer. [See documentation](https://tezos-docs.midl.dev/).
 
-When used in combination with a remote siger setup, you must pass a `baking_nodes` map with the following parameters:
+When used in combination with a remote signer setup, you must pass a `baking_nodes` map with the following parameters:
 
 * `ledger_authorized_path`: the Ledger path associated with the key stored in Ledger device on the remote signer,
 * `monitoring_slack_url` and `monitoring_slack_channel`: optional, the Slack channel where to send the signer-specific alerts
