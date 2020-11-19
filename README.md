@@ -98,7 +98,9 @@ A simple way is to populate a file called `terraform.tfvars`.
 
 NOTE: `terraform.tfvars` is not recommended for a production deployment. See [production hardening](docs/production-hardening.md).
 
-First, go to `terraform` folder:
+(1) Clone the repository https://github.com/midl-dev/tezos-on-gke
+
+(2) Go to `terraform` folder in the cloned repository:
 
 ```
 cd terraform
