@@ -87,7 +87,7 @@ Set up [Google Default Application Credentials](https://cloud.google.com/docs/au
 gcloud auth application-default login
 ```
 
-NOTE: for production deployments, the method above is not recommended. Instead, you should use a Terraform service account following [these instructions](docs/production-hardening.md).
+NOTE: for production deployments, the method above is not recommended. Instead, you should use a Terraform service account following [these instructions](https://tezos-docs.midl.dev/production-readiness.html).
 
 
 ## Populate terraform variables
