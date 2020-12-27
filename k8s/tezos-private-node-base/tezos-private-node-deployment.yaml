@@ -122,7 +122,6 @@ kind: StatefulSet
 metadata:
   name: tezos-private-baking-node
 spec:
-  replicas: 2
   serviceName: "tezos-private-baking-node"
   selector:
     matchLabels:

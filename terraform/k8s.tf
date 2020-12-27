@@ -10,7 +10,8 @@ locals {
        "node_storage_size": var.node_storage_size,
        "rpc_public_hostname": var.rpc_public_hostname,
        "protocols": var.protocols,
-       "snapshot_url": var.snapshot_url}
+       "snapshot_url": var.snapshot_url,
+       "experimental_active_standby_mode": var.experimental_active_standby_mode}
 }
 
 resource "null_resource" "push_containers" {
@@ -139,6 +140,9 @@ EOK
 cat <<EOPVN > tezos-private-node-${nodename}/prefixedpvnode.yaml
 ${templatefile("${path.module}/../k8s/tezos-private-node-tmpl/prefixedpvnode.yaml.tmpl", local.kubernetes_variables)}
 EOPVN
+cat <<EONPN > tezos-private-node-${nodename}/replicas.yaml
+${templatefile("${path.module}/../k8s/tezos-private-node-tmpl/replicas.yaml.tmpl", local.kubernetes_variables)}
+EONPN
 cat <<EONPN > tezos-private-node-${nodename}/nodepool.yaml
 ${templatefile("${path.module}/../k8s/tezos-private-node-tmpl/nodepool.yaml.tmpl", {"kubernetes_pool_name": var.kubernetes_pool_name})}
 EONPN

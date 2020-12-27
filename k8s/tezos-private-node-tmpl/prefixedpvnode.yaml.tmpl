@@ -7,7 +7,7 @@ spec:
   - metadata:
       name: tezos-private-node-pv-claim
     spec:
-      storageClassName: ${kubernetes_name_prefix}-local-ssd
+      storageClassName: ${kubernetes_name_prefix}-${ experimental_active_standby_mode ? "local-ssd" : "regional" }
       accessModes: [ "ReadWriteOnce" ]
       resources:
         requests:
