@@ -205,6 +205,20 @@ spec:
         - name: tezos-private-node-pv-claim
           mountPath: /var/run/tezos
         imagePullPolicy: Always
+      - name: tezos-sidecar
+        image: tezos-sidecar
+        resources:
+          limits:
+            cpu: 0
+        imagePullPolicy: Always
+        livenessProbe:
+          httpGet:
+            path: /has_peers
+            port: 31764
+        readinessProbe:
+          httpGet:
+            path: /is_synced
+            port: 31764
       initContainers:
       - name: tezos-private-node-configurator
         image: tezos-private-node-configurator

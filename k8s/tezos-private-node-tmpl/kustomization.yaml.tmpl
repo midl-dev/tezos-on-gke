@@ -37,6 +37,9 @@ imageTags:
   - name: tezos-nonce-importer
     newName: gcr.io/${project}/tezos-nonce-importer
     newTag: ${kubernetes_namespace}-latest
+  - name: tezos-sidecar
+    newName: gcr.io/${project}/tezos-sidecar
+    newTag: ${kubernetes_namespace}-latest
 
 configMapGenerator:
 - name: tezos-private-node-configmap
