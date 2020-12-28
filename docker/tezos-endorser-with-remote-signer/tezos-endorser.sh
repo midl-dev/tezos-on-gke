@@ -25,5 +25,5 @@ node_data_dir="$node_dir/data"
 
 exec "$endorser" --chain main \
      --base-dir "$client_dir" \
-     --addr "$NODE_HOST" --port "$NODE_RPC_PORT" \
+     --endpoint "http://${NODE_HOST}:${NODE_RPC_PORT}" \
      run $BAKER_ALIAS
