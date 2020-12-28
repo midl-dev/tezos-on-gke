@@ -8,6 +8,15 @@ parameters:
   replication-type: regional-pd
 allowVolumeExpansion: true
 ---
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: local-ssd
+provisioner: kubernetes.io/gce-pd
+parameters:
+  type: pd-ssd
+allowVolumeExpansion: true
+---
 apiVersion: v1
 kind: Service
 metadata:

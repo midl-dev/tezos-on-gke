@@ -101,6 +101,11 @@ mkdir -pv tezos-public-node
 cat <<EOK > tezos-public-node/kustomization.yaml
 ${templatefile("${path.module}/../k8s/tezos-public-node-tmpl/kustomization.yaml.tmpl", local.kubernetes_variables)}
 EOK
+cat <<EORPP > tezos-public-node/regionalpvpatch.yaml
+${templatefile("${path.module}/../k8s/tezos-public-node-tmpl/regionalpvpatch.yaml.tmpl",
+   { "regional_pd_zones" : join(", ", var.node_locations),
+     "kubernetes_name_prefix": var.kubernetes_name_prefix})}
+EORPP
 cat <<EOPPVN > tezos-public-node/prefixedpvnode.yaml
 ${templatefile("${path.module}/../k8s/tezos-public-node-tmpl/prefixedpvnode.yaml.tmpl", local.kubernetes_variables)}
 EOPPVN
@@ -140,6 +145,9 @@ EOK
 cat <<EOPVN > tezos-private-node-${nodename}/prefixedpvnode.yaml
 ${templatefile("${path.module}/../k8s/tezos-private-node-tmpl/prefixedpvnode.yaml.tmpl", local.kubernetes_variables)}
 EOPVN
+cat <<EOPVC > tezos-private-node-${nodename}/prefixedpvclient.yaml
+${templatefile("${path.module}/../k8s/tezos-private-node-tmpl/prefixedpvclient.yaml.tmpl", {"kubernetes_name_prefix": var.kubernetes_name_prefix})}
+EOPVC
 cat <<EONPN > tezos-private-node-${nodename}/replicas.yaml
 ${templatefile("${path.module}/../k8s/tezos-private-node-tmpl/replicas.yaml.tmpl", local.kubernetes_variables)}
 EONPN
