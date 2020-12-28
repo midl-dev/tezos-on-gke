@@ -133,7 +133,6 @@ spec:
     spec:
       securityContext:
         fsGroup: 100
-      serviceAccountName: tzt-leader-elector
       containers:
       - name: tezos-private-node
         image: tezos/tezos

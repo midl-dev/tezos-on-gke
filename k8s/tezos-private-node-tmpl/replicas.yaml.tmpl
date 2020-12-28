@@ -4,3 +4,6 @@ metadata:
   name: tezos-private-baking-node
 spec:
   replicas: ${ experimental_active_standby_mode ? 2 : 1 }
+  template:
+    spec:
+      serviceAccountName: ${kubernetes_name_prefix}-leader-elector
