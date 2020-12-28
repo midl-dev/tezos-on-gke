@@ -43,7 +43,7 @@ if __name__ == "__main__":
                 block = requests.get(f"http://localhost:8732/chains/main/blocks/{nonce['block']}")
                 if block.ok and int(block.json()['header']['level']) > first_block_in_cycle:
                     print(f"block {nonce['block']} was not found in local nonces")
-                    print(f"block {nonce['block']} has height {block['header']['level']}, which is over {first_block_in_cycle}, importing")
+                    print(f"block {nonce['block']} has height {block.json()['header']['level']}, which is over {first_block_in_cycle}, importing")
                     nonces_to_add.append(nonce)
 
         if len(nonces_to_add) > 0:

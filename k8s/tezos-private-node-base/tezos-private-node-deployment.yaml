@@ -219,6 +219,13 @@ spec:
           httpGet:
             path: /is_synced
             port: 31764
+        # at first startup, give it one hour to be fully synced
+        startupProbe:
+          httpGet:
+            path: /is_synced
+            port: 31764
+          failureThreshold: 60
+          periodSeconds: 60
       initContainers:
       - name: tezos-private-node-configurator
         image: tezos-private-node-configurator
