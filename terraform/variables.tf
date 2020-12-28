@@ -166,3 +166,9 @@ variable "lb_name" {
   default = "tezos-baker-lb"
   description = "The name for the load balancer. It should really not be parametrizable but unique across deployments FIXME"
 }
+
+variable "experimental_active_standby_mode" {
+  type = bool
+  default = false
+  description = "enable exeprimental active-standby mode"
+}

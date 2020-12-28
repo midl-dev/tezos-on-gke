@@ -1,28 +1,4 @@
 apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: tezos-private-node-claim
-spec:
-  storageClassName: regional
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 15Gi
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: tezos-private-client-claim
-spec:
-  storageClassName: regional
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 1Gi
----
-apiVersion: v1
 kind: Service
 metadata:
   name: tezos-private-baking-node
@@ -34,6 +10,8 @@ spec:
     name: p2p
   - port: 9489
     name: metrics
+  - port: 4247
+    name: nonce-exposer
   selector:
     app: tezos-private-baking-node
   clusterIP: None
@@ -60,6 +38,13 @@ spec:
       protocol: TCP
     - port: 53
       protocol: UDP
+  - ports:
+    - port: 4247
+      protocol: TCP
+    to:
+    - podSelector:
+        matchLabels:
+          app: tezos-private-baking-node
   - ports:
     - port: 8445
       protocol: TCP
@@ -96,6 +81,13 @@ spec:
     - podSelector:
         matchLabels:
           app: tezos-public-node
+  - ports:
+    - port: 4247
+      protocol: TCP
+    from:
+    - podSelector:
+        matchLabels:
+          app: tezos-private-baking-node
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
@@ -126,15 +118,14 @@ spec:
         matchLabels: {}
 ---
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: tezos-private-baking-node
 spec:
+  serviceName: "tezos-private-baking-node"
   selector:
     matchLabels:
       app: tezos-private-baking-node
-  strategy:
-    type: Recreate
   template:
     metadata:
       labels:
@@ -152,8 +143,8 @@ spec:
         - containerPort: 8732
           name: tezos-rpc-port
         volumeMounts:
-        - name: tezos-private-node-storage
-          mountPath: /var/run/tezos/node
+        - name: tezos-private-node-pv-claim
+          mountPath: /var/run/tezos
         resources:
           limits:
             cpu: 0
@@ -186,6 +177,54 @@ spec:
           limits:
             cpu: 0
         imagePullPolicy: Always
+      - name: leader-elector
+        image: k8s.gcr.io/leader-elector:0.5
+        args: [ "--election=baker", "--http=0.0.0.0:4040" ]
+        resources:
+          limits:
+            cpu: 0
+      - name: tezos-nonce-exposer
+        image: tezos-nonce-exposer
+        resources:
+          limits:
+            cpu: 0
+        volumeMounts:
+        - name: tezos-private-node-pv-claim
+          mountPath: /var/run/tezos
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 4247
+          name: nonce-exposer
+      - name: tezos-nonce-importer
+        image: tezos-nonce-importer
+        resources:
+          limits:
+            cpu: 0
+        volumeMounts:
+        - name: tezos-private-node-pv-claim
+          mountPath: /var/run/tezos
+        imagePullPolicy: Always
+      - name: tezos-sidecar
+        image: tezos-sidecar
+        resources:
+          limits:
+            cpu: 0
+        imagePullPolicy: Always
+        livenessProbe:
+          httpGet:
+            path: /has_peers
+            port: 31764
+        readinessProbe:
+          httpGet:
+            path: /is_synced
+            port: 31764
+        # at first startup, give it one hour to be fully synced
+        startupProbe:
+          httpGet:
+            path: /is_synced
+            port: 31764
+          failureThreshold: 60
+          periodSeconds: 60
       initContainers:
       - name: tezos-private-node-configurator
         image: tezos-private-node-configurator
@@ -193,8 +232,8 @@ spec:
           limits:
             cpu: 0
         volumeMounts:
-        - name: tezos-private-node-storage
-          mountPath: /var/run/tezos/node
+        - name: tezos-private-node-pv-claim
+          mountPath: /var/run/tezos
         envFrom:
         - configMapRef:
             name: tezos-private-node-configmap
@@ -205,8 +244,8 @@ spec:
           limits:
             cpu: 0
         volumeMounts:
-        - name: tezos-private-node-storage
-          mountPath: /var/run/tezos/node
+        - name: tezos-private-node-pv-claim
+          mountPath: /var/run/tezos
         env:
         - name: TEZOS_NETWORK
           valueFrom:
@@ -233,21 +272,12 @@ spec:
               name: signer-secret
               key: SIGNER_DATA
         volumeMounts:
-        - name: tezos-private-node-storage
-          mountPath: /var/run/tezos/node
-        - name: tezos-private-client-storage
-          mountPath: /var/run/tezos/client
+        - name: tezos-private-node-pv-claim
+          mountPath: /var/run/tezos
         resources:
           limits:
             cpu: 0
         imagePullPolicy: Always
-      volumes:
-      - name: tezos-private-client-storage
-        persistentVolumeClaim:
-          claimName: tezos-private-client-claim
-      - name: tezos-private-node-storage
-        persistentVolumeClaim:
-          claimName: tezos-private-node-claim
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor

@@ -1,0 +1,7 @@
+FROM python:alpine
+COPY entrypoint.py /
+COPY requirements.txt /
+ENV PYTHONUNBUFFERED=1
+RUN pip install -r requirements.txt
+ENTRYPOINT ["/entrypoint.py"]
+CMD []

@@ -1,5 +1,5 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: tezos-private-baking-node
 spec:
@@ -8,17 +8,15 @@ spec:
       containers:
       - name: tezos-endorser-with-remote-signer-${baker_name}-${lower(protocol)}
         image: tezos-endorser-with-remote-signer
-        args: [ "k8s-baker-${baker_name}" ]
         volumeMounts:
-        - name: tezos-private-node-storage
-          readOnly: true
-          mountPath: /var/run/tezos/node
-        - name: tezos-private-client-storage
-          mountPath: /var/run/tezos/client
+        - name: tezos-private-node-pv-claim
+          mountPath: /var/run/tezos
         envFrom:
         - configMapRef:
             name: tezos-private-node-configmap
         env:
+        - name: BAKER_ALIAS
+          value: k8s-baker-${baker_name}
         - name: PROTOCOL
           value: ${protocol}
         resources:
@@ -27,17 +25,15 @@ spec:
         imagePullPolicy: Always
       - name: tezos-baker-with-remote-signer-${baker_name}-${lower(protocol)}
         image: tezos-baker-with-remote-signer
-        args: [ "k8s-baker-${baker_name}" ]
         volumeMounts:
-        - name: tezos-private-node-storage
-          readOnly: true
-          mountPath: /var/run/tezos/node
-        - name: tezos-private-client-storage
-          mountPath: /var/run/tezos/client
+        - name: tezos-private-node-pv-claim
+          mountPath: /var/run/tezos
         envFrom:
         - configMapRef:
             name: tezos-private-node-configmap
         env:
+        - name: BAKER_ALIAS
+          value: k8s-baker-${baker_name}
         - name: PROTOCOL
           value: ${protocol}
         resources:

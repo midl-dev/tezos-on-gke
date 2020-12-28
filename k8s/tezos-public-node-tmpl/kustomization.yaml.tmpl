@@ -33,7 +33,6 @@ configMapGenerator:
   - HISTORY_MODE="${history_mode == "rolling" ? "experimental-rolling" : history_mode}"
 
 patchesStrategicMerge:
-- regionalpvpatch.yaml
 - prefixedpvnode.yaml
 - nodepool.yaml
 - nodecount.yaml

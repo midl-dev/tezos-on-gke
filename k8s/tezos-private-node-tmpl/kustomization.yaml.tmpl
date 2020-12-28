@@ -31,6 +31,15 @@ imageTags:
   - name: tezos-private-node-connectivity-checker
     newName: gcr.io/${project}/tezos-private-node-connectivity-checker
     newTag: ${kubernetes_namespace}-latest
+  - name: tezos-nonce-exposer
+    newName: gcr.io/${project}/tezos-nonce-exposer
+    newTag: ${kubernetes_namespace}-latest
+  - name: tezos-nonce-importer
+    newName: gcr.io/${project}/tezos-nonce-importer
+    newTag: ${kubernetes_namespace}-latest
+  - name: tezos-sidecar
+    newName: gcr.io/${project}/tezos-sidecar
+    newTag: ${kubernetes_namespace}-latest
 
 configMapGenerator:
 - name: tezos-private-node-configmap
@@ -45,7 +54,7 @@ configMapGenerator:
 
 patchesStrategicMerge:
 - prefixedpvnode.yaml
-- prefixedpvclient.yaml
+- replicas.yaml
 - nodepool.yaml
 %{ for protocol in protocols }
 %{ for baker_name in keys(baking_nodes[nodename]) }

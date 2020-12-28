@@ -23,9 +23,7 @@ client_dir="$DATA_DIR/client"
 node_dir="$DATA_DIR/node"
 node_data_dir="$node_dir/data"
 
-. "$BIN_DIR/entrypoint.inc.sh"
-
-exec "$baker" --chain main \
+exec "$endorser" --chain main \
      --base-dir "$client_dir" \
-     --addr "$NODE_HOST" --port "$NODE_RPC_PORT" \
-     run with local node "$node_data_dir" "$@"
+     --endpoint "http://${NODE_HOST}:${NODE_RPC_PORT}" \
+     run $BAKER_ALIAS

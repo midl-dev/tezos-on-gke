@@ -10,7 +10,8 @@ locals {
        "node_storage_size": var.node_storage_size,
        "rpc_public_hostname": var.rpc_public_hostname,
        "protocols": var.protocols,
-       "snapshot_url": var.snapshot_url}
+       "snapshot_url": var.snapshot_url,
+       "experimental_active_standby_mode": var.experimental_active_standby_mode}
 }
 
 resource "null_resource" "push_containers" {
@@ -45,13 +46,14 @@ EOY
 }
 export -f build_container
 find ${path.module}/../docker -mindepth 1 -maxdepth 1 -type d -exec bash -c 'build_container "$0"' {} \; -printf '%f\n'
+#build_container ${path.module}/../docker/tezos-sidecar
 EOF
   }
 }
 
 # Provision IP for signer forwarder endpoint if there is at least one occurence of "authorized_signers" data in the bakers map
 resource "google_compute_address" "signer_forwarder_target" {
-  count = length(lookup((merge(merge(values(merge(merge(values(var.baking_nodes)...),{}))...),{})), "authorized_signers", [])) > 0 ? 1 : 0
+  count = length(lookup((merge(merge(values(merge(merge(values(var.baking_nodes)...),{}))...),{})), "authorized_signers", []))
   name    = var.lb_name
   region  = module.terraform-gke-blockchain.location
   project = module.terraform-gke-blockchain.project
@@ -99,11 +101,6 @@ mkdir -pv tezos-public-node
 cat <<EOK > tezos-public-node/kustomization.yaml
 ${templatefile("${path.module}/../k8s/tezos-public-node-tmpl/kustomization.yaml.tmpl", local.kubernetes_variables)}
 EOK
-cat <<EORPP > tezos-public-node/regionalpvpatch.yaml
-${templatefile("${path.module}/../k8s/tezos-public-node-tmpl/regionalpvpatch.yaml.tmpl",
-   { "regional_pd_zones" : join(", ", var.node_locations),
-     "kubernetes_name_prefix": var.kubernetes_name_prefix})}
-EORPP
 cat <<EOPPVN > tezos-public-node/prefixedpvnode.yaml
 ${templatefile("${path.module}/../k8s/tezos-public-node-tmpl/prefixedpvnode.yaml.tmpl", local.kubernetes_variables)}
 EOPPVN
@@ -143,9 +140,9 @@ EOK
 cat <<EOPVN > tezos-private-node-${nodename}/prefixedpvnode.yaml
 ${templatefile("${path.module}/../k8s/tezos-private-node-tmpl/prefixedpvnode.yaml.tmpl", local.kubernetes_variables)}
 EOPVN
-cat <<EOPVC > tezos-private-node-${nodename}/prefixedpvclient.yaml
-${templatefile("${path.module}/../k8s/tezos-private-node-tmpl/prefixedpvclient.yaml.tmpl", {"kubernetes_name_prefix": var.kubernetes_name_prefix})}
-EOPVC
+cat <<EONPN > tezos-private-node-${nodename}/replicas.yaml
+${templatefile("${path.module}/../k8s/tezos-private-node-tmpl/replicas.yaml.tmpl", local.kubernetes_variables)}
+EONPN
 cat <<EONPN > tezos-private-node-${nodename}/nodepool.yaml
 ${templatefile("${path.module}/../k8s/tezos-private-node-tmpl/nodepool.yaml.tmpl", {"kubernetes_pool_name": var.kubernetes_pool_name})}
 EONPN

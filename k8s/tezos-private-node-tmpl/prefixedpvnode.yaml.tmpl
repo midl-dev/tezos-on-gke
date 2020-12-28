@@ -1,9 +1,14 @@
-apiVersion: v1
-kind: PersistentVolumeClaim
+apiVersion: apps/v1
+kind: StatefulSet
 metadata:
-  name: tezos-private-node-claim
+  name: tezos-private-baking-node
 spec:
-  storageClassName: ${kubernetes_name_prefix}-regional
-  resources:
-    requests:
-      storage: ${node_storage_size}Gi
+  volumeClaimTemplates:
+  - metadata:
+      name: tezos-private-node-pv-claim
+    spec:
+      storageClassName: ${kubernetes_name_prefix}-${ experimental_active_standby_mode ? "local-ssd" : "regional" }
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: ${node_storage_size}Gi

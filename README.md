@@ -42,8 +42,6 @@ The sentry (public) nodes are a StatefulSet of two pods, one in each zone. They 
 
 A private node performs bakings and endorsements. It connects exclusively to the two public nodes belonging to the cluster.
 
-The baker node uses a [Regional Persistent Disk](https://cloud.google.com/compute/docs/disks/#repds) so it can be respun quickly in the other node from the pool if the first node goes offline for any reason, for example base OS upgrade.
-
 The setup is production hardened:
 * usage of kubernetes secrets to store sensitive values such as node keys. They are created securely from terraform variables,
 * network policies to restrict communication between pods. For example, only sentries can peer with the validator node.
@@ -56,7 +54,6 @@ Cost
 Deploying will incur Google Compute Engine charges, specifically:
 
 * virtual machines
-* regional persistent SSD storage
 * network ingress
 * NAT forwarding
 
@@ -136,15 +133,6 @@ The variables needed to spin up the baking or endorsing processes are:
 
 **Attention!** Leaving a private baking key on a cloud platform is not recommended when funds are present. For production bakers, leave this variable empty and use a remote signer. [See documentation](https://tezos-docs.midl.dev/).
 
-When used in combination with a remote signer setup, you must pass a `baking_nodes` map with the following parameters:
-
-* `ledger_authorized_path`: the Ledger path associated with the key stored in Ledger device on the remote signer,
-* `monitoring_slack_url` and `monitoring_slack_channel`: optional, the Slack channel where to send the signer-specific alerts
-* `authorized_signers`: a list of signer specification maps, containing:
-  * `ssh_pubkey`: the public key of the signer, used for ssh port forwarding, and
-  * `signer_port`: the port for the signer http endpoint that is being tunneled
-  * `tunnel_endpoint_port`: the port where the ssh daemon connects to on the load balancer for tunneling traffic
-
 To generate a public/private keypair, you can use the tezos client:
 
 ```
@@ -189,6 +177,7 @@ baking_nodes = {
 }
 ```
 
+
 ## Deploy!
 
 1. Run the following:
@@ -227,6 +216,23 @@ Display the log of a public node and observe it sync:
 ```
 kubectl logs -f tezos-public-node-0 --tail=10
 ```
+
+## Use with a remote signer
+
+It is not recommended to run a production baker with cloud-hosted private keys.
+
+Follow [our guide](https://tezos-docs.midl.dev/deploy-remote-signer.html) to configure a hardware remote signer connected to a Ledger.
+
+When using this mode, you must pass a `baking_nodes` map with the following parameters:
+
+* `ledger_authorized_path`: the Ledger path associated with the key stored in Ledger device on the remote signer,
+* `public_baking_key`: the public key for the key stored in the Ledger device
+* `public_baking_key_hash`: the public key hash for the key stored in the Ledger device
+* `monitoring_slack_url` and `monitoring_slack_channel`: optional, the Slack channel where to send the signer-specific alerts
+* `authorized_signers`: a list of signer specification maps, containing:
+  * `ssh_pubkey`: the public key of the signer, used for ssh port forwarding, and
+  * `signer_port`: the port for the signer http endpoint that is being tunneled
+  * `tunnel_endpoint_port`: the port where the ssh daemon connects to on the load balancer for tunneling traffic
 
 ## Day 2 operations
 
