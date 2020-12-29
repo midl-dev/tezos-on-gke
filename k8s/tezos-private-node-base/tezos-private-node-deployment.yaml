@@ -149,6 +149,21 @@ spec:
           limits:
             cpu: 0
         imagePullPolicy: Always
+        livenessProbe:
+          httpGet:
+            path: /has_peers
+            port: 31764
+        readinessProbe:
+          httpGet:
+            path: /is_synced
+            port: 31764
+        # at first startup, give it one hour to be fully synced
+        startupProbe:
+          httpGet:
+            path: /is_synced
+            port: 31764
+          failureThreshold: 60
+          periodSeconds: 60
       - name: tezos-prometheus-exporter
         image: ecadlabs/tezos_exporter
         args: [ "-tezos-node-url", "http://localhost:8732/" ]
@@ -210,21 +225,6 @@ spec:
           limits:
             cpu: 0
         imagePullPolicy: Always
-        livenessProbe:
-          httpGet:
-            path: /has_peers
-            port: 31764
-        readinessProbe:
-          httpGet:
-            path: /is_synced
-            port: 31764
-        # at first startup, give it one hour to be fully synced
-        startupProbe:
-          httpGet:
-            path: /is_synced
-            port: 31764
-          failureThreshold: 60
-          periodSeconds: 60
       initContainers:
       - name: tezos-private-node-configurator
         image: tezos-private-node-configurator
