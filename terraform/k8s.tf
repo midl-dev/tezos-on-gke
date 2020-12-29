@@ -145,9 +145,6 @@ EOK
 cat <<EOPVN > tezos-private-node-${nodename}/prefixedpvnode.yaml
 ${templatefile("${path.module}/../k8s/tezos-private-node-tmpl/prefixedpvnode.yaml.tmpl", local.kubernetes_variables)}
 EOPVN
-cat <<EOPVC > tezos-private-node-${nodename}/prefixedpvclient.yaml
-${templatefile("${path.module}/../k8s/tezos-private-node-tmpl/prefixedpvclient.yaml.tmpl", {"kubernetes_name_prefix": var.kubernetes_name_prefix})}
-EOPVC
 cat <<EONPN > tezos-private-node-${nodename}/replicas.yaml
 ${templatefile("${path.module}/../k8s/tezos-private-node-tmpl/replicas.yaml.tmpl", local.kubernetes_variables)}
 EONPN
