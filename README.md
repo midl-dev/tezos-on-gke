@@ -93,7 +93,7 @@ All custom values unique to your deployment are set as terraform variables. You 
 
 A simple way is to populate a file called `terraform.tfvars`.
 
-NOTE: `terraform.tfvars` is not recommended for a production deployment. See [production hardening](docs/production-hardening.md).
+NOTE: `terraform.tfvars` is not recommended for a production deployment. See [production hardening](https://tezos-docs.midl.dev/production-readiness.html).
 
 (1) Clone the repository https://github.com/midl-dev/tezos-on-gke
 
