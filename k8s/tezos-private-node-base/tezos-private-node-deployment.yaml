@@ -153,17 +153,12 @@ spec:
           httpGet:
             path: /has_peers
             port: 31764
+          failureThreshold: 10
+          periodSeconds: 15
         readinessProbe:
           httpGet:
             path: /is_synced
             port: 31764
-        # at first startup, give it one hour to be fully synced
-        startupProbe:
-          httpGet:
-            path: /is_synced
-            port: 31764
-          failureThreshold: 60
-          periodSeconds: 60
       - name: tezos-prometheus-exporter
         image: ecadlabs/tezos_exporter
         args: [ "-tezos-node-url", "http://localhost:8732/" ]
