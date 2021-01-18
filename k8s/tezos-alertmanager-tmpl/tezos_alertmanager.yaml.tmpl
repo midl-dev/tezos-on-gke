@@ -60,7 +60,6 @@ spec:
   replicas: 1
   retention: 10d
   routePrefix: /
-  ruleNamespaceSelector: {}
   ruleSelector:
     matchLabels:
       release: mon-xtz
@@ -69,7 +68,6 @@ spec:
     runAsGroup: 2000
     runAsNonRoot: true
     runAsUser: 1000
-  serviceMonitorNamespaceSelector: {}
   serviceMonitorSelector:
     matchLabels:
       release: mon-xtz
