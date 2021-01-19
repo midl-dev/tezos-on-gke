@@ -189,10 +189,16 @@ spec:
         imagePullPolicy: Always
       - name: leader-elector
         image: k8s.gcr.io/leader-elector:0.5
-        args: [ "--election=baker", "--http=0.0.0.0:4040" ]
+        args: [ "--election=$(KUBERNETES_NAME_PREFIX)-baker", "--http=0.0.0.0:4040" ]
         resources:
           limits:
             cpu: 0
+        env:
+        - name: KUBERNETES_NAME_PREFIX
+          valueFrom:
+            configMapKeyRef:
+              name: tezos-private-node-configmap
+              key: KUBERNETES_NAME_PREFIX
       - name: tezos-nonce-exposer
         image: tezos-nonce-exposer
         resources:
