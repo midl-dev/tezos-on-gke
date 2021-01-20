@@ -54,7 +54,7 @@ EOF
 resource "google_compute_address" "signer_forwarder_target" {
   # it should not be more than one
   count = length(lookup((merge(merge(values(merge(merge(values(var.baking_nodes)...),{}))...),{})), "authorized_signers", [])) > 0 ? 1 : 0
-  name    = var.lb_name
+  name    = "${var.kubernetes_name_prefix}-signer-target"
   region  = module.terraform-gke-blockchain.location
   project = module.terraform-gke-blockchain.project
 }
