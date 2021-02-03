@@ -113,7 +113,7 @@ Below is a list of variables you can set.
 | cluster\_name | Name of the Kubernetes cluster. | `string` | `""` | no |
 | experimental\_active\_standby\_mode | Enable exeprimental active-standby mode (https://tezos-docs.midl.dev/active-standby.html). | `bool` | `false` | no |
 | history\_mode | History mode of the Tezos nodes (rolling, full or archive). | `string` | `"rolling"` | no |
-| kubernetes\_access\_token | Name of the Kubernetes endpoint. | `string` | `""` | no |
+| kubernetes\_access\_token | Access token for the kubernetes endpoint | `string` | `""` | no |
 | kubernetes\_endpoint | Name of the Kubernetes endpoint. | `string` | `""` | no |
 | kubernetes\_name\_prefix | Kubernetes name prefix to prepend to all resources (should be short, like xtz). | `string` | `"xtz"` | no |
 | kubernetes\_namespace | Kubernetes namespace to deploy the resource into. | `string` | `"tezos"` | no |
@@ -130,26 +130,14 @@ Below is a list of variables you can set.
 | signer\_target\_host\_key | SSH host key for the SSH endpoint the remote signer connects to. If left empty, sshd will generate it but it may change, cutting your access to the remote signers. | `string` | `""` | no |
 | snapshot\_url | URL of the snapshot of type rolling to download. | `string` | `"https://mainnet.xtz-shots.io/rolling"` | no |
 | terraform\_service\_account\_credentials | Path to terraform service account file, created following the instructions in https://cloud.google.com/community/tutorials/managing-gcp-projects-with-terraform | `string` | `"~/.config/gcloud/application_default_credentials.json"` | no |
-| tezos\_network | The Tezos network such as mainnet, delphinet, etc. | `string` | `"mainnet"` | no |
-| tezos\_private\_version | The Tezos container version for private node. Should be hard-coded to a version from https://hub.docker.com/r/tezos/tezos/tags. Not recommended to set to a rolling tag like 'mainnet', because it may break unexpectedly. Example: mainnet\_06398944\_20200211142914. | `string` | `"latest-release"` | no |
-| tezos\_sentry\_version | The Tezos container version for sentry (public) nodes. Should be hard-coded to a version from https://hub.docker.com/r/tezos/tezos/tags. Not recommended to set to a rolling tag like 'mainnet', because it may break unexpectedly. Example: mainnet\_06398944\_20200211142914 | `string` | `"latest-release"` | no |
+| tezos\_network | The Tezos network such as mainnet, edonet, etc. | `string` | `"mainnet"` | no |
+| tezos\_private\_version | The Tezos container version for private node. Should be hard-coded to a version from https://hub.docker.com/r/tezos/tezos/tags. Not recommended to set to a rolling tag like 'mainnet', because it may break unexpectedly. Example: `v8.1`. | `string` | `"latest-release"` | no |
+| tezos\_sentry\_version | The Tezos container version for sentry (public) nodes. Should be hard-coded to a version from https://hub.docker.com/r/tezos/tezos/tags. Not recommended to set to a rolling tag like 'mainnet', because it may break unexpectedly. Example: `v8.1`. | `string` | `"latest-release"` | no |
 
-
-### Google Cloud project
-
-A default Google Cloud project should have been created when you activated your account. Verify its ID with `gcloud projects list`. You may also create a dedicated project to deploy the cluster.
-
-Set the project id in the `project` terraform variable.
-
-NOTE: if you created a [terraform service account](docs/production-hardening.md), leave this variable empty.
-
-### Tezos network
-
-Set the `tezos_network` variable to the network to use (`mainnet`, `carthagenet`, etc)
 
 ### Baking nodes
 
-The `baking_nodes` parameter lets you deploy one or several bakers declaratively.
+The `baking_nodes` parameter lets you deploy one or several bakers declaratively by passing structured data describing the bakers.
 
 You may specify:
 * a map with one or several baking nodes, and
@@ -182,11 +170,15 @@ docker commit my-tezos-client my-tezos-client
 docker run my-tezos-client tezos-client show address insecure-baker -S
 ```
 
-### Monitoring
+Full example of `baking_nodes` parameter:
 
-This setup comes with Prometheus and Alertmanager pre-installed. By default, it will push all alerts to slack.
-
-Pass the Slack URL as a parameter: `monitoring_slack_url`.
+```
+mybaker = {
+  public_baking_key="edpkup8PaxJYrUcXUEBEufekgqMaodyKLKwHqbtkQVAudiJ7nmrS2o"
+  public_baking_key_hash="tz1YmsrYxQFJo5nGj4MEaXMPdLrcRf2a5mAU"
+  insecure_private_baking_key="edsk3cftTNcJnxb7ehCxYeCaKPT7mjycdMxgFisLixrQ9bZuTG2yZK"
+}
+```
 
 ### Full example
 
