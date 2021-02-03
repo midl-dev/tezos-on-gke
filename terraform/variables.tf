@@ -65,7 +65,7 @@ variable "cluster_name" {
 
 variable "kubernetes_access_token" {
   type = string
-  description = "Name of the Kubernetes endpoint."
+  description = "Access token for the kubernetes endpoint"
   default = ""
 }
 
@@ -93,19 +93,19 @@ variable "baking_nodes" {
 
 variable "tezos_network" {
   type =string
-  description = "The Tezos network such as mainnet, delphinet, etc."
+  description = "The Tezos network such as mainnet, edonet, etc."
   default = "mainnet"
 }
 
 variable "tezos_sentry_version" {
   type =string
-  description = "The Tezos container version for sentry (public) nodes. Should be hard-coded to a version from https://hub.docker.com/r/tezos/tezos/tags. Not recommended to set to a rolling tag like 'mainnet', because it may break unexpectedly. Example: mainnet_06398944_20200211142914"
+  description = "The Tezos container version for sentry (public) nodes. Should be hard-coded to a version from https://hub.docker.com/r/tezos/tezos/tags. Not recommended to set to a rolling tag like 'mainnet', because it may break unexpectedly. Example: `v8.1`."
   default = "latest-release"
 }
 
 variable "tezos_private_version" {
   type =string
-  description = "The Tezos container version for private node. Should be hard-coded to a version from https://hub.docker.com/r/tezos/tezos/tags. Not recommended to set to a rolling tag like 'mainnet', because it may break unexpectedly. Example: mainnet_06398944_20200211142914."
+  description = "The Tezos container version for private node. Should be hard-coded to a version from https://hub.docker.com/r/tezos/tezos/tags. Not recommended to set to a rolling tag like 'mainnet', because it may break unexpectedly. Example: `v8.1`."
   default = "latest-release"
 }
 

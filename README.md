@@ -103,23 +103,41 @@ NOTE: `terraform.tfvars` is not recommended for a production deployment. See [pr
 cd terraform
 ```
 
-Below is a list of variables you must set.
+Below is a list of variables you can set.
 
-### Google Cloud project
+| Name | Description | Type | Default | Required |
+|------|-------------|------|---------|:--------:|
+| baking\_nodes | Structured data related to baking, including public key and signer configuration. | `map` | `{}` | no |
+| billing\_account | Google Cloud billing account ID. | `string` | `""` | no |
+| cluster\_ca\_certificate | Kubernetes cluster certificate. | `string` | `""` | no |
+| cluster\_name | Name of the Kubernetes cluster. | `string` | `""` | no |
+| experimental\_active\_standby\_mode | Enable exeprimental active-standby mode (https://tezos-docs.midl.dev/active-standby.html). | `bool` | `false` | no |
+| history\_mode | History mode of the Tezos nodes (rolling, full or archive). | `string` | `"rolling"` | no |
+| kubernetes\_access\_token | Access token for the kubernetes endpoint | `string` | `""` | no |
+| kubernetes\_endpoint | Name of the Kubernetes endpoint. | `string` | `""` | no |
+| kubernetes\_name\_prefix | Kubernetes name prefix to prepend to all resources (should be short, like xtz). | `string` | `"xtz"` | no |
+| kubernetes\_namespace | Kubernetes namespace to deploy the resource into. | `string` | `"tezos"` | no |
+| kubernetes\_pool\_name | When Kubernetes cluster has several node pools, specify which ones to deploy the baking setup into. Only effective when deploying on an external cluster with terraform\_no\_cluster\_create | `string` | `"blockchain-pool"` | no |
+| monitoring\_slack\_url | Slack API URL to send prometheus alerts to. | `string` | `""` | no |
+| node\_locations | Zones in which to create the nodes. | `list` | <pre>[<br>  "us-central1-b",<br>  "us-central1-f"<br>]</pre> | no |
+| node\_storage\_size | Storage size for the nodes, in gibibytes (GiB). | `string` | `"15"` | no |
+| org\_id | Google Cloud organization ID. | `string` | `""` | no |
+| project | Project ID where Terraform is authenticated to run to create additional projects. If provided, Terraform will great the GKE and Tezos cluster inside this project. If not given, Terraform will generate a new project. | `string` | `""` | no |
+| protocols | The list of Tezos protocols currently in use, following the naming convention used in the baker/endorser binary names, for example 007-PsDELPH1. Baking and endorsing daemons will be spun up for every protocol provided in the list, which helps for seamless protocol updates. | `list` | <pre>[<br>  "007-PsDELPH1",<br>  "008-PtEdoTez"<br>]</pre> | no |
+| region | Region in which to create the cluster, or region where the cluster exists. | `string` | `"us-central1"` | no |
+| rpc\_public\_hostname | If set, expose the RPC of the public node through a load balancer and create a certificate for the given hostname. | `string` | `""` | no |
+| rpc\_subnet\_whitelist | IP address whitelisting for the public RPC. Open to everyone by default. | `list` | <pre>[<br>  "0.0.0.0/0"<br>]</pre> | no |
+| signer\_target\_host\_key | SSH host key for the SSH endpoint the remote signer connects to. If left empty, sshd will generate it but it may change, cutting your access to the remote signers. | `string` | `""` | no |
+| snapshot\_url | URL of the snapshot of type rolling to download. | `string` | `"https://mainnet.xtz-shots.io/rolling"` | no |
+| terraform\_service\_account\_credentials | Path to terraform service account file, created following the instructions in https://cloud.google.com/community/tutorials/managing-gcp-projects-with-terraform | `string` | `"~/.config/gcloud/application_default_credentials.json"` | no |
+| tezos\_network | The Tezos network such as mainnet, edonet, etc. | `string` | `"mainnet"` | no |
+| tezos\_private\_version | The Tezos container version for private node. Should be hard-coded to a version from https://hub.docker.com/r/tezos/tezos/tags. Not recommended to set to a rolling tag like 'mainnet', because it may break unexpectedly. Example: `v8.1`. | `string` | `"latest-release"` | no |
+| tezos\_sentry\_version | The Tezos container version for sentry (public) nodes. Should be hard-coded to a version from https://hub.docker.com/r/tezos/tezos/tags. Not recommended to set to a rolling tag like 'mainnet', because it may break unexpectedly. Example: `v8.1`. | `string` | `"latest-release"` | no |
 
-A default Google Cloud project should have been created when you activated your account. Verify its ID with `gcloud projects list`. You may also create a dedicated project to deploy the cluster.
-
-Set the project id in the `project` terraform variable.
-
-NOTE: if you created a [terraform service account](docs/production-hardening.md), leave this variable empty.
-
-### Tezos network
-
-Set the `tezos_network` variable to the network to use (`mainnet`, `carthagenet`, etc)
 
 ### Baking nodes
 
-The `baking_nodes` parameter lets you deploy one or several bakers declaratively.
+The `baking_nodes` parameter lets you deploy one or several bakers declaratively by passing structured data describing the bakers.
 
 You may specify:
 * a map with one or several baking nodes, and
@@ -152,11 +170,15 @@ docker commit my-tezos-client my-tezos-client
 docker run my-tezos-client tezos-client show address insecure-baker -S
 ```
 
-### Monitoring
+Full example of `baking_nodes` parameter:
 
-This setup comes with Prometheus and Alertmanager pre-installed. By default, it will push all alerts to slack.
-
-Pass the Slack URL as a parameter: `monitoring_slack_url`.
+```
+mybaker = {
+  public_baking_key="edpkup8PaxJYrUcXUEBEufekgqMaodyKLKwHqbtkQVAudiJ7nmrS2o"
+  public_baking_key_hash="tz1YmsrYxQFJo5nGj4MEaXMPdLrcRf2a5mAU"
+  insecure_private_baking_key="edsk3cftTNcJnxb7ehCxYeCaKPT7mjycdMxgFisLixrQ9bZuTG2yZK"
+}
+```
 
 ### Full example
 
