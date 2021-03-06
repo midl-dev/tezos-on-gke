@@ -161,7 +161,7 @@ spec:
             port: 31764
       - name: tezos-prometheus-exporter
         image: ecadlabs/tezos_exporter
-        args: [ "-tezos-node-url", "http://localhost:8732/" ]
+        args: [ "-tezos-node-url", "http://127.0.0.1:8732/" ]
         ports:
         - containerPort: 9489
           name: metrics

@@ -34,13 +34,13 @@ if __name__ == "__main__":
 
         local_nonce_blocks = [x['block'] for x in local_nonces]
 
-        first_block_in_cycle = int(requests.get("http://localhost:8732/chains/main/blocks/head//helpers/levels_in_current_cycle").json()['first'])
+        first_block_in_cycle = int(requests.get("http://127.0.0.1:8732/chains/main/blocks/head//helpers/levels_in_current_cycle").json()['first'])
 
         nonces_to_add = []
 
         for nonce in remote_nonces:
             if nonce['block'] not in local_nonce_blocks:
-                block = requests.get(f"http://localhost:8732/chains/main/blocks/{nonce['block']}")
+                block = requests.get(f"http://127.0.0.1:8732/chains/main/blocks/{nonce['block']}")
                 if block.ok and int(block.json()['header']['level']) > first_block_in_cycle:
                     print(f"block {nonce['block']} was not found in local nonces")
                     print(f"block {nonce['block']} has height {block.json()['header']['level']}, which is over {first_block_in_cycle}, importing")

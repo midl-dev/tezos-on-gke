@@ -8,7 +8,7 @@ application = Flask(__name__)
 @application.route('/has_peers')
 def peer_checker():
     try:
-        r = requests.get('http://localhost:8732/network/peers')
+        r = requests.get('http://127.0.0.1:8732/network/peers')
     except requests.exceptions.RequestException as e:
         err = "Could not connect to node, %s" % repr(e), 500
         print(err)
@@ -23,7 +23,7 @@ def peer_checker():
 @application.route('/is_synced')
 def sync_checker():
     try:
-        r = requests.get('http://localhost:8732/chains/main/blocks/head')
+        r = requests.get('http://127.0.0.1:8732/chains/main/blocks/head')
     except requests.exceptions.RequestException as e:
         err = "Could not connect to node, %s" % repr(e), 500
         print(err)

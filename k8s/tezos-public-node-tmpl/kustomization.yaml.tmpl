@@ -24,7 +24,7 @@ imageTags:
 configMapGenerator:
 - name: tezos-configmap
   literals:
-  - NODE_HOST="localhost"
+  - NODE_HOST="127.0.0.1"
   - TEZOS_NETWORK=${tezos_network}"
   - PRIVATE_PEER_LIST="%{ for nodename in keys(baking_nodes) ~}--peer ${kubernetes_name_prefix}-tezos-private-baking-node-${nodename} %{endfor}"
   - KUBERNETES_NAME_PREFIX="${kubernetes_name_prefix}"
