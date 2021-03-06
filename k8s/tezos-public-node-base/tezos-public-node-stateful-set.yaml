@@ -70,7 +70,7 @@ spec:
       containers:
       - name: tezos-public-node
         image: tezos-public-node-with-probes
-        args: [ "tezos-node" ]
+        command: [ "/usr/local/bin/tezos-node", "run", "--data-dir", "/var/run/tezos/node/data" ]
         ports:
         - containerPort: 8732
           name: rpc
@@ -99,16 +99,6 @@ spec:
             configMapKeyRef:
               name: tezos-configmap
               key: TEZOS_NETWORK
-        imagePullPolicy: Always
-      - name: tezos-prometheus-exporter
-        image: ecadlabs/tezos_exporter
-        args: [ "-tezos-node-url", "http://localhost:8732/" ]
-        ports:
-        - containerPort: 9489
-          name: metrics
-        resources:
-          limits:
-            cpu: 0
         imagePullPolicy: Always
       initContainers:
       - name: tezos-public-node-configurator

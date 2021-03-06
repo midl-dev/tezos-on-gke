@@ -14,6 +14,7 @@ mkdir -p ${node_dir}/data
 
 /usr/local/bin/tezos-node config init \
     --config-file ${node_dir}/data/config.json \
+    --data-dir ${node_dir}/data \
     --rpc-addr=0.0.0.0:8732 \
     --history-mode ${HISTORY_MODE} \
     --network $TEZOS_NETWORK \
