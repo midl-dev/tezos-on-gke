@@ -159,16 +159,6 @@ spec:
           httpGet:
             path: /is_synced
             port: 31764
-      - name: tezos-prometheus-exporter
-        image: ecadlabs/tezos_exporter
-        args: [ "-tezos-node-url", "http://127.0.0.1:8732/" ]
-        ports:
-        - containerPort: 9489
-          name: metrics
-        resources:
-          limits:
-            cpu: 0
-        imagePullPolicy: Always
       - name: tezos-accuser
         image: tezos/tezos
         args: [ "tezos-accuser" ]
