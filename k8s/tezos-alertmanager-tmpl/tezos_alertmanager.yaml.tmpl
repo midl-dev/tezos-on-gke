@@ -108,6 +108,11 @@ stringData:
   alertmanager.yaml: |-
     global:
       slack_api_url: "${monitoring_slack_url}"
+      smtp_smarthost: '${monitoring_smtp_server}'
+      smtp_auth_username: '${monitoring_smtp_username}'
+      smtp_auth_password: '${monitoring_smtp_password}'
+      smtp_require_tls: true
+      smtp_from: '${monitoring_email_from}'
       resolve_timeout: 5m
     route:
       receiver: 'null'
@@ -127,22 +132,41 @@ stringData:
         receiver: 'slack_master'
 %{ for baking_node in baking_nodes }
 %{     for baker in keys(baking_node) }
+%{ if contains(keys(baking_node[baker]), "monitoring_slack_url") }
       - match:
           alertname: NoRemoteSigner
           service: ${kubernetes_name_prefix}-tezos-remote-signer-loadbalancer-${baker}
         receiver: 'slack_${baker}'
+        continue: true
       - match:
           alertname: SignerPowerLoss
           service: ${kubernetes_name_prefix}-tezos-remote-signer-forwarder-${baker}
         receiver: 'slack_${baker}'
+        continue: true
       - match:
           alertname: SignerWiredNetworkLoss
           service: ${kubernetes_name_prefix}-tezos-remote-signer-forwarder-${baker}
         receiver: 'slack_${baker}'
+        continue: true
       - match:
           alertname: SignerWirelessNetworkLoss
           service: ${kubernetes_name_prefix}-tezos-remote-signer-forwarder-${baker}
         receiver: 'slack_${baker}'
+%{ endif }
+%{ if contains(keys(baking_node[baker]), "monitoring_email") }
+      - match:
+          alertname: NoRemoteSigner
+          service: ${kubernetes_name_prefix}-tezos-remote-signer-loadbalancer-${baker}
+        receiver: 'email_${baker}'
+      - match:
+          alertname: SignerPowerLoss
+          service: ${kubernetes_name_prefix}-tezos-remote-signer-forwarder-${baker}
+        receiver: 'email_${baker}'
+      - match:
+          alertname: SignerWiredNetworkLoss
+          service: ${kubernetes_name_prefix}-tezos-remote-signer-forwarder-${baker}
+        receiver: 'email_${baker}'
+%{ endif }
 %{   endfor }
 %{ endfor }
       - receiver: 'null'
@@ -187,6 +211,25 @@ stringData:
             {{ end }}
           {{ end }}
 %{ endif }
+%{ if contains(keys(baking_node[baker]), "monitoring_email") }
+    - name: 'email_${baker}'
+      email_configs:
+      - to: '${ baking_node[baker]["monitoring_email"] }'
+        send_resolved: true
+        headers:
+          subject: |-
+            [{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}] {{ .CommonLabels.alertname }}
+        html: ""
+        text: >-
+          {{ if eq .Status "firing" }}
+          Your attention is required regarding the following Tezos Remote Signer alert:
+          {{ else }}
+          The following Tezos Remote Signer Alert is resolved:
+          {{ end }}
+          {{ range .Alerts -}}
+          {{ .Annotations.summary }}
+          {{ end }}
+%{ endif }
 %{ endfor }
 %{ endfor }
 ---
@@ -222,7 +265,7 @@ spec:
     - alert: NoRemoteSigner
       annotations:
         description: 'Remote signer is down'
-        summary: Remote signer is down
+        summary: Remote signer is down or unable to sign.
       expr: haproxy_backend_active_servers == 0
       for: 1m
       labels:

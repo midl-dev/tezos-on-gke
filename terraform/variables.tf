@@ -161,6 +161,30 @@ variable "monitoring_slack_url" {
   default = ""
 }
 
+variable "monitoring_smtp_server" {
+  type = string
+  description = "SMTP server to send email alerts, must contain port"
+  default = ""
+}
+
+variable "monitoring_smtp_username" {
+  type = string
+  description = "SMTP username to send email alerts"
+  default = ""
+}
+
+variable "monitoring_smtp_password" {
+  type = string
+  description = "SMTP password to send email alerts"
+  default = ""
+}
+
+variable "monitoring_email_from" {
+  type = string
+  description = "Monitoring email from address"
+  default = ""
+}
+
 variable "experimental_active_standby_mode" {
   type = bool
   description = "Enable exeprimental active-standby mode (https://tezos-docs.midl.dev/active-standby.html)."
