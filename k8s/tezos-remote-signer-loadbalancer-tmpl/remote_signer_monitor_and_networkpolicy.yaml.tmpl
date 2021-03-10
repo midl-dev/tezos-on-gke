@@ -17,9 +17,10 @@ spec:
     matchLabels:
       app: tezos-remote-signer-forwarder-${baker_name}
   endpoints:
-  - interval: 15s
+  - interval: 20s
     port: ${signername}
     path: /healthz
+    scrapeTimeout: 20s
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
