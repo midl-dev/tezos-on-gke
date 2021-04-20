@@ -12,6 +12,7 @@ locals {
        "monitoring_email_from": var.monitoring_email_from,
        "history_mode": var.history_mode,
        "node_storage_size": var.node_storage_size,
+       "public_node_storage_size": var.public_node_storage_size,
        "rpc_public_hostname": var.rpc_public_hostname,
        "protocols": var.protocols,
        "snapshot_url": var.snapshot_url,
