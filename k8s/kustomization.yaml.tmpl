@@ -13,6 +13,9 @@ bases:
 - ./tezos-remote-signer-loadbalancer-${baker_name}-${signerindex}
 %{ endfor }
 %{ endif }
+%{ if contains(keys(baker_data), "payout_config") }
+- ./payout-${baker_name}
+%{ endif }
 %{ endfor }
 %{ endfor }
 %{ if rpc_public_hostname != "" }

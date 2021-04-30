@@ -1,0 +1,11 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: trd-payout-sender
+spec:
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          nodeSelector:
+            cloud.google.com/gke-nodepool: ${kubernetes_pool_name}

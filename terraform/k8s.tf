@@ -140,7 +140,6 @@ ${templatefile("${path.module}/../k8s/tezos-alertmanager-tmpl/tezos_alertmanager
   local.kubernetes_variables)}
 EOMP
 
-
 %{ for nodename in keys(var.baking_nodes) }
 mkdir -pv tezos-private-node-${nodename}
 cat <<EOK > tezos-private-node-${nodename}/kustomization.yaml
@@ -209,6 +208,36 @@ cat <<EONPN > tezos-remote-signer-loadbalancer-${baker_name}/nodepool.yaml
 ${templatefile("${path.module}/../k8s/tezos-remote-signer-loadbalancer-tmpl/nodepool.yaml.tmpl", {"kubernetes_pool_name": var.kubernetes_pool_name})}
 EONPN
 %{ endif }
+
+%{ if contains(keys(var.baking_nodes[nodename][baker_name]), "payout_config") }
+mkdir -pv payout-${baker_name}
+cat <<EOK > payout-${baker_name}/kustomization.yaml
+${templatefile("${path.module}/../k8s/payout-tmpl/kustomization.yaml.tmpl", 
+  merge(var.baking_nodes[nodename][baker_name]["payout_config"], {
+  "project": var.project,
+  "baker_name": baker_name,
+  "kubernetes_name_prefix": var.kubernetes_name_prefix,
+  "kubernetes_namespace": var.kubernetes_namespace} ))}
+EOK
+cat <<EOC > payout-${baker_name}/config.yaml
+${templatefile("${path.module}/../k8s/payout-tmpl/config.yaml.tmpl", 
+  merge(var.baking_nodes[nodename][baker_name]["payout_config"], {
+  "public_baking_key_hash": var.baking_nodes[nodename][baker_name]["public_baking_key_hash"] } ))}
+EOC
+cat <<EOPN > payout-${baker_name}/nodepool.yaml
+${templatefile("${path.module}/../k8s/payout-tmpl/nodepool.yaml.tmpl", {"kubernetes_pool_name": var.kubernetes_pool_name})}
+EOPN
+cat <<EOA > payout-${baker_name}/trd-args.yaml
+${templatefile("${path.module}/../k8s/payout-tmpl/trd-args.yaml.tmpl", 
+  merge(var.baking_nodes[nodename][baker_name]["payout_config"], {
+  "baker_name": baker_name,
+  "kubernetes_name_prefix": var.kubernetes_name_prefix })) }
+EOA
+cat <<EOPC > payout-${baker_name}/crontime.yaml
+${templatefile("${path.module}/../k8s/payout-tmpl/crontime.yaml.tmpl", {"schedule": var.baking_nodes[nodename][baker_name]["payout_config"]["schedule"]})}
+EOPC
+%{ endif }
+
 %{ endfor}
 
 %{ endfor}

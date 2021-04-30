@@ -1,0 +1,35 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: trd-payout-sender
+spec:
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: trd-payout-cron
+            args:
+            - "--run_mode"
+            - "3"
+            - "--config_dir"
+            - "/app/config"
+            - "--reports_base"
+            - "/app/reports"
+            - "--verbose"
+            - "on"
+            - '--initial_cycle'
+            - "${initial_cycle}"
+            - '--release_override'
+            - "${release_override}"
+            - '--reward_data_provider'
+            - "${reward_data_provider}"
+            - "--network"
+            - "${network}"
+            - "--node_endpoint"
+            - "${kubernetes_name_prefix}-tezos-public-node:8732"
+            - "--signer_endpoint"
+            - "http://${kubernetes_name_prefix}-tezos-remote-signer-loadbalancer-${baker_name}:8445"
+%{if dry_run }
+            - "--dry_run"
+%{endif}

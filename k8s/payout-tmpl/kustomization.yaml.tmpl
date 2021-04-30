@@ -1,0 +1,22 @@
+bases:
+- ./../payout-base
+
+namePrefix: ${kubernetes_name_prefix}-
+
+namespace: ${kubernetes_namespace}
+nameSuffix: -${baker_name}
+imageTags:
+
+  - name: trd
+    newName: registry.gitlab.com/ochem/tezos-reward-distributor
+    newTag: latest
+
+configMapGenerator:
+- name: trd-config
+  files:
+  - config.yaml
+
+patchesStrategicMerge:
+- crontime.yaml
+- nodepool.yaml
+- trd-args.yaml
