@@ -23,16 +23,13 @@ def peer_checker():
 @application.route('/is_synced')
 def sync_checker():
     try:
-        r = requests.get('http://127.0.0.1:8732/chains/main/blocks/head')
+        r = requests.get('http://127.0.0.1:8732/chains/main/is_bootstrapped')
     except requests.exceptions.RequestException as e:
         err = "Could not connect to node, %s" % repr(e), 500
         print(err)
         return err
-    most_recent_block_date = parser.isoparse(r.json()["header"]["timestamp"])
-    now = datetime.datetime.now(datetime.timezone.utc)
-    last_block_age_in_seconds = (now - most_recent_block_date).total_seconds()
-    if last_block_age_in_seconds > 240:
-        err = "Last block is %s seconds old, which is over the limit of 240" % last_block_age_in_seconds, 500
+    if not r.json()["bootstrapped"]:
+        err = "Chain is not bootstrapped", 500
         print(err)
         return err
-    return str(last_block_age_in_seconds)
+    return "Chain is bootstrapped"

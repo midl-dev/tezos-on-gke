@@ -27,7 +27,7 @@ spec:
           containers:
           - name: trd-payout-cron
             image: trd
-            #command: ["/bin/sh", "-ec", "sleep 1000"]
+              #command: ["/bin/sh", "-ec", "sleep 1000"]
             volumeMounts:
             - name: trd-reports
               mountPath: /app/reports
