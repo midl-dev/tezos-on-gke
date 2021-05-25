@@ -149,12 +149,6 @@ spec:
           limits:
             cpu: 0
         imagePullPolicy: Always
-        livenessProbe:
-          httpGet:
-            path: /has_peers
-            port: 31764
-          failureThreshold: 10
-          periodSeconds: 15
         readinessProbe:
           httpGet:
             path: /is_synced

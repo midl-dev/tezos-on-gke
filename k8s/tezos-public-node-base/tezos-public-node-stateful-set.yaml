@@ -82,17 +82,6 @@ spec:
         resources:
           limits:
             cpu: 0
-        livenessProbe:
-          # pod is considered dead when number of connections drops to one
-          exec:
-            command:
-            - /usr/local/bin/does-tezos-node-have-connections.sh
-          periodSeconds: 10
-          failureThreshold: 50
-        readinessProbe:
-          httpGet:
-            path: /chains/main/blocks/head
-            port: 8732
         env:
         - name: TEZOS_NETWORK
           valueFrom:
