@@ -148,10 +148,6 @@ stringData:
           service: ${kubernetes_name_prefix}-tezos-remote-signer-forwarder-${baker}
         receiver: 'slack_${baker}'
         continue: true
-      - match:
-          alertname: SignerWirelessNetworkLoss
-          service: ${kubernetes_name_prefix}-tezos-remote-signer-forwarder-${baker}
-        receiver: 'slack_${baker}'
 %{ endif }
 %{ if contains(keys(baking_node[baker]), "monitoring_email") }
       - match:
