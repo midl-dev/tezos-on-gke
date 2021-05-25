@@ -220,9 +220,17 @@ ${templatefile("${path.module}/../k8s/payout-tmpl/kustomization.yaml.tmpl",
   "kubernetes_namespace": var.kubernetes_namespace} ))}
 EOK
 cat <<EOC > payout-${baker_name}/config.yaml
-${templatefile("${path.module}/../k8s/payout-tmpl/config.yaml.tmpl", 
-  merge(var.baking_nodes[nodename][baker_name]["payout_config"], {
-  "public_baking_key_hash": var.baking_nodes[nodename][baker_name]["public_baking_key_hash"] } ))}
+${yamlencode({
+version: "1.0",
+baking_address: var.baking_nodes[nodename][baker_name]["public_baking_key_hash"],
+payment_address: var.baking_nodes[nodename][baker_name]["payout_config"]["payment_address"],
+rewards_type: var.baking_nodes[nodename][baker_name]["payout_config"]["rewards_type"],
+service_fee: var.baking_nodes[nodename][baker_name]["payout_config"]["service_fee"],
+reactivate_zeroed: true,
+delegator_pays_xfer_fee: true,
+delegator_pays_ra_fee: true,
+rules_map: try(var.baking_nodes[nodename][baker_name]["payout_config"]["rules_map"], {}),
+})}
 EOC
 cat <<EOPN > payout-${baker_name}/nodepool.yaml
 ${templatefile("${path.module}/../k8s/payout-tmpl/nodepool.yaml.tmpl", {"kubernetes_pool_name": var.kubernetes_pool_name})}
