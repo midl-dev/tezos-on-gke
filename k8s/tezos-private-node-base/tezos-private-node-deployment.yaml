@@ -55,10 +55,6 @@ spec:
   - ports:
     - port: 9732
       protocol: TCP
-    to:
-    - podSelector:
-        matchLabels:
-          app: tezos-public-node
   ingress:
   - ports:
     - port: 53
@@ -77,10 +73,6 @@ spec:
   - ports:
     - port: 9732
       protocol: TCP
-    from:
-    - podSelector:
-        matchLabels:
-          app: tezos-public-node
   - ports:
     - port: 4247
       protocol: TCP
@@ -263,51 +255,3 @@ spec:
           limits:
             cpu: 0
         imagePullPolicy: Always
----
-apiVersion: monitoring.coreos.com/v1
-kind: ServiceMonitor
-metadata:
-  labels:
-    app: prometheus-xtz
-    release: mon-xtz
-  name: tezos-private-node-monitoring
-spec:
-  endpoints:
-  - interval: 15s
-    port: metrics
-    path: /metrics
-  selector:
-    matchLabels:
-      app: tezos-private-baking-node
----
-apiVersion: monitoring.coreos.com/v1
-kind: PrometheusRule
-metadata:
-  labels:
-    app: prometheus-xtz
-    release: mon-xtz
-    prometheus: prometheus-xtz
-    role: alert-rules
-  name: tezos-private-node-rules
-spec:
-  groups:
-  - name: tezos-private-node
-    rules:
-    - alert: PrivateNodeLost1Connection
-      annotations:
-        description: 'Private node lost one connection to pubic node'
-        summary: Private node has less than the expected number of connections
-      expr: sum(tezos_node_connections{private="false",pod=~".*-tezos-private-baking-node-.*"}) < 2
-      for: 1m
-      labels:
-        alerting_target: blockchain_cluster_alerter
-        severity: critical
-    - alert: PrivateNodeDisconnected
-      annotations:
-        description: 'Private node lost all connections to public nodes'
-        summary: Private node has no connnection to public nodes
-      expr: sum(tezos_node_connections{private="false",pod=~".*-tezos-private-baking-node-.*"}) == 0
-      for: 1m
-      labels:
-        alerting_target: blockchain_cluster_alerter
-        severity: critical
