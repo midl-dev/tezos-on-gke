@@ -81,6 +81,11 @@ variable "kubernetes_pool_name" {
   default = "blockchain-pool"
 }
 
+variable "kubernetes_payout_pool_name" {
+  type = string
+  description = "Node pool to run the payout cronjob on"
+  default = "blockchain-pool"
+}
 #
 # Tezos node and baker options
 # ------------------------------

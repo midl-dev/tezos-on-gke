@@ -233,7 +233,7 @@ rules_map: try(var.baking_nodes[nodename][baker_name]["payout_config"]["rules_ma
 })}
 EOC
 cat <<EOPN > payout-${baker_name}/nodepool.yaml
-${templatefile("${path.module}/../k8s/payout-tmpl/nodepool.yaml.tmpl", {"kubernetes_pool_name": var.kubernetes_pool_name})}
+${templatefile("${path.module}/../k8s/payout-tmpl/nodepool.yaml.tmpl", {"kubernetes_payout_pool_name": var.kubernetes_payout_pool_name})}
 EOPN
 cat <<EOA > payout-${baker_name}/trd-args.yaml
 ${templatefile("${path.module}/../k8s/payout-tmpl/trd-args.yaml.tmpl", 
