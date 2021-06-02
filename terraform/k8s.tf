@@ -37,7 +37,6 @@ build_container () {
   cd $1
   container=$(basename $1)
   cp Dockerfile.template Dockerfile
-  sed -i "s/((tezos_sentry_version))/${var.tezos_sentry_version}/" Dockerfile
   sed -i "s/((tezos_private_version))/${var.tezos_private_version}/" Dockerfile
   cat << EOY > cloudbuild.yaml
 steps:
@@ -51,6 +50,7 @@ EOY
 }
 export -f build_container
 find ${path.module}/../docker -mindepth 1 -maxdepth 1 -type d -exec bash -c 'build_container "$0"' {} \; -printf '%f\n'
+#build_container ${path.module}/../docker/tezos-remote-signer-loadbalancer
 EOF
   }
 }

@@ -1,6 +1,9 @@
 FROM haproxy:alpine
 
+USER root
 RUN apk add --no-cache gettext
 COPY haproxy.cfg.template /usr/local/etc/haproxy/haproxy.cfg.template
 COPY docker-entrypoint.sh /
+RUN chmod -R 777 /usr/local/etc/haproxy/
+USER haproxy
 ENTRYPOINT [ "/docker-entrypoint.sh" ]
