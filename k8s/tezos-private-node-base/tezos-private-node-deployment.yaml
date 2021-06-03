@@ -62,6 +62,13 @@ spec:
     - port: 53
       protocol: UDP
   - ports:
+    - port: 8732
+      protocol: TCP
+    from:
+    - podSelector:
+        matchLabels:
+          app: trd-payout-sender
+  - ports:
     - port: 9489
       protocol: TCP
     from:
