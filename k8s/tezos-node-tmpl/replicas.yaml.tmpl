@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: tezos-private-baking-node
+  name: tezos-node
 spec:
   replicas: ${ experimental_active_standby_mode ? 2 : 1 }
   template:

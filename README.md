@@ -36,11 +36,7 @@ We help you deploy and manage a complete Tezos baking operation. [Hire us](https
 Architecture
 ------------
 
-This is a Kubernetes private cluster with two nodes located in two Google Cloud zones, in the same region.
-
-The sentry (public) nodes are a StatefulSet of two pods, one in each zone. They connect to the peer-to-peer network.
-
-A private node performs bakings and endorsements. It connects exclusively to the two public nodes belonging to the cluster.
+This is a Kubernetes private cluster with Tezos nodes located in two Google Cloud zones, in the same region.
 
 The setup is production hardened:
 * usage of kubernetes secrets to store sensitive values such as node keys. They are created securely from terraform variables,
@@ -131,8 +127,7 @@ Below is a list of variables you can set.
 | snapshot\_url | URL of the snapshot of type rolling to download. | `string` | `"https://mainnet.xtz-shots.io/rolling"` | no |
 | terraform\_service\_account\_credentials | Path to terraform service account file, created following the instructions in https://cloud.google.com/community/tutorials/managing-gcp-projects-with-terraform | `string` | `"~/.config/gcloud/application_default_credentials.json"` | no |
 | tezos\_network | The Tezos network such as mainnet, edonet, etc. | `string` | `"mainnet"` | no |
-| tezos\_private\_version | The Tezos container version for private node. Should be hard-coded to a version from https://hub.docker.com/r/tezos/tezos/tags. Not recommended to set to a rolling tag like 'mainnet', because it may break unexpectedly. Example: `v8.1`. | `string` | `"latest-release"` | no |
-| tezos\_sentry\_version | The Tezos container version for sentry (public) nodes. Should be hard-coded to a version from https://hub.docker.com/r/tezos/tezos/tags. Not recommended to set to a rolling tag like 'mainnet', because it may break unexpectedly. Example: `v8.1`. | `string` | `"latest-release"` | no |
+| tezos\_version | The Tezos container version for private node. Should be hard-coded to a version from https://hub.docker.com/r/tezos/tezos/tags. Not recommended to set to a rolling tag like 'mainnet', because it may break unexpectedly. Example: `v8.1`. | `string` | `"latest-release"` | no |
 
 
 ### Baking nodes
@@ -214,7 +209,7 @@ This will take time as it will:
 * create a Google Cloud project
 * create a Kubernetes cluster
 * build the necessary containers
-* spin up the public nodes and private baker nodes
+* spin up the private baker nodes
 
 In case of error, run the `plan` and `apply` steps again:
 

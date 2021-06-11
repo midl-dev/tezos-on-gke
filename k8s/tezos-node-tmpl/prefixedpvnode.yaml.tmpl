@@ -1,14 +1,14 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: tezos-public-node
+  name: tezos-node
 spec:
   volumeClaimTemplates:
   - metadata:
-      name: tezos-public-node-pv-claim
+      name: tezos-node-pv-claim
     spec:
       storageClassName: ${kubernetes_name_prefix}-local-ssd
       accessModes: [ "ReadWriteOnce" ]
       resources:
         requests:
-          storage: ${public_node_storage_size}Gi
+          storage: ${node_storage_size}Gi

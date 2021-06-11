@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: tezos-private-baking-node
+  name: tezos-node
 spec:
   template:
     spec:
@@ -9,11 +9,11 @@ spec:
       - name: tezos-endorser-with-remote-signer-${baker_name}-${lower(protocol)}
         image: tezos-endorser-with-remote-signer
         volumeMounts:
-        - name: tezos-private-node-pv-claim
+        - name: tezos-node-pv-claim
           mountPath: /var/run/tezos
         envFrom:
         - configMapRef:
-            name: tezos-private-node-configmap
+            name: tezos-node-configmap
         env:
         - name: BAKER_ALIAS
           value: k8s-baker-${baker_name}
@@ -26,11 +26,11 @@ spec:
       - name: tezos-baker-with-remote-signer-${baker_name}-${lower(protocol)}
         image: tezos-baker-with-remote-signer
         volumeMounts:
-        - name: tezos-private-node-pv-claim
+        - name: tezos-node-pv-claim
           mountPath: /var/run/tezos
         envFrom:
         - configMapRef:
-            name: tezos-private-node-configmap
+            name: tezos-node-configmap
         env:
         - name: BAKER_ALIAS
           value: k8s-baker-${baker_name}

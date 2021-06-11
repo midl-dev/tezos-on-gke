@@ -1,0 +1,55 @@
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: regional
+provisioner: kubernetes.io/gce-pd
+parameters:
+  type: pd-ssd
+  replication-type: regional-pd
+allowVolumeExpansion: true
+---
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: local-ssd
+provisioner: kubernetes.io/gce-pd
+parameters:
+  type: pd-ssd
+allowVolumeExpansion: true
+---
+# for private node leader election, access to endpoint resource is needed
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: leader-elector
+  namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRole
+metadata:
+  name: leader-elector
+rules:
+- apiGroups:
+  - ""
+  - "extensions"
+  resources:
+  - endpoints
+  verbs:
+  - create
+  - delete
+  - get
+  - patch
+  - update
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: leader-elector
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: leader-elector
+subjects:
+- kind: ServiceAccount
+  name: leader-elector
+  namespace: default

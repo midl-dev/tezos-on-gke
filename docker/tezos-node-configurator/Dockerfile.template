@@ -1,0 +1,4 @@
+FROM tezos/tezos:((tezos_private_version))
+COPY entrypoint.sh /
+ENTRYPOINT ["/entrypoint.sh"]
+CMD []

@@ -2,10 +2,10 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
 bases:
-- ./tezos-public-node
+- ./tezos-common
 - ./tezos-alertmanager
 %{ for nodename in keys(baking_nodes) }
-- ./tezos-private-node-${nodename}
+- ./tezos-node-${nodename}
 %{ for baker_name, baker_data in baking_nodes[nodename] }
 %{ if ! contains(keys(baker_data), "insecure_private_baking_key") }
 - ./tezos-remote-signer-loadbalancer-${baker_name}

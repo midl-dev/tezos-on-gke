@@ -27,7 +27,7 @@ spec:
             - "--network"
             - "${network}"
             - "--node_endpoint"
-            - "${kubernetes_name_prefix}-tezos-private-baking-node-self-0.${kubernetes_name_prefix}-tezos-private-baking-node-self:8732"
+            - "${kubernetes_name_prefix}-tezos-node-self-0.${kubernetes_name_prefix}-tezos-node-self:8732"
             - "--signer_endpoint"
             - "http://${kubernetes_name_prefix}-tezos-remote-signer-loadbalancer-${baker_name}:8445"
 %{if dry_run }
