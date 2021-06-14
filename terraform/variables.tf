@@ -102,12 +102,6 @@ variable "tezos_network" {
   default = "mainnet"
 }
 
-variable "tezos_sentry_version" {
-  type =string
-  description = "The Tezos container version for sentry (public) nodes. Should be hard-coded to a version from https://hub.docker.com/r/tezos/tezos/tags. Not recommended to set to a rolling tag like 'mainnet', because it may break unexpectedly. Example: `v8.1`."
-  default = "latest-release"
-}
-
 variable "tezos_private_version" {
   type =string
   description = "The Tezos container version for private node. Should be hard-coded to a version from https://hub.docker.com/r/tezos/tezos/tags. Not recommended to set to a rolling tag like 'mainnet', because it may break unexpectedly. Example: `v8.1`."

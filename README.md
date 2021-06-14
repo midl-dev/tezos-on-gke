@@ -16,9 +16,8 @@ The private baking key can be managed two ways:
 Features:
 
 * high availaibility baking, endorsing and accusing
-* baking node is protected behind two sentry nodes
 * ssh endpoint for remote signing
-* compatible with Tezos mainnet and testnets such as Delphinet
+* compatible with Tezos mainnet and testnets such as Florencenet
 * blockchain snapshot download and import for faster synchronization of the nodes
 * support for two highly available signers
 * deploy everything in just one command
@@ -175,14 +174,20 @@ mybaker = {
 }
 ```
 
+If you do not want to bake (for example, if you want to deploy a RPC node only), configure just one node with no baker:
+
+```
+baking_nodes = { "mynode": {} }
+```
+
 ### Full example
 
 Here is a full example `terraform.tfvars` configuration. This private key is provided only as an example, generate your own instead.
 
 ```
 project="<your Google project name>"
-tezos_network="delphinet"
-snapshot_url="https://delphinet.xtz-shots.io/rolling"
+tezos_network="florencenet"
+snapshot_url="https://florencenet.xtz-shots.io/rolling"
 baking_nodes = {
   mynode = {
     mybaker = {
