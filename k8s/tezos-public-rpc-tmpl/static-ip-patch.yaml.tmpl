@@ -6,6 +6,10 @@ metadata:
     kubernetes.io/ingress.global-static-ip-name: ${kubernetes_name_prefix}-tezos-rpc-ip
     networking.gke.io/managed-certificates: ${kubernetes_name_prefix}-node-rpc-certificate
     kubernetes.io/ingress.allow-http: "false"
+spec:
+  backend:
+    serviceName: "${kubernetes_name_prefix}-tezos-node-${nodename}"
+    servicePort: rpc
 ---
 apiVersion: cloud.google.com/v1
 kind: BackendConfig

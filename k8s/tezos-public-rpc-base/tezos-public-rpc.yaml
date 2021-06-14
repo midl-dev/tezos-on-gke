@@ -2,10 +2,6 @@ apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
 metadata:
   name: tezos-node-rpc
-spec:
-  backend:
-    serviceName: tezos-node
-    servicePort: rpc
 ---
 apiVersion: networking.gke.io/v1beta2
 kind: ManagedCertificate

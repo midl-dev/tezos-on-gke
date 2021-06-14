@@ -109,7 +109,7 @@ cat <<EOK > tezos-public-rpc/kustomization.yaml
 ${templatefile("${path.module}/../k8s/tezos-public-rpc-tmpl/kustomization.yaml.tmpl", local.kubernetes_variables)}
 EOK
 cat <<EOP > tezos-public-rpc/static-ip-patch.yaml
-${templatefile("${path.module}/../k8s/tezos-public-rpc-tmpl/static-ip-patch.yaml.tmpl", local.kubernetes_variables)}
+${templatefile("${path.module}/../k8s/tezos-public-rpc-tmpl/static-ip-patch.yaml.tmpl", merge(local.kubernetes_variables, { "nodename": keys(var.baking_nodes)[0] }))}
 EOP
 
 cat <<EOK > tezos-alertmanager/kustomization.yaml
@@ -135,6 +135,9 @@ EONPN
 cat <<EONPN > tezos-node-${nodename}/nodepool.yaml
 ${templatefile("${path.module}/../k8s/tezos-node-tmpl/nodepool.yaml.tmpl", {"kubernetes_pool_name": var.kubernetes_pool_name})}
 EONPN
+cat <<EOSP > tezos-node-${nodename}/service-patch.yaml
+${templatefile("${path.module}/../k8s/tezos-node-tmpl/service-patch.yaml.tmpl", local.kubernetes_variables)}
+EOSP
 
 %{ for baker_name in keys(var.baking_nodes[nodename]) }
 

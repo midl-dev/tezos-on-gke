@@ -8,13 +8,14 @@ spec:
   ports:
   - port: 9732
     name: p2p
+  - port: 8732
+    name: rpc
   - port: 9489
     name: metrics
   - port: 4247
     name: nonce-exposer
   selector:
     app: tezos-node
-  clusterIP: None
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
