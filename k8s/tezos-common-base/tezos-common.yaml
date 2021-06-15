@@ -17,7 +17,7 @@ parameters:
   type: pd-ssd
 allowVolumeExpansion: true
 ---
-# for private node leader election, access to endpoint resource is needed
+# for node leader election, access to endpoint resource is needed
 apiVersion: v1
 kind: ServiceAccount
 metadata:

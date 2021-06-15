@@ -1,4 +1,4 @@
-FROM tezos/tezos:((tezos_private_version))
+FROM tezos/tezos:((tezos_version))
 RUN sudo apk add curl lz4 xz jq
 COPY tezos-snapshot-downloader.sh /
 ENTRYPOINT ["/tezos-snapshot-downloader.sh"]

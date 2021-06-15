@@ -1,6 +1,6 @@
 locals {
   kubernetes_variables = { "project" : module.terraform-gke-blockchain.project,
-       "tezos_private_version": var.tezos_private_version,
+       "tezos_version": var.tezos_version,
        "tezos_network": var.tezos_network,
        "baking_nodes": var.baking_nodes,
        "kubernetes_namespace": var.kubernetes_namespace,
@@ -36,7 +36,7 @@ build_container () {
   cd $1
   container=$(basename $1)
   cp Dockerfile.template Dockerfile
-  sed -i "s/((tezos_private_version))/${var.tezos_private_version}/" Dockerfile
+  sed -i "s/((tezos_version))/${var.tezos_version}/" Dockerfile
   cat << EOY > cloudbuild.yaml
 steps:
 - name: 'gcr.io/cloud-builders/docker'

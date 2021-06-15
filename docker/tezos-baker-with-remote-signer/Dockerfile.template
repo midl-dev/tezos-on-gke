@@ -1,4 +1,4 @@
-FROM tezos/tezos:((tezos_private_version))
+FROM tezos/tezos:((tezos_version))
 RUN sudo apk add jq curl supervisor
 COPY supervisord-tezos.conf /etc/supervisord-tezos.conf
 COPY tezos-baker.sh /

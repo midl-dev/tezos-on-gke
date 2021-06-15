@@ -126,7 +126,7 @@ Below is a list of variables you can set.
 | snapshot\_url | URL of the snapshot of type rolling to download. | `string` | `"https://mainnet.xtz-shots.io/rolling"` | no |
 | terraform\_service\_account\_credentials | Path to terraform service account file, created following the instructions in https://cloud.google.com/community/tutorials/managing-gcp-projects-with-terraform | `string` | `"~/.config/gcloud/application_default_credentials.json"` | no |
 | tezos\_network | The Tezos network such as mainnet, edonet, etc. | `string` | `"mainnet"` | no |
-| tezos\_version | The Tezos container version for private node. Should be hard-coded to a version from https://hub.docker.com/r/tezos/tezos/tags. Not recommended to set to a rolling tag like 'mainnet', because it may break unexpectedly. Example: `v8.1`. | `string` | `"latest-release"` | no |
+| tezos\_version | The Tezos container version for node. Should be hard-coded to a version from https://hub.docker.com/r/tezos/tezos/tags. Not recommended to set to a rolling tag like 'mainnet', because it may break unexpectedly. Example: `v9.2`. | `string` | `"latest-release"` | no |
 
 
 ### Baking nodes
@@ -214,7 +214,7 @@ This will take time as it will:
 * create a Google Cloud project
 * create a Kubernetes cluster
 * build the necessary containers
-* spin up the private baker nodes
+* spin up the baker nodes
 
 In case of error, run the `plan` and `apply` steps again:
 
@@ -231,7 +231,7 @@ Once the command returns, you can verify that the pods are up by running:
 kubectl get pods
 ```
 
-You should see 2 public nodes and one private node.
+You should see the tezos node.
 
 Display the log of a public node and observe it sync:
 

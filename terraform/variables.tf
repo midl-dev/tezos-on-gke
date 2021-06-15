@@ -102,9 +102,9 @@ variable "tezos_network" {
   default = "mainnet"
 }
 
-variable "tezos_private_version" {
+variable "tezos_version" {
   type =string
-  description = "The Tezos container version for private node. Should be hard-coded to a version from https://hub.docker.com/r/tezos/tezos/tags. Not recommended to set to a rolling tag like 'mainnet', because it may break unexpectedly. Example: `v8.1`."
+  description = "The Tezos container version for the baking node. Should be hard-coded to a version from https://hub.docker.com/r/tezos/tezos/tags. Not recommended to set to a rolling tag like 'mainnet', because it may break unexpectedly. Example: `v8.1`."
   default = "latest-release"
 }
 
