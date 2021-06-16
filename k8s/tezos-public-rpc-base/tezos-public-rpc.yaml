@@ -12,3 +12,25 @@ apiVersion: cloud.google.com/v1
 kind: BackendConfig
 metadata:
   name: node-rpc-backendconfig
+spec:
+  healthCheck:
+    checkIntervalSec: 30
+    timeoutSec: 15
+    type: HTTP
+    requestPath: /version
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: tezos-rpc-ingress
+  namespace: default
+spec:
+  podSelector:
+    matchLabels:
+      app: tezos-node
+  policyTypes:
+  - Ingress
+  ingress:
+  - ports:
+    - port: 8732
+      protocol: TCP
