@@ -180,6 +180,12 @@ If you do not want to bake (for example, if you want to deploy a RPC node only),
 baking_nodes = { "mynode": {} }
 ```
 
+### Payouts
+
+Tezos-on-GKE supports the [Tezos Rewards Distributor (TRD)](https://github.com/tezos-reward-distributor-organization/tezos-reward-distributor) running as a cronjob alongside the baker node, sharing the same remote signing infrastructure.
+
+All details are in the [tezos-suite documentation](https://tezos-docs.midl.dev/trd-payouts.html).
+
 ### Full example
 
 Here is a full example `terraform.tfvars` configuration. This private key is provided only as an example, generate your own instead.
