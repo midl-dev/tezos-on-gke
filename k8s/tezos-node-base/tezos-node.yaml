@@ -153,6 +153,9 @@ spec:
           httpGet:
             path: /is_synced
             port: 31764
+          periodSeconds: 60
+          timeoutSeconds: 15
+          failureThreshold: 10
       - name: tezos-accuser
         image: tezos/tezos
         args: [ "tezos-accuser" ]
