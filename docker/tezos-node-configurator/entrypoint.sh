@@ -21,7 +21,10 @@ cat << EOF > ${node_dir}/data/config.json
   "rpc": { "listen-addrs": [ ":8732", "0.0.0.0:8732" ],
       "cors-origin":
         [ "*" ],
-      "cors-headers": [ "content-type" ] },
+      "cors-headers": [ "content-type" ],
+      "acl":
+        [ { "address": ":8732", "blacklist": [] } ]
+    },
   "p2p":
     { "limits":
         { "connection-timeout": 10, "min-connections": 25,
