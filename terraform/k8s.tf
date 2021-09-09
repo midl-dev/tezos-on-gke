@@ -139,13 +139,13 @@ cat <<EOSP > tezos-node-${nodename}/service-patch.yaml
 ${templatefile("${path.module}/../k8s/tezos-node-tmpl/service-patch.yaml.tmpl", local.kubernetes_variables)}
 EOSP
 
-%{ for baker_name in keys(var.baking_nodes[nodename]) }
-
 %{ for protocol in var.protocols }
-cat <<EOBEP > tezos-node-${nodename}/baker_endorser_process_patch_${baker_name}_${protocol}.yaml
-${templatefile("${path.module}/../k8s/tezos-node-tmpl/baker_endorser_process_patch.yaml.tmpl", {"baker_name": baker_name, "protocol": protocol})}
+cat <<EOBEP > tezos-node-${nodename}/baker_endorser_process_patch_${protocol}.yaml
+${templatefile("${path.module}/../k8s/tezos-node-tmpl/baker_endorser_process_patch.yaml.tmpl", {"bakers": keys(var.baking_nodes[nodename]), "protocol": protocol})}
 EOBEP
 %{ endfor }
+
+%{ for baker_name in keys(var.baking_nodes[nodename]) }
 
 %{ if ! contains(keys(var.baking_nodes[nodename][baker_name]), "insecure_private_baking_key") }
 
