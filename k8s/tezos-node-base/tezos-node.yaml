@@ -136,7 +136,12 @@ spec:
       containers:
       - name: tezos-node
         image: tezos/tezos
-        args: [ "tezos-node" ]
+        command:
+          - /bin/sh
+        args:
+          - "-c"
+          - |
+            /usr/local/bin/tezos-node run --config-file /var/run/tezos/node/data/config.json
         ports:
         - containerPort: 9732
           name: tezos-port

@@ -25,5 +25,4 @@ node_data_dir="$node_dir/data"
 
 exec "$baker" --chain main \
      --base-dir "$client_dir" \
-     --endpoint "http://${NODE_HOST}:${NODE_RPC_PORT}" \
      run with local node "$node_data_dir" $BAKER_ALIAS
