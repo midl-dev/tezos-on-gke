@@ -42,7 +42,7 @@ configMapGenerator:
 - name: tezos-node-configmap
   literals:
   - NODE_HOST="127.0.0.1"
-  - TEZOS_NETWORK=${tezos_network}"
+  - TEZOS_NETWORK="${tezos_network}"
   - KUBERNETES_NAME_PREFIX="${kubernetes_name_prefix}"
   - DATA_DIR=/run/tezos
   - SNAPSHOT_URL="${snapshot_url}"
