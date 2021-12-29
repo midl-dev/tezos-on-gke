@@ -1,0 +1,8 @@
+FROM google/cloud-sdk:slim
+
+COPY entrypoint.sh /payout-report-uploader/
+
+ENTRYPOINT ["/payout-report-uploader/entrypoint.sh"]
+
+CMD []
+

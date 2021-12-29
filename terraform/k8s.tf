@@ -199,6 +199,8 @@ ${templatefile("${path.module}/../k8s/payout-tmpl/kustomization.yaml.tmpl",
   merge(var.baking_nodes[nodename][baker_name]["payout_config"], {
   "project": var.project,
   "baker_name": baker_name,
+  "region": module.terraform-gke-blockchain.location,
+  "report_bucket_url": google_storage_bucket.trd_report_bucket[baker_name].url
   "kubernetes_name_prefix": var.kubernetes_name_prefix,
   "kubernetes_namespace": var.kubernetes_namespace} ))}
 EOK
@@ -227,6 +229,10 @@ EOA
 cat <<EOPC > payout-${baker_name}/crontime.yaml
 ${templatefile("${path.module}/../k8s/payout-tmpl/crontime.yaml.tmpl", {"schedule": var.baking_nodes[nodename][baker_name]["payout_config"]["schedule"]})}
 EOPC
+echo Now writing to payout-${baker_name}/serviceaccountannotate.yaml
+cat <<EONPN > payout-${baker_name}/serviceaccountannotate.yaml
+${templatefile("${path.module}/../k8s/payout-tmpl/serviceaccountannotate.yaml.tmpl", local.kubernetes_variables)}
+EONPN
 %{ endif }
 
 %{ endfor}
@@ -288,4 +294,53 @@ resource "google_compute_security_policy" "public_rpc_filter" {
     description = "default rule, deny"
   }
 
+}
+
+#############################
+# Reward Buckets
+#############################
+
+# we create buckets for every baker (even if they are not public)
+# because it's simpler
+
+resource "google_service_account" "payout_report_uploader" {
+  account_id   = "${var.kubernetes_name_prefix}-payout-report-uploader"
+  display_name = "Payout report uploader for ${var.kubernetes_name_prefix}"
+  project = module.terraform-gke-blockchain.project 
+}
+
+# based on workload identity docs
+# https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity
+resource "google_service_account_iam_binding" "payout_report_uploader_binding" {
+  service_account_id = google_service_account.payout_report_uploader.name
+  role               = "roles/iam.workloadIdentityUser"
+
+  members = [ for k in toset(keys(merge(merge(values(var.baking_nodes)...),{}))) :
+    "serviceAccount:${module.terraform-gke-blockchain.project}.svc.id.goog[${var.kubernetes_namespace}/${var.kubernetes_name_prefix}-trd-report-uploader-${k}]"
+  ]
+}
+resource "random_id" "rnd_bucket" {
+  for_each = toset(keys(merge(merge(values(var.baking_nodes)...),{})))
+  byte_length = 4
+}
+resource "google_storage_bucket" "trd_report_bucket" {
+  for_each = toset(keys(merge(merge(values(var.baking_nodes)...),{})))
+  name     = "${var.kubernetes_name_prefix}-baker-payout-${each.key}-${random_id.rnd_bucket[each.key].hex}"
+  project = module.terraform-gke-blockchain.project
+
+  force_destroy = true
+}
+
+resource "google_storage_bucket_iam_member" "member" {
+  for_each = toset(keys(merge(merge(values(var.baking_nodes)...),{})))
+  bucket = google_storage_bucket.trd_report_bucket[each.key].name
+  role        = "roles/storage.objectAdmin"
+  member      = "serviceAccount:${google_service_account.payout_report_uploader.email}"
+}
+
+resource "google_storage_bucket_iam_member" "make_public" {
+  for_each = toset(keys(merge(merge(values(var.baking_nodes)...),{})))
+  bucket = google_storage_bucket.trd_report_bucket[each.key].name
+  role        = "roles/storage.objectViewer"
+  member      = "allUsers"
 }
