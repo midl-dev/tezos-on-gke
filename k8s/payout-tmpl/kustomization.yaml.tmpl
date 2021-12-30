@@ -10,13 +10,21 @@ imageTags:
   - name: trd
     newName: registry.gitlab.com/ochem/tezos-reward-distributor
     newTag: latest
+  - name: payout-report-uploader
+    newName: gcr.io/${project}/payout-report-uploader
+    newTag: ${kubernetes_namespace}-latest
 
 configMapGenerator:
 - name: trd-config
   files:
   - config.yaml
+- name: report-upload-config
+  literals:
+  - GCP_REGION="${region}"
+  - REPORT_BUCKET_URL="${report_bucket_url}"
 
 patchesStrategicMerge:
 - crontime.yaml
 - nodepool.yaml
 - trd-args.yaml
+- serviceaccountannotate.yaml

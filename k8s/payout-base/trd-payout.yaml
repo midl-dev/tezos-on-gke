@@ -24,7 +24,7 @@ spec:
         spec:
           securityContext:
             fsGroup: 100
-          containers:
+          initContainers:
           - name: trd-payout-cron
             image: trd
               #command: ["/bin/sh", "-ec", "sleep 1000"]
@@ -38,6 +38,20 @@ spec:
             resources:
               limits:
                 cpu: 0
+          containers:
+          - name: report-uploader
+            image: payout-report-uploader
+            volumeMounts:
+            - name: trd-reports
+              mountPath: /app/reports
+              readOnly: true
+            imagePullPolicy: Always
+            resources:
+              limits:
+                cpu: 0
+            envFrom:
+            - configMapRef:
+                name: report-upload-config
           volumes:
           - name: trd-reports
             persistentVolumeClaim:
@@ -49,6 +63,7 @@ spec:
               - key: config.yaml
                 path: config.yaml
           restartPolicy: OnFailure
+          serviceAccountName: trd-report-uploader
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
@@ -68,3 +83,8 @@ spec:
     - podSelector:
         matchLabels:
           app: trd-payout-sender
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: trd-report-uploader
