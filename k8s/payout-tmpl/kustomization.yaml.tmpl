@@ -8,8 +8,8 @@ nameSuffix: -${baker_name}
 imageTags:
 
   - name: trd
-    newName: registry.gitlab.com/ochem/tezos-reward-distributor
-    newTag: latest
+    newName: ${trd_container_name}
+    newTag: ${trd_container_tag}
   - name: payout-report-uploader
     newName: gcr.io/${project}/payout-report-uploader
     newTag: ${kubernetes_namespace}-latest

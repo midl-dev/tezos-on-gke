@@ -202,6 +202,8 @@ ${templatefile("${path.module}/../k8s/payout-tmpl/kustomization.yaml.tmpl",
   "region": module.terraform-gke-blockchain.location,
   "report_bucket_url": google_storage_bucket.trd_report_bucket[baker_name].url
   "kubernetes_name_prefix": var.kubernetes_name_prefix,
+  "trd_container_name": lookup(var.baking_nodes[nodename][baker_name],"trd_container_name","trdo/tezos-reward-distributor"),
+  "trd_container_tag": lookup(var.baking_nodes[nodename][baker_name],"trd_container_tag","latest"),
   "kubernetes_namespace": var.kubernetes_namespace} ))}
 EOK
 cat <<EOC > payout-${baker_name}/config.yaml
