@@ -214,6 +214,7 @@ payment_address: var.baking_nodes[nodename][baker_name]["payout_config"]["paymen
 rewards_type: var.baking_nodes[nodename][baker_name]["payout_config"]["rewards_type"],
 service_fee: var.baking_nodes[nodename][baker_name]["payout_config"]["service_fee"],
 reactivate_zeroed: true,
+pay_denunciation_rewards: true,
 delegator_pays_xfer_fee: true,
 delegator_pays_ra_fee: true,
 rules_map: try(var.baking_nodes[nodename][baker_name]["payout_config"]["rules_map"], {}),
