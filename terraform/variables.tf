@@ -127,7 +127,13 @@ variable "protocols" {
 variable "snapshot_url" {
   type = string
   description = "URL of the snapshot of type rolling to download."
-  default = "https://mainnet.xtz-shots.io/rolling"
+  default = ""
+}
+
+variable "tarball_url" {
+  type = string
+  description = "URL of the tarball of type rolling to download."
+  default = "https://mainnet.xtz-shots.io/rolling-tarball"
 }
 
 variable "history_mode" {

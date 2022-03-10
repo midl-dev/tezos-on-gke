@@ -15,6 +15,7 @@ locals {
        "rpc_public_hostname": var.rpc_public_hostname,
        "protocols": var.protocols,
        "snapshot_url": var.snapshot_url,
+       "tarball_url": var.tarball_url,
        "experimental_active_standby_mode": var.experimental_active_standby_mode}
 }
 

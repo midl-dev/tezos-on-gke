@@ -245,6 +245,11 @@ spec:
             configMapKeyRef:
               name: tezos-node-configmap
               key: TEZOS_NETWORK
+        - name: TARBALL_URL
+          valueFrom:
+            configMapKeyRef:
+              name: tezos-node-configmap
+              key: TARBALL_URL
         - name: SNAPSHOT_URL
           valueFrom:
             configMapKeyRef:
