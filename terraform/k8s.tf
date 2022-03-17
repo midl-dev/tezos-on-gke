@@ -331,6 +331,7 @@ resource "google_storage_bucket" "trd_report_bucket" {
   for_each = toset(keys(merge(merge(values(var.baking_nodes)...),{})))
   name     = "${var.kubernetes_name_prefix}-baker-payout-${each.key}-${random_id.rnd_bucket[each.key].hex}"
   project = module.terraform-gke-blockchain.project
+  location  = "US"
 
   force_destroy = true
 }
