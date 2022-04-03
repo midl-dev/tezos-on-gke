@@ -118,7 +118,7 @@ Below is a list of variables you can set.
 | node\_storage\_size | Storage size for the nodes, in gibibytes (GiB). | `string` | `"15"` | no |
 | org\_id | Google Cloud organization ID. | `string` | `""` | no |
 | project | Project ID where Terraform is authenticated to run to create additional projects. If provided, Terraform will great the GKE and Tezos cluster inside this project. If not given, Terraform will generate a new project. | `string` | `""` | no |
-| protocols | The list of Tezos protocols currently in use, following the naming convention used in the baker/endorser binary names, for example 007-PsDELPH1. Baking and endorsing daemons will be spun up for every protocol provided in the list, which helps for seamless protocol updates. | `list` | <pre>[<br>  "007-PsDELPH1",<br>  "008-PtEdoTez"<br>]</pre> | no |
+| protocols | The list of Tezos protocols currently in use, following the naming convention used in the baker binary names, for example 007-PsDELPH1. Baking and endorsing daemons will be spun up for every protocol provided in the list, which helps for seamless protocol updates. | `list` | <pre>[<br>  "007-PsDELPH1",<br>  "008-PtEdoTez"<br>]</pre> | no |
 | region | Region in which to create the cluster, or region where the cluster exists. | `string` | `"us-central1"` | no |
 | rpc\_public\_hostname | If set, expose the RPC of the public node through a load balancer and create a certificate for the given hostname. | `string` | `""` | no |
 | rpc\_subnet\_whitelist | IP address whitelisting for the public RPC. Open to everyone by default. | `list` | <pre>[<br>  "0.0.0.0/0"<br>]</pre> | no |

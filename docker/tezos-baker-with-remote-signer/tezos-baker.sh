@@ -15,7 +15,6 @@ node="$BIN_DIR/tezos-node"
 client="$BIN_DIR/tezos-client"
 admin_client="$BIN_DIR/tezos-admin-client"
 baker="$BIN_DIR/tezos-baker-$PROTOCOL"
-endorser="$BIN_DIR/tezos-endorser-$PROTOCOL"
 accuser="$BIN_DIR/tezos-accuser-$PROTOCOL"
 signer="$BIN_DIR/tezos-signer"
 
