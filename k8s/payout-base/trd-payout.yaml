@@ -30,9 +30,9 @@ spec:
               #command: ["/bin/sh", "-ec", "sleep 1000"]
             volumeMounts:
             - name: trd-reports
-              mountPath: /app/reports
+              mountPath: /app/base/
             - name: trd-config
-              mountPath: /app/config/config.yaml
+              mountPath: /app/base/cfg/config.yaml
               subPath: config.yaml
             imagePullPolicy: Always
             resources:
@@ -43,7 +43,7 @@ spec:
             image: payout-report-uploader
             volumeMounts:
             - name: trd-reports
-              mountPath: /app/reports
+              mountPath: /app/base
               readOnly: true
             imagePullPolicy: Always
             resources:
