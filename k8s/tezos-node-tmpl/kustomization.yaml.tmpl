@@ -56,5 +56,7 @@ patchesStrategicMerge:
 - nodepool.yaml
 - service-patch.yaml
 %{ for protocol in protocols }
-- baker_endorser_process_patch_${protocol}.yaml
+%{ for baker_name in keys(baking_nodes[nodename]) }
+- baker_endorser_process_patch_${baker_name}_${protocol}.yaml
+%{ endfor}
 %{ endfor}

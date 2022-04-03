@@ -6,7 +6,7 @@ spec:
   template:
     spec:
       containers:
-      - name: tezos-endorser-with-remote-signer-${lower(protocol)}
+      - name: tezos-endorser-with-remote-signer-${baker_name}-${lower(protocol)}
         image: tezos-endorser-with-remote-signer
         volumeMounts:
         - name: tezos-node-pv-claim
@@ -16,14 +16,14 @@ spec:
             name: tezos-node-configmap
         env:
         - name: BAKER_ALIAS
-          value: "%{ for baker_name in bakers ~}k8s-baker-${baker_name} %{ endfor ~}"
+          value: k8s-baker-${baker_name}
         - name: PROTOCOL
           value: ${protocol}
         resources:
           limits:
             cpu: 0
         imagePullPolicy: Always
-      - name: tezos-baker-with-remote-signer-${lower(protocol)}
+      - name: tezos-baker-with-remote-signer-${baker_name}-${lower(protocol)}
         image: tezos-baker-with-remote-signer
         volumeMounts:
         - name: tezos-node-pv-claim
@@ -33,7 +33,7 @@ spec:
             name: tezos-node-configmap
         env:
         - name: BAKER_ALIAS
-          value: "%{ for baker_name in bakers ~}k8s-baker-${baker_name} %{ endfor ~}"
+          value: k8s-baker-${baker_name}
         - name: PROTOCOL
           value: ${protocol}
         resources:
