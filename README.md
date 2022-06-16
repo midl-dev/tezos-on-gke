@@ -253,6 +253,7 @@ Follow [our guide](https://tezos-docs.midl.dev/deploy-remote-signer.html) to con
 
 When using this mode, you must pass a `baking_nodes` map with the following parameters:
 
+* `rpi_signer`: whether the signer is Raspberry Pi + Ledger based. If true, it will perform an advanced health check
 * `ledger_authorized_path`: the Ledger path associated with the key stored in Ledger device on the remote signer,
 * `public_baking_key`: the public key for the key stored in the Ledger device
 * `public_baking_key_hash`: the public key hash for the key stored in the Ledger device

@@ -30,6 +30,12 @@ if [ ! -z $SIGNER_B_PORT ]; then
 fi
 
 export LEDGER_AUTHORIZED_PATH_ENCODED=$(urlencode $LEDGER_AUTHORIZED_PATH)
+if [ "${RPI_SIGNER}" == "false" ]; then
+  export HTTP_CHK_ADDRESS="/authorized_keys"
+else
+  export HTTP_CHK_ADDRESS="/statusz/${PUBLIC_BAKING_KEY_HASH}?ledger_url=${LEDGER_AUTHORIZED_PATH_ENCODED}"
+fi
+
 envsubst < /usr/local/etc/haproxy/haproxy.cfg.template > /usr/local/etc/haproxy/haproxy.cfg
 echo "haproxy tezos signer load balancer is starting"
 

@@ -23,7 +23,8 @@ configMapGenerator:
   literals:
   - KUBERNETES_NAME_PREFIX="${kubernetes_name_prefix}"
   - PUBLIC_BAKING_KEY_HASH="${baking_nodes[nodename][baker_name]["public_baking_key_hash"]}"
-  - LEDGER_AUTHORIZED_PATH="${baking_nodes[nodename][baker_name]["ledger_authorized_path"]}"
+  - RPI_SIGNER="${lookup(baking_nodes[nodename][baker_name], "rpi_signer", "true")}"
+  - LEDGER_AUTHORIZED_PATH="${lookup(baking_nodes[nodename][baker_name], "ledger_authorized_path", "")}"
   - SIGNER_A_PORT="${baking_nodes[nodename][baker_name]["authorized_signers"][0]["signer_port"]}"
 %{ if length(baking_nodes[nodename][baker_name]["authorized_signers"]) > 1 }
   - SIGNER_B_PORT="${element(baking_nodes[nodename][baker_name]["authorized_signers"],1)["signer_port"]}"
