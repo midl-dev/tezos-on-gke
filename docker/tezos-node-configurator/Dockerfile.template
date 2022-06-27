@@ -1,4 +1,5 @@
 FROM tezos/tezos:((tezos_version))
+RUN sudo apk add curl
 COPY entrypoint.sh /
 ENTRYPOINT ["/entrypoint.sh"]
 CMD []

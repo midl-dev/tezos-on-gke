@@ -16,9 +16,16 @@ printf "Writing custom configuration for private node\n"
 rm -rvf ${node_dir}/data/config.json
 mkdir -p ${node_dir}/data
 ip=$(hostname -i)
+
+if [[ "$TEZOS_NETWORK" =~ .*"https://".* ]]; then
+  network_config="$(curl $TEZOS_NETWORK)"
+else
+  network_config="\"$TEZOS_NETWORK\""
+fi
+
 cat << EOF > ${node_dir}/data/config.json
 { "data-dir": "/var/run/tezos/node/data",
-  "network": "$TEZOS_NETWORK",
+  "network": $network_config,
   "rpc": { "listen-addrs": [ "${ip}:8732", "127.0.0.1:8732" ],
       "cors-origin":
         [ "*" ],
