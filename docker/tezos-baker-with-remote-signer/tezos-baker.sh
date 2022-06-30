@@ -22,13 +22,9 @@ client_dir="$DATA_DIR/client"
 node_dir="$DATA_DIR/node"
 node_data_dir="$node_dir/data"
 
-if [ "${PROTOCOL}" == "012-Psithaca" ]; then
-    extra_args=""
-else
-    echo '{"liquidity_baking_toggle_vote": "pass"}' > /${DATA_DIR}/per_block_votes.json
-    # we pass both a vote argument and a votefile argument; vote argument is mandatory as a fallback
-    extra_args="--liquidity-baking-toggle-vote on --votefile /${DATA_DIR}/per_block_votes.json"
-fi
+echo ${PER_BLOCK_VOTES} > ${DATA_DIR}/${BAKER_ALIAS}_per_block_votes.json
+# we pass both a vote argument and a votefile argument; vote argument is mandatory as a fallback
+extra_args="--liquidity-baking-toggle-vote pass --votefile ${DATA_DIR}/${BAKER_ALIAS}_per_block_votes.json"
 
 exec "$baker" --chain main \
      --base-dir "$client_dir" \
