@@ -148,7 +148,8 @@ cat <<EOBEP > tezos-node-${nodename}/baker_endorser_process_patch_${baker_name}_
 ${templatefile("${path.module}/../k8s/tezos-node-tmpl/baker_endorser_process_patch.yaml.tmpl",
 { "baker_name": baker_name,
   "protocol": protocol,
-  "per_block_votes": jsonencode(lookup(var.baking_nodes[nodename][baker_name], "per_block_votes", {"liquidity_baking_toggle_vote": "pass"}))
+  "per_block_votes": jsonencode(lookup(var.baking_nodes[nodename][baker_name], "per_block_votes", {"liquidity_baking_toggle_vote": "pass"})),
+  "baker_extra_args": jsonencode(lookup(var.baking_nodes[nodename][baker_name], "baker_extra_args", ""))
 })}
 EOBEP
 %{ endfor }

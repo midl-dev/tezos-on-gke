@@ -17,6 +17,8 @@ spec:
         env:
         - name: BAKER_ALIAS
           value: k8s-baker-${baker_name}
+        - name: BAKER_EXTRA_ARGS
+          value: ${baker_extra_args}
         - name: PER_BLOCK_VOTES
           value: '${per_block_votes}'
         - name: PROTOCOL

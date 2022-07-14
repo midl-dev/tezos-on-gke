@@ -3,6 +3,7 @@
 set -e
 
 BIN_DIR="/usr/local/bin"
+BAKER_EXTRA_ARGS_FROM_ENV=${BAKER_EXTRA_ARGS}
 
 : ${DATA_DIR:="/var/run/tezos"}
 
@@ -28,4 +29,4 @@ extra_args="--liquidity-baking-toggle-vote pass --votefile ${DATA_DIR}/${BAKER_A
 
 exec "$baker" --chain main \
      --base-dir "$client_dir" \
-     run with local node "$node_data_dir" ${extra_args} $BAKER_ALIAS
+     run with local node "$node_data_dir" ${extra_args} ${BAKER_EXTRA_ARGS_FROM_ENV} $BAKER_ALIAS
