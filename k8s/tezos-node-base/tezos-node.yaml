@@ -132,7 +132,7 @@ spec:
         app: tezos-node
     spec:
       securityContext:
-        fsGroup: 100
+        fsGroup: 1000
       containers:
       - name: tezos-node
         image: tezos/tezos
