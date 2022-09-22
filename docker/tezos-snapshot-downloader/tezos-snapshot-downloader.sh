@@ -11,7 +11,8 @@ node_data_dir="$node_dir/data"
 node="$bin_dir/tezos-node"
 
 if [ -d ${node_dir}/data/context ]; then
-    echo "Blockchain has already been imported, exiting"
+    echo "Blockchain has already been imported, updating storage and exiting"
+    exec "${node}" upgrade storage --data-dir ${node_data_dir}
     exit 0
 elif [ -z "$SNAPSHOT_URL" ]; then
     echo "No snapshot was passed as parameter"
@@ -25,6 +26,8 @@ else
     exec "${node}" snapshot import ${snapshot_file} --data-dir ${node_data_dir} --network $TEZOS_NETWORK --config-file ${node_data_dir}/config.json
     find ${node_dir}
     rm -rvf ${snapshot_file}
+    # upgrade storage (maybe a no-op)
+    exec "${node}" upgrade storage --data-dir ${node_data_dir}
     exit 0
 fi
 
@@ -33,4 +36,6 @@ if [ -z "$TARBALL_URL" ]; then
 else
     echo "Downloading and extracting tarball from $TARBALL_URL"
     curl -LfsS "$TARBALL_URL" | lz4 -d | tar -x -C "$data_dir"
+    # upgrade storage (maybe a no-op)
+    exec "${node}" upgrade storage --data-dir ${node_data_dir}
 fi
