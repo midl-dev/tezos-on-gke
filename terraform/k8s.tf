@@ -225,6 +225,7 @@ pay_denunciation_rewards: true,
 delegator_pays_xfer_fee: true,
 delegator_pays_ra_fee: true,
 rules_map: try(var.baking_nodes[nodename][baker_name]["payout_config"]["rules_map"], {}),
+supporters_set: try(var.baking_nodes[nodename][baker_name]["payout_config"]["supporters_set"], {}),
 })}
 EOC
 cat <<EOPN > payout-${baker_name}/nodepool.yaml
