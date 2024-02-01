@@ -1,3 +1,8 @@
+Tezos-on-GKE is DEPRECATED
+=========================
+
+Note that this project has now be superceded by [tezos-k8s](https://github.com/tacoinfra/tezos-k8s/), a collection of helm charts to bake tezos on k8s on any cloud.
+
 Tezos-on-GKE
 ============
 
